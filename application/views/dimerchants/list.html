@@ -1,0 +1,76 @@
+<style>
+	.hide-th{
+		display:none;
+	}
+</style>
+<div class="panel panel-default">
+	<div class="panel-heading">
+		<h3 class="panel-title">异业商户管理</h3>
+	</div>
+	<div class="panel-body">
+        <div class="form-horizontal" id="search">
+            <div class="form-group">
+                <div class="col-sm-2">
+                    <input type="text" class="form-control" name="search_merchant_name"  placeholder="商户名称" >
+                </div>
+                <div class="col-sm-2">
+                    <select class="form-control" name="search_status" id="search_status"  >
+                        <option value="">商户状态</option>
+                        <option value="1">启用</option>
+                        <option value="-1">停用</option>
+                    </select>
+                </div>
+                <button type="button" class="btn btn-default" id="search-btn">搜索</button>
+                <input type="hidden" id="origin_url" value="/dimerchants/table">
+            </div>
+        </div>
+    </div>
+	<div class="panel-body">
+		<div class="table-toolbar">
+			<button type="button" class="btn btn-info btn-sm" id="merchant_add">添加异业商户</button>
+		</div>
+		<div id="config-body">
+			<table id="config-table" data-toggle="table" data-url="/dimerchants/table" data-click-to-select="true" data-select-item-name="radioName" data-pagination="true" data-page-size="100" data-side-pagination="server" data-page-list="[5,10,15,20,50,100]">
+				<thead>
+				<tr>
+					<th data-field="merchant_name" data-align="center">商户名称</th>
+					<th data-field="contact_name" data-align="center">联系人</th>
+					<th data-field="contact_job" data-align="center">职位</th>
+					<th data-field="contact_tel" data-align="center">联系方式</th>
+					<th data-field="admin_name" data-align="center">登陆帐号</th>
+					<th data-field="created_time" data-align="center">创建日期</th>
+					<th data-field="created_admin" data-align="center">创建者</th>
+					<th data-field="status_name" data-align="center">状态</th>
+					<th data-field="card_count" data-align="center">发券量</th>
+					<th data-field="validate_count" data-align="center">核券量</th>
+					<th data-field="action" data-align="center">操作</th>
+				</tr>
+				</thead>
+			</table>
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+    //添加
+    $("#merchant_add").on('click', function () {
+        window.location.href = "/dimerchants/add";
+    });
+        
+    $("#search-btn").on('click', function(){
+        var serverUrl = $('#origin_url').val();
+        var filterData = "";
+        $.each($("[name^='search_']"), function() {
+            field = $(this).attr('name');
+            data = $(this).val();
+            if(data!=""){
+                filterData += field+"="+data+"&";
+            }
+        });
+        if(filterData==""){
+            var url = serverUrl;
+        }else{
+            var url = serverUrl +'?'+filterData;
+        }
+        $('#config-table').bootstrapTable('refresh', {url: url});
+    });
+</script>

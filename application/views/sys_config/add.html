@@ -1,0 +1,91 @@
+<{if $tips eq ''}>
+<{else}>
+<div class="alert alert-danger" role="alert"><{$tips}></div>
+<{/if}>
+<div class="panel panel-default">
+	<div class="panel-heading">新增/编辑</div>
+	<table class="table">
+		<form action="/sys_config/save" id="myform" name="myform" method="post" >
+		  <input name="id" value="<{$config.id}>" type="hidden">
+
+			<tr class="tr">
+				<td width="22%" align="right" > 配置名称：</td>
+				<td width="75%" >
+					<input name="name" id="name" size="40" value="<{$config.name}>">
+				</td>
+			</tr>
+		  <tr class="tr">
+		    <td width="22%" align="right" > 配置类型：</td>
+		    <td width="75%" >
+		    	<select class="form-control" name="type" id="warn_type" style="width:140px;">
+					<{foreach key=key item=item from=$config_types}>
+					<option value="<{$item['key']}>" <{if $item.key eq $config.type}>selected<{/if}>> <{$item['name']}> </option>
+					<{/foreach}>
+				 </select>
+		    </td>
+		  </tr>
+		  <tr class="tr">
+		    <td width="22%" align="right" > 配置内容json格式:</td>
+		    <td width="75%" >
+				<textarea cols="100" name="config_text" id="config_text" rows="20" autofocus="true"><{$config.config_text}></textarea>
+			</td>
+		  </tr>
+			<tr class="tr">
+				<td width="22%" align="right" > 配置内容json参考:</td>
+				<td width="75%" >
+					<pre>
+{
+  "appid":"123",
+  "secret":"abc"
+}
+					</pre>
+				</td>
+			</tr>
+		  <tr class="tr">
+		    <td align="right" >&nbsp;</td>
+		    <td ><input type="button" onclick="submitForm()" name="Submit" class="lostfocus" onFocus='this.className="getfocus";' onMouseOver='this.className="getfocus";' onBlur='this.className="lostfocus";' onMouseOut='this.className="lostfocus";'
+			value="保存">
+			<input type="button" value="返回" onclick="history.back();" />
+		  </tr>
+		</form>
+	</table>
+</div>
+<script type="text/javascript">
+    function isJSON(str) {
+        if (typeof str == 'string') {
+            try {
+                JSON.parse(str);
+                return true;
+            } catch(e) {
+                console.log(e);
+                return false;
+            }
+        }
+        console.log('It is not a string!')
+    }
+
+function submitForm(){
+	if ($('#config_text').val() == ''){
+		alert('填写配置内容！');
+		return;
+	}
+    if ($('#name').val() == ''){
+        alert('填写配置名称！');
+        return;
+    }
+	var config_text = $('#config_text').val();
+    if(!isJSON(config_text)){
+        alert('json 内容有错！');
+        return;
+	}
+
+	$('#myform').submit();
+}
+
+
+
+    $(function(){
+
+    });
+</script>
+

@@ -1,0 +1,31 @@
+<style>
+	.hide-th{
+		display:none;
+	}
+</style>
+<div class="panel panel-default">
+	<div class="panel-heading">
+		<h3 class="panel-title">分账单查看</h3>
+	</div>
+
+	<div class="panel-body">
+		<div id="config-body">
+			<table id="config-table" data-toggle="table" data-url="/commercial/separate_table" data-click-to-select="true" data-select-item-name="radioName" data-pagination="true" data-page-size="100" data-side-pagination="server" data-page-list="[5,10,15,20,50,100]">
+				<thead>
+				<tr>
+					<th data-field="id" data-align="center">id</th>
+					<th data-field="commercial_name" data-align="center">商户名</th>
+					<th data-field="order_name" data-align="center">订单号</th>
+					<th data-field="money" data-align="center">分账金额</th>
+					<th data-field="in_all" data-align="center">总收入</th>
+					<th data-field="refund_all" data-align="center">总退款</th>
+					<th data-field="status_name" data-align="center">状态</th>
+					<th data-field="created_time" data-align="center">分账时间</th>
+				</tr>
+				</thead>
+			</table>
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+</script>

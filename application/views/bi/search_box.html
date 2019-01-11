@@ -1,0 +1,34 @@
+<div class="form-group">
+    <div class="col-sm-2">
+        <select class="form-control" name="search_replenish_location" id="search_replenish_location">
+            <option value="-1">设备补货仓</option>
+            <{foreach key=key item=item from=$store_list}>
+            <option value="<{$item.code}>" <{if $search_replenish_location eq $item.code}>selected="selected"<{/if}>><{$item.name}></option>
+            <{/foreach}>
+        </select>
+    </div>
+    <div class="col-sm-2">
+        <select class="form-control" name="search_equipment_id" id="search_equipment_id">
+            <option value="-1">设备名称</option>
+            <{foreach key=key item=item from=$box_list}>
+            <option value="<{$item['equipment_id']}>" <{if $search_equipment_id eq $item['equipment_id']}>selected="selected"<{/if}> ><{$item['name']}></option>
+            <{/foreach}>
+        </select>
+    </div>
+</div>
+<script type="application/javascript">
+    //根据补货仓获取设备
+    $(function(){
+        $('#search_replenish_location').change(function(){
+            var code_arr = $(this).val();
+            $.post("/bi/get_box",{code_arr:code_arr},function(data){
+                var html = '<option value="-1">设备名称</option>';
+                $.each(data.param, function(i,val){
+                    html += '<option value="'+val['equipment_id']+'">'+val['name']+'</option>';
+                });
+                $('#search_equipment_id').html(html);
+            }, 'json');
+
+        });
+    });
+</script>

@@ -1,0 +1,630 @@
+<!-- 引入样式 -->
+<link rel="stylesheet" href="https://cityboxadmin.fruitday.com/assets/node_modules/element-ui/lib/theme-default/index.css">
+<!-- 引入组件库 -->
+<script src="https://cityboxadmin.fruitday.com/assets/node_modules/vue/dist/vue.js"></script>
+
+<script src="https://cityboxadmin.fruitday.com/assets/node_modules/element-ui/lib/index.js"></script>
+<style>
+    .col-md-div{
+        width: 12.5%;
+        padding: 0 5px;
+    }
+
+    .panel-body>.glyphicon{
+        font-size: 12px;
+        -webkit-transform-origin-x: 0;
+        -webkit-transform: scale(0.90);
+        line-height: 16px;
+        overflow: hidden;
+    }
+    .glyphicon-arrow-up-a,.glyphicon-arrow-down-a{
+        max-width: 100%;
+        line-height: 16px;
+        overflow: hidden;
+        white-space: nowrap;
+    }
+
+    .vertical-alignment-helper {
+        display:table;
+        height: 100%;
+        width: 100%;
+
+    }
+    .vertical-align-center {
+        text-align: center;
+        /* To center vertically */
+        display: table-cell;
+        vertical-align: middle;
+    }
+    .panel-body{
+        padding:12px 10px;
+    }
+    .row .col-md-div .panel-body{
+        padding:5px 0 5px 5px;
+    }
+    table{
+        font-size: 12px;
+    }
+</style>
+
+<div class="panel panel-default">
+    <div class="panel-heading" style="height: 54px;">
+        <span class="panel-title " style="color: #777;float: left;margin-top:5px " > 整体看板 </span>
+        <div class="col-sm-1" style="padding-right:0;">
+            <select class="form-control" name="s_day_type" id="check_date">
+                <option value="0"
+                <{if $s_type eq 0}>selected="selected"<{/if}>>日</option>
+                <option value="1"
+                <{if $s_type eq 1}>selected="selected"<{/if}>>周</option>
+                <option value="2"
+                <{if $s_type eq 2}>selected="selected"<{/if}>>月</option>
+            </select>
+        </div>
+        <div class="col-sm-3">
+            <div id="app">
+                <div class="block day_type_0 <{if $s_type neq 0}>hide<{/if}>">
+                    <el-date-picker v-model="value1" type="date" placeholder="选择日期" :picker-options="pickerOptions0" @change="pickDate"></el-date-picker>
+                </div>
+                <div class="block day_type_1 <{if $s_type neq 1}>hide<{/if}>">
+                    <el-date-picker v-model="value3" type="week" format="yyyy第WW周" placeholder="选择周" :picker-options="pickerOptions1" @change="pickWeek"></el-date-picker>
+                </div>
+                <div class="block day_type_2 <{if $s_type neq 2}>hide<{/if}>">
+                    <el-date-picker v-model="value4" type="month" placeholder="选择月" :picker-options="pickerOptions2" @change="pickMonth"></el-date-picker>
+                </div>
+                <!--<div class="block">-->
+                <!--<el-date-picker v-model="value5" align="right" type="year" placeholder="选择年"></el-date-picker>-->
+                <!--</div>-->
+            </div>
+        </div>
+        <select class="form-control" id="search_platform_id" name="search_platform_id" style="width: 200px;float: right;height: 30px;">
+            <option value="-1">选择商户</option>
+            <{foreach key=key item=item from=$platform_list}>
+            <option value="<{$item['id']}>" <{if $platform_id eq $item['id']}>selected="selected"<{/if}>><{$item['name']}></option>
+            <{/foreach}>
+        </select>
+        <span class="panel-title " style="color: #777;float: right;margin-top:5px " > 排除当日数据的汇总 </span>
+        <!--</div>-->
+    </div>
+
+    <div class="panel-body" >
+        <div class="row">
+            <div class="col-xs-6 col-md-div">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h3 class="panel-title glyphicon glyphicon-align-justify">支付金额</h3>
+                    </div>
+                    <div class="panel-body">
+                        <span class="order_money"></span><br/>
+                        <span class="glyphicon last_order_money">较前一日：</span><br/>
+                        <span class="glyphicon tong_order_money">较上周同期：</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-6 col-md-div">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h3 class="panel-title glyphicon glyphicon-align-justify">支付订单数</h3>
+                    </div>
+                    <div class="panel-body">
+                        <span class="order_num"></span><br/>
+                        <span class="glyphicon last_order_num">较前一日：</span><br/>
+                        <span class="glyphicon tong_order_num">较上周同期：</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-6 col-md-div">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h3 class="panel-title glyphicon glyphicon-align-justify">客单价</h3>
+                    </div>
+                    <div class="panel-body">
+                        <span class="order_user_avg"></span><span style="font-size: 10px;">[折前:</span> <span class="after_order_user_avg" style="font-size: 10px;"></span><span style="font-size: 10px;">]</span><br/>
+                        <span class="glyphicon last_order_user_avg">较前一日:</span><br/>
+                        <span class="glyphicon tong_order_user_avg">较上周同期:</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-6 col-md-div">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h3 class="panel-title glyphicon glyphicon-align-justify">支付转化率</h3>
+                    </div>
+                    <div class="panel-body">
+                        <span class="pay_avg"></span><br/>
+                        <span class="glyphicon last_pay_avg">较前一日：</span><br/>
+                        <span class="glyphicon tong_pay_avg">较上周同期：</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-6 col-md-div">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h3 class="panel-title glyphicon glyphicon-align-justify">开门次数</h3>
+                    </div>
+                    <div class="panel-body">
+                        <span class="open_num"></span><a href="javascript:void(0);" id = 'show_refer' style="font-size: 12px;">查看来源分布</a><br/>
+                        <span class="glyphicon last_open_num">较前一日：</span><br/>
+                        <span class="glyphicon tong_open_num">较上周同期：</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-6 col-md-div">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h3 class="panel-title glyphicon glyphicon-align-justify">实退金额</h3>
+                    </div>
+                    <div class="panel-body">
+                        <span class="refund_money"></span><br/>
+                        <span class="glyphicon last_refund_money">较前一日：</span><br/>
+                        <span class="glyphicon tong_refund_money">较上周同期：</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-6 col-md-div">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h3 class="panel-title glyphicon glyphicon-align-justify">退款率</h3>
+                    </div>
+                    <div class="panel-body">
+                        <span class="refund_avg"></span><br/>
+                        <span class="glyphicon last_refund_avg">较前一日：</span><br/>
+                        <span class="glyphicon tong_refund_avg">较上周同期：</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-6 col-md-div">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h3 class="panel-title glyphicon glyphicon-align-justify">未付金额</h3>
+                    </div>
+                    <div class="panel-body">
+                        <span class="order_unpaid"></span><br/>
+                        <span class="glyphicon last_order_unpaid">较前一日：</span><br/>
+                        <span class="glyphicon tong_order_unpaid">较上周同期：</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-6 col-md-div">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h3 class="panel-title glyphicon glyphicon-align-justify">商品金额</h3>
+                    </div>
+                    <div class="panel-body">
+                        <span class="good_money"></span><br/>
+                        <span class="glyphicon last_good_money">较前一日：</span><br/>
+                        <span class="glyphicon tong_good_money">较上周同期：</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-6 col-md-div">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h3 class="panel-title glyphicon glyphicon-align-justify">活动补贴</h3>
+                    </div>
+                    <div class="panel-body">
+                        <span class="discounted_money"></span><br/>
+                        <span class="glyphicon last_discounted_money">较前一日：</span><br/>
+                        <span class="glyphicon tong_discounted_money">较上周同期：</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-6 col-md-div">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h3 class="panel-title glyphicon glyphicon-align-justify">优惠券补贴</h3>
+                    </div>
+                    <div class="panel-body">
+                        <span class="card_money"></span><br/>
+                        <span class="glyphicon last_card_money">较前一日：</span><br/>
+                        <span class="glyphicon tong_card_money">较上周同期：</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-6 col-md-div">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h3 class="panel-title glyphicon glyphicon-align-justify">魔豆补贴</h3>
+                    </div>
+                    <div class="panel-body">
+                        <span class="modou"></span><br/>
+                        <span class="glyphicon last_modou">较前一日：</span><br/>
+                        <span class="glyphicon tong_modou">较上周同期：</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="panel-body">
+        <div id="main" style="width: 100%;height:220px;"></div>
+    </div>
+
+    <div class="panel-body">
+        <div id="main2" style="width: 100%;height:220px;"></div>
+    </div>
+    <div class="panel-body">
+        <div id="main3" style="width: 100%;height:220px;"></div>
+    </div>
+    <div class="panel-body">
+        <div id="main4" style="width: 100%;height:220px;"></div>
+    </div>
+    <div class="panel-body">
+        <div id="main5" style="width: 100%;height:220px;"></div>
+    </div>
+    <div class="panel-body">
+        <div id="main6" style="width: 100%;height:220px;"></div>
+    </div>
+    <div class="panel-body">
+        <div id="main7" style="width: 100%;height:220px;"></div>
+    </div>
+    <br><br>
+
+    <div class="panel-body">
+        <div class="form-horizontal" id="search_eq">
+            <div class="form-group">
+                <!--<label></label>-->
+                <!--<label class="control-label col-sm-2 glyphicon glyphicon-th-list" style="text-align: left;padding-right: 0px;width: 10%" >排行榜：</label>-->
+
+                <div class="col-sm-2" style="padding-right: 8px;">
+                    <div class="input-group date  col-md-12" data-link-field="dtp_input" id="time" >
+                        <input class="form-control" type="text" name="eq_start_date"  placeholder="开始时间"  readonly>
+                        <span class="input-group-addon"><span class="glyphicon glyphicon-remove"></span></span>
+                        <span class="input-group-addon"><span class="glyphicon glyphicon-th"></span></span>
+                    </div>
+                </div>
+                <div class="col-sm-2" style="padding-right: 8px;">
+                    <div class="input-group date  col-md-12" data-link-field="dtp_input" id="time1" >
+                        <input class="form-control" type="text" name="eq_end_date"  placeholder="结束时间"  readonly>
+                        <span class="input-group-addon"><span class="glyphicon glyphicon-remove"></span></span>
+                        <span class="input-group-addon"><span class="glyphicon glyphicon-th"></span></span>
+                    </div>
+                </div>
+                <div class="col-sm-1">
+                    <button type="button" class="btn btn-default" id="eq-search-btn">查找</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="panel-heading">
+        <span class="panel-title btn" style="color: #777;" > 设备销量排行 </span>
+        <span class="panel-title btn" > <input class="form-control" type="text" placeholder="设备名称" name="eq_name_like" value=""> </span>
+        <span class="panel-title pull-right btn " style="background-color:#ddd" id="explore_eq" >导出全部</span>
+    </div>
+
+    <div class="panel-body">
+        <div id="config-body">
+            <table id="config-table-eq" data-sort-order="desc" data-toggle="table" data-sort-stable="true"  data-url="/report/overall/eq_table?platform_id=<{$platform_id}>" data-pagination="true" data-side-pagination="server"  data-page-size="30" >
+                <thead>
+                <tr>
+                    <th data-field="key" data-align="left">排名</th>
+                    <th data-field="equipment_id" data-align="left">&nbsp;&nbsp;设备id&nbsp;&nbsp;</th>
+                    <th data-field="eq_name" data-align="left">&nbsp;&nbsp;设备名称&nbsp;&nbsp;</th>
+                    <th data-field="enterprise_scene" data-align="left">点位场景</th>
+                    <th data-field="level" data-align="left">设备等级</th>
+                    <th data-field="sale_money" data-align="left" data-sortable="true" data-order="desc" >支付金额</th>
+                    <th data-field="order_num" data-align="left" data-sortable="true">支付订单数</th>
+                    <th data-field="after_user_avg" data-align="left" data-sortable="true">折前客单价</th>
+                    <th data-field="user_avg" data-align="left" data-sortable="true">客单价</th>
+                    <th data-field="order_avg" data-align="left" data-sortable="true">支付转化率</th>
+                    <th data-field="open_num" data-align="left" data-sortable="true">开门次数</th>
+                    <th data-field="refund_money" data-align="left" data-sortable="true">退款金额</th>
+                    <th data-field="refund_avg" data-align="left" data-sortable="true">退款率</th>
+                    <th data-field="card_money" data-align="left" data-sortable="true">优惠券补贴</th>
+                    <th data-field="modou" data-align="left" data-sortable="true">魔豆补贴</th>
+                    <th data-field="discounted_money" data-align="left" data-sortable="true">活动补贴</th>
+                    <th data-field="status" data-align="left" data-sortable="true">设备状态</th>
+                    <th data-field="avg_good_money" data-align="left" data-sortable="true">日均销售额</th>
+                </tr>
+                </thead>
+            </table>
+        </div>
+    </div>
+
+    <div class="panel-heading">
+        <span class="panel-title btn" style="color: #777;" > 商品销量排行 </span>
+        <span class="panel-title pull-right btn " style="background-color:#ddd" id="explore_p"  >导出全部</span>
+    </div>
+    <div class="panel-body">
+        <div id="config-bodys">
+            <table id="config-table-p" data-sort-order="desc" data-toggle="table" data-sort-stable="true"  data-url="/report/overall/product_table?platform_id=<{$platform_id}>" data-pagination="true" data-side-pagination="server"  data-page-size="30" >
+                <thead>
+                <tr>
+                    <th data-field="key" data-align="left">排名</th>
+                    <th data-field="product_name" data-align="left">商品名称</th>
+                    <th data-field="sale_qty" data-align="left" data-sortable="true" data-order="desc" >销售商品件数</th>
+                    <th data-field="sale_money" data-align="left" data-sortable="true">销售总金额</th>
+                    <th data-field="order_num" data-align="left" data-sortable="true">支付订单数</th>
+                    <th data-field="price" data-align="left" data-sortable="true">售价</th>
+                    <th data-field="purchase_price" data-align="left" data-sortable="true">进价</th>
+                    <th data-field="class_parent" data-align="left" data-sortable="true">一级类目</th>
+                    <th data-field="class_name" data-align="left" data-sortable="true">二级类目</th>
+                </tr>
+                </thead>
+            </table>
+
+        </div>
+    </div>
+</div>
+
+
+
+<div class="modal " id="loadingModal" role="dialog" data-backdrop="static" data-keyboard="false">
+    <div class="vertical-alignment-helper">
+        <div class="modal-dialog vertical-align-center">
+            <img src="https://cityboxadmin.fruitday.com/assets/images/loading.gif" width="20%" height="auto"  >
+        </div>
+    </div>
+
+</div>
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" >
+    <div class="modal-dialog" style="width: 90%">
+        <div class="modal-content">
+
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal -->
+</div>
+
+
+<div class="modal " id="loadingModal" role="dialog" data-backdrop="static" data-keyboard="false" >
+    <div class="vertical-alignment-helper">
+        <div class="modal-dialog vertical-align-center">
+            <img src="/assets/images/loading.gif" width="20%" height="auto"  >
+        </div>
+    </div>
+
+</div>
+<input type="hidden" value="" class="refer_time">
+
+<script src="https://cityboxadmin.fruitday.com/assets/js/echarts.js"></script>
+<script>
+    var platform_id = '<{$platform_id}>';
+    function show_loading(){
+        $('#loadingModal').show().css('padding-right', '0px').append('<div class="modal-backdrop  in" style="height: 100%;"></div>');
+    }
+
+    function hide_loading(){
+        $('#loadingModal').hide();//
+        $('.modal-backdrop').remove();
+    }
+
+
+    var Main = {
+        data() {
+            return {
+                value1: '<{$pd}>',
+                value3: '',
+                value4: '',
+                value5: '',
+                pickerOptions0: {
+                    disabledDate(time) {
+                        return time.getTime() > Date.now() - 8.64e7;
+                    }
+                },
+                pickerOptions1: {
+                    disabledDate(time) {
+                        return time.getTime() > Date.now() - 8.64e7;
+                    },
+                    firstDayOfWeek:1,
+                },
+                pickerOptions2: {
+                    disabledDate(time) {
+                        return time.getTime() > Date.now() - 8.64e7;
+                    }
+                }
+
+            } ;
+        },
+        methods: {
+            pickDate (val) {
+                $(".refer_time").val(val);
+                init_page(0, val);
+            },
+            pickWeek (val) {
+                $(".refer_time").val(val);
+                init_page(1, val);
+            },
+            pickMonth (val) {
+                $(".refer_time").val(val);
+                init_page(2, val);
+            }
+        }
+    };
+    var Ctor = Vue.extend(Main);
+    new Ctor().$mount('#app');
+</script>
+
+<script>
+    init_page(0, '<{$pd}>');
+    function  init_page(s_type, pd){
+        if( typeof pd=='undefined'){
+            return false;
+        }
+        show_loading();
+        $.ajax({
+            url: '/report/overall/ajax_data',
+            data: {s_type: s_type, pd: pd, platform_id:platform_id},
+            type: 'POST',
+            dataType: 'json',
+            success: function (data) {
+                if(data['status'] == 'success'){
+                    hide_loading();
+                    $.each(data['cu_data'],function(i, v){
+                        console.log(i+':'+v);
+                        if(i=='pay_avg' || i=='refund_avg' ){
+                            $('.'+i).html(v+'%');
+                        }else{
+                            $('.'+i).html(v);
+                        }
+                    });
+                    $.each(data['last_data'],function(i, v){
+                        if(v>0){
+                            $('.last_'+i).removeClass('glyphicon-arrow-down-a');
+                            $('.last_'+i).addClass('glyphicon-arrow-up-a');
+                        }else if(v<0){
+                            $('.last_'+i).removeClass('glyphicon-arrow-up-a');
+                            $('.last_'+i).addClass('glyphicon-arrow-down-a');
+                        }else{
+                            $('.last_'+i).removeClass('glyphicon-arrow-up-a');
+                            $('.last_'+i).removeClass('glyphicon-arrow-down-a');
+                        }
+                        $('.last_'+i).html(data['last_msg']+Math.abs(v)+'%');
+                    });
+                    $.each(data['tong_data'],function(i, v){
+                        if(v>0){
+                            $('.tong_'+i).removeClass('glyphicon-arrow-down-a');
+                            $('.tong_'+i).addClass('glyphicon-arrow-up-a');
+                        }else if(v<0){
+                            $('.tong_'+i).removeClass('glyphicon-arrow-up-a');
+                            $('.tong_'+i).addClass('glyphicon-arrow-down-a');
+                        }else{
+                            $('.tong_'+i).removeClass('glyphicon-arrow-up-a');
+                            $('.tong_'+i).removeClass('glyphicon-arrow-down-a');
+                        }
+                        $('.tong_'+i).html(data['tong_msg']+Math.abs(v)+'%');
+                    });
+                    chart_line('支付金额(¥)', '支付金额', 'main', data['x_value'], data['y_order_money']);
+                    chart_line('支付订单数', '支付订单数', 'main2', data['x_value'], data['y_order_num']);
+                    chart_line('客单价(¥)', '客单价', 'main3', data['x_value'], data['y_order_user_avg']);
+                    chart_line('支付转化率(%)', '支付转化率', 'main4', data['x_value'], data['y_pay_avg'], 1);
+                    chart_line('开门次数', '开门次数', 'main5', data['x_value'], data['y_open_num']);
+                    chart_line('实退金额(¥)', '实退金额', 'main6', data['x_value'], data['y_refund_money']);
+                    chart_line('退款率(%)', '退款率', 'main7', data['x_value'], data['y_refund_avg'], 1);
+
+                }
+            }
+        });
+    }
+
+    $(document).ready(function(){
+        $('select[name="s_day_type"]').change(function(){
+            var _value = $(this).val();
+            $('.block').addClass('hide').find('input').val('');
+            $('.day_type_'+_value).removeClass('hide');
+        });
+        $('#time').datetimepicker({
+            language: 'zh', //汉化
+            autoclose: 1,
+            format: 'yyyy-mm-dd',
+            minView: 'month',
+            endDate:'<{$pd}>'
+        });
+        $('#time1').datetimepicker({
+            language: 'zh', //汉化
+            autoclose: 1,
+            format: 'yyyy-mm-dd',
+            minView: 'month',
+            endDate:'<{$pd}>'
+        });
+        $('#time2').datetimepicker({
+            language: 'zh', //汉化
+            autoclose: 1,
+            format: 'yyyy-mm-dd',
+            minView: 'month'
+        });
+        $('#time3').datetimepicker({
+            language: 'zh', //汉化
+            autoclose: 1,
+            format: 'yyyy-mm-dd',
+            minView: 'month'
+        });
+
+        $('#config-table-eq').bootstrapTable({
+        }).on('load-success.bs.table', function (e,data) {
+
+            $('input[name="eq_start_date"]').val(data['start_date']);
+            $('input[name="eq_end_date"]').val(data['end_date']);
+            $(".refer_time").val(data['start_date']);
+        });
+
+        $('#eq-search-btn').click(function(){
+            var url = '/report/overall/eq_table?platform_id='+platform_id+'&eq_name_like='+$('input[name="eq_name_like"]').val()+'&start_date='+$('input[name="eq_start_date"]').val()+'&end_date='+$('input[name="eq_end_date"]').val();
+            $('#config-table-eq').bootstrapTable('refresh', {url: url});
+
+            var url = '/report/overall/product_table?platform_id='+platform_id+'&start_date='+$('input[name="eq_start_date"]').val()+'&end_date='+$('input[name="eq_end_date"]').val();
+            $('#config-table-p').bootstrapTable('refresh', {url: url});
+        });
+        //设备名称模糊搜索
+        $('input[name="eq_name_like"]').change(function(){
+            var url = '/report/overall/eq_table?eq_name_like='+$(this).val()+'&start_date='+$('input[name="eq_start_date"]').val()+'&end_date='+$('input[name="eq_end_date"]').val();
+            $('#config-table-eq').bootstrapTable('refresh', {url: url});
+        });
+        //导出盒子
+        $('#explore_eq').click(function(){
+            var url = '/report/overall/eq_table?platform_id='+platform_id+'&is_explore=1&start_date='+$('input[name="eq_start_date"]').val()+'&end_date='+$('input[name="eq_end_date"]').val();
+            location.href=url;
+        });
+        $('#explore_p').click(function(){
+            var url = '/report/overall/product_table?platform_id='+platform_id+'&is_explore=1&start_date='+$('input[name="eq_start_date"]').val()+'&end_date='+$('input[name="eq_end_date"]').val();
+            location.href=url;
+        })
+
+        $('#search_platform_id').change(function(){
+            location.href='/report/overall?platform_id='+$(this).val();
+        })
+    });
+
+    function chart_line(subtext, legend, id, x_value, y_value, is_pe){
+        var myChart = echarts.init(document.getElementById(id));
+        // 指定图表的配置项和数据
+        var tooltip_formatter = is_pe==1?'{b}:\n{c}%':'{b}:\n{c}';
+        var yAxis_formatter = is_pe==1?'{value} %':null;
+
+
+        var option = {
+            title: {
+                subtext:subtext,//'实付金额(¥)'
+                subtextStyle:{
+                    fontSize:8,
+                    color:'#aaa',
+                    fontWeight:'normal'
+                }
+            },
+            tooltip: {
+                trigger: 'axis',
+                formatter: tooltip_formatter
+
+            },
+            legend: {
+                data:[legend]
+            },
+            grid: {
+                left: '3%',
+                right: '4%',
+                bottom: '3%',
+                containLabel: true
+            },
+            xAxis: {
+                type: 'category',
+                data: x_value,
+            },
+            yAxis: {
+                type: 'value',
+                axisLabel: {
+                    formatter: yAxis_formatter
+                },
+            },
+            series: y_value
+        };
+
+        // 使用刚指定的配置项和数据显示图表。
+        myChart.setOption(option);
+    }
+
+    $('#show_refer').click(function(){
+        var pd =$(".refer_time").val();
+        var type=$("#check_date option:selected").val();
+        $.ajax({
+            url: '/report/overall/show_refer',
+            data: {type:type,pd:pd},
+            type: 'POST',
+            dataType: 'json',
+            success: function (data) {
+                $(".modal-content").html(data.html);
+                $('#myModal').modal('show')
+            }
+        });
+    });
+
+
+</script>

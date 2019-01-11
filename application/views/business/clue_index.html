@@ -1,0 +1,464 @@
+
+<style type="text/css">
+    .ui-autocomplete{
+        border: 1px solid #aaa;
+        -webkit-border-radius: 5px;
+        -moz-border-radius: 5px;
+        border-radius: 5px;
+        background-color: #FFFFFF;
+    }
+</style>
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <h3 class="panel-title">点位线索</h3>
+    </div>
+    <div class="panel-body">
+        <div class="form-horizontal" id="search">
+            <div class="form-group">
+                <div class="col-sm-2">
+                    <input type="text" class="form-control" name="search_name" placeholder="点位名称">
+                </div>
+                <div class="col-sm-2">
+                    <select  id="select_province" class="form-control" name="search_province" >
+                        <option value="-1">省份</option>
+                    </select>
+                </div>
+                <div class="col-sm-2">
+                    <select  id="select_city" class="form-control" name="search_city" >
+                        <option value="-1">市区</option>
+                    </select>
+                </div>
+                <div class="col-sm-2">
+                    <select  id="select_area" class="form-control" name="search_area" >
+                        <option value="-1">地区</option>
+                    </select>
+                </div>
+                <div class="col-sm-2">
+                    <input type="text" class="form-control" size='11' name="search_address" placeholder="点位地址" >
+                </div>
+
+
+
+            </div>
+            <div class="form-group">
+
+                <div class="col-sm-2">
+                    <input type="text" class="form-control" name="search_contacts" placeholder="点位联系人">
+                </div>
+                <div class="col-sm-2">
+                    <input type="text" class="form-control" name="search_phone"  placeholder="联系人电话">
+                </div>
+                <div class="col-sm-3">
+                    <div class="input-group date  col-md-12" data-link-field="dtp_input1" id="time" >
+                        <input class="form-control" type="text" name="search_start_time" value="" placeholder="开始时间"  readonly>
+                        <span class="input-group-addon"><span class="glyphicon glyphicon-remove"></span></span>
+                        <span class="input-group-addon"><span class="glyphicon glyphicon-th"></span></span>
+                    </div>
+                </div>
+                <div class="col-sm-3">
+                    <div class="input-group date  col-md-12" data-link-field="dtp_input2" id="time2" >
+                        <input class="form-control" type="text" name="search_end_time" value="" placeholder="截止时间"  readonly>
+                        <span class="input-group-addon"><span class="glyphicon glyphicon-remove"></span></span>
+                        <span class="input-group-addon"><span class="glyphicon glyphicon-th"></span></span>
+                    </div>
+                </div>
+
+            </div>
+            <div class="form-group">
+                <div class="col-sm-2">
+                    <input type="hidden" value="" name="search_db_duty" id="search_db_duty">
+                    <select class="form-control shift-info"  >
+                        <option value="">BD负责人</option>
+
+                        <{foreach from=$admin_list item=val }>
+                        <option value="<{$val['id']}>"><{$val['alias']}></option>
+                        <{/foreach}>
+
+
+                    </select>
+                </div>
+                <div class="col-sm-2">
+
+                    <select class="form-control" name="search_db_status" >
+                        <option value="">BD进度</option>
+
+                        <{foreach from=$db_status  key=key item=val }>
+                        <option value="<{$key}>"><{$val['1']}></option>
+                        <{/foreach}>
+
+
+                    </select>
+
+                </div>
+                <div class="col-sm-2">
+                    <input type="text" class="form-control" name="search_source" placeholder="推荐源">
+                </div>
+                <div class="col-sm-2">
+
+
+
+                    <input type="hidden" id="origin_url" value="/business/table">
+                    <button type="button" class="btn btn-success" id="search-btn">查找</button>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    <!--<button type="button" class="btn btn-warning" onclick="yesterday_order(1)">前一天</button>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-->
+
+                    <button type="button" class="btn btn-info" id="explore-btn"  >添加线索</button>
+                  
+                </div>
+                <div class="col-sm-2">
+                    <button type="button" class="btn btn-info" id="export-btn"  >导出</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="panel-body">
+        <div id="config-body">
+            <table id="config-table" data-toggle="table" data-url="/business/table" data-click-to-select="true" data-select-item-name="radioName" data-pagination="true" data-page-size="20" data-side-pagination="server" data-page-list="[50,100]" >
+                <thead>
+                <tr>
+                    <th data-field="state" data-checkbox="true"></th>
+                    <th data-field="clue_id" data-align="center">ID</th>
+                    <th data-field="equipment_number" data-align="center">装机数量</th>
+
+                    <th data-field="name" data-align="center">点位名称</th>
+                    <th data-field="grade" data-align="center">等级</th>
+                    <th data-field="company" data-align="center">乙方公司名(合约)</th>
+                    <th data-field="contacts" data-align="center">联系人</th>
+                    <th data-field="phone" data-align="center">联系人电话</th>
+
+                    <th data-field="create_time" data-align="center">添加时间</th>
+                    <th data-field="install_time" data-align="center">期望安装时间</th>
+                    <th data-field="schedule_time" data-align="center">工单排期时间</th>
+                    <th data-field="clue_source" data-align="center">线索来源</th>
+
+                    <th data-field="source" data-align="center" >推荐源</th>
+                    <th data-field="admin_name" data-align="center" >BD负责人</th>
+                    <th data-field="db_status" data-align="center">BD进度</th>
+                    <th data-field="gl" data-align="center">线索备注</th>
+                </tr>
+                </thead>
+
+            </table>
+        </div>
+    </div>
+</div>
+
+
+<nav class="navbar navbar-default navbar-fixed-bottom">
+    <div class="form-inline ">
+        <div class="col-md-12 form-control-static tool-bottom text-center">
+
+            <{if $admin_id == 1 or $admin_flag == 94}>
+            <select class="form-control select-update btn-init" style="display:inline-block; width: 138px">
+                <option value="0">选择BD负责人</option>
+                <{foreach from=$admin_list item=val }>
+                <option value="<{$val['id']}>"><{$val['alias']}></option>
+                <{/foreach}>
+            </select>
+            <span class="btn btn-info btn-duty">确认更改</span>
+            <{/if}>
+            &nbsp;&nbsp;&nbsp;&nbsp;
+            <span class="btn btn-info btn-online">更改BD进度</span>
+            <span class="btn btn-info btn-maintain">维护点位信息</span>
+            <span class="btn btn-info btn-discard">丢弃到公海</span>
+            <span class="btn btn-info btn-submit">提交装机</span>
+            <input type="hidden" id="clue_id" value="0">
+        </div>
+    </div>
+</nav>
+
+<script type="text/javascript">
+    $('.shift-info').editableSelect({
+        effects: 'slide',
+        onSelect: function (element) {
+            $('#search_db_duty').val(element.val())
+        }
+    }).prop('placeholder','请输入或选择BD负责人');
+    //管理跳转
+    $(document).on('click',".btn-gl", function(){
+
+         var clue_id = $(this).attr("clue_id");
+
+        window.open("/business/clueLog?clue_id="+clue_id);
+    });
+    $(function(){
+        function ckRadio(){
+            var clue_id_obj = $("input[type=checkbox]:checked");
+            var clue_id =[];
+            if(clue_id_obj.length==0){
+                MessageBox.error('请选择一条线索');
+                return;
+            }else{
+                var clue_id = [];
+                clue_id_obj.each(function(){
+                    if($(this).parent().next().html() != ""){
+                        clue_id.push($(this).parent().next().html());
+                    }
+
+                })
+            }
+            $("#clue_id").val(clue_id);
+        }
+        $('.btn-online').on('click', function (e) {
+            var html = '<div class="online-select" style="position: absolute; border: 1px solid #FFF; padding: 10px;border-radius: 4px;">' +
+                '<label class="radio-inline"><input type="radio" name="optionsRadiosinline"   value="1">联系中 </label>' +
+                '<label class="radio-inline"><input type="radio" name="optionsRadiosinline"   value="2"> 意向确立</label>' +
+                '<label class="radio-inline"><input type="radio" name="optionsRadiosinline"   value="3"> 协议流程</label>' +
+                '<label class="radio-inline"><input type="radio" name="optionsRadiosinline"   value="4"> 等待装机</label>' +
+                '<label class="radio-inline"><input type="radio" name="optionsRadiosinline"   value="9"> 打款成功</label>' +
+                '<label class="radio-inline"><input type="radio" name="optionsRadiosinline"   value="6"> 失败</label>' +
+                '<label class="radio-inline"><input type="radio" name="optionsRadiosinline"   value="7"> 暂停</label>' +
+                '<label class="radio-inline"><button style="margin-left: 10px" class="btn btn-xs btn-default btn-online-save">更改</button></label>' +
+                '</div>';
+            var t = $(this), p = t.parent();
+            var popup = p.find('.online-select');
+            if (popup.length <= 0) {
+                p.append(html);
+                popup = p.find('.online-select');
+            } else {
+                if (popup.data('online') == t.data('value')) {
+                    popup.css({display: popup.css('display') == 'none' ? 'block' : 'none'})
+                } else {
+                    popup.css({display: 'block'})
+                }
+            }
+            popup.data('online', t.data('value'));
+            popup.find(':checkbox').val(t.data('value'));
+            var pos = t.position();
+            popup.css({left: pos.left - (popup.width() - t.width()) / 2, bottom: pos.top + 20 + t.height(), color: t.css('color'), 'background-color': t.css('background-color')
+            });
+        })
+        $('#time').datetimepicker({
+            language: 'zh', //汉化
+            autoclose: 1,
+            format: 'yyyy-mm-dd hh:00:00',
+            minView: 'day'
+        });
+        $('#time2').datetimepicker({
+            language: 'zh', //汉化
+            autoclose: 1,
+            format: 'yyyy-mm-dd hh:00:00',
+            minView: 'day'
+        });
+//搜索
+        $("#search-btn").on('click', function(){
+            var serverUrl  = $('#origin_url').val();
+            var url = search(serverUrl);
+
+            $('#config-table').bootstrapTable('refresh', {url: url});
+        });
+        function search(serverUrl) {
+            var filterData = "";
+            $.each($("[name^='search_']"), function() {
+                field = $(this).attr('name');
+                data  = $(this).val();
+                if(data!=-1 && data!=""){
+                    filterData += "&"+field+"="+data;
+                }
+            });
+            filterData  = filterData.substr(1);
+            if(filterData==""){
+                var url = serverUrl;
+            }else{
+                var url = serverUrl +'?'+filterData;
+            }
+            return url;
+        }
+        //线索导出
+        $("#export-btn").on("click",function(){
+            var serverUrl  = "/business/clue_export";
+            var url = search(serverUrl);
+           window.location = url;
+
+        })
+        //添加线索
+        $("#explore-btn").on('click', function(){
+            window.open("/business/clue_add");
+        });
+        //更改db负责人
+        $(document).on("click",".btn-duty",function(){
+            ckRadio();
+            var clue_id = $("#clue_id").val();
+
+            if( clue_id == "0") {
+                MessageBox.error('请选择一条线索');
+                return;
+            }
+            var admin_id = $(".select-update").val();
+
+            if(admin_id == "0") {
+                MessageBox.error('请选择要更改的BD 负责人');
+                return;
+            }
+            var serverUrl = "/business/db_duty";
+
+            if (confirm("确认要更改BD负责人吗？")) {
+                $.ajax({
+                    type: 'post',
+                    url: serverUrl,
+                    dataType: 'json',
+                    data: {clue_id: clue_id, admin_id: admin_id},
+                    success: function (resp) {
+                        console.log(resp)
+                        var msg = "";
+                        $.each(resp, function (k, v) {
+                            if (v.status == 'success') {
+                                    msg = msg + v.clue_id + "更改成功";
+                            } else {
+                                msg = msg + v.clue_id + "更改失败";
+                            }
+                        })
+                        alert(msg)
+                        window.location.reload();
+                    }
+                });
+            }
+        })
+        //提交装机更改pupr_status状态
+        $(".btn-submit").on("click",function(){
+            ckRadio();
+            var clue_id = $("#clue_id").val();
+
+            if( clue_id == "0") {
+                MessageBox.error('请选择一条线索');
+                return;
+            }
+            var lag = true;
+             $.each(clue_id.split(','),function(k,v){
+                 if( v != ""){
+                     if($("#db_status"+v).val() == 8 || $("#db_status"+v).val() == 5){
+                         lag = false;
+                     }
+                 }
+
+             });
+           if( lag == false){
+              MessageBox.error('BD进度为已提交装机状态不可提交');
+              return;
+           }
+
+
+           var serverUrl = "/business/pupr_status";
+            if (confirm("确认要提交装机吗？")) {
+                $.ajax({
+                    type: 'post',
+                    url: serverUrl,
+                    dataType: 'json',
+                    data: {clue_id: clue_id},
+                    success: function (resp) {
+                        console.log(resp)
+                        var msg = "";
+                        $.each(resp, function (k, v) {
+                            if (v.status == 'success') {
+                                msg = msg + v.clue_id + "提交成功";
+//                                $("input[type=checkbox]:checked").each(function(){
+//                                    if($(this).parent().next().html() == v.clue_id ){
+//                                        $(this).parent().parent().remove();
+//                                    }
+//
+//                                });
+                            } else {
+                                msg = msg + v.clue_id + v.msg+"\n";
+                            }
+                        })
+                        alert(msg)
+                        window.location.reload();
+                    }
+                });
+            }
+        })
+      //丢弃线索
+
+        $(".btn-discard").on("click",function(){
+            ckRadio();
+            var clue_id = $("#clue_id").val();
+            if( clue_id == "0") {
+                MessageBox.error('请选择一条线索');
+                return;
+            }
+            var serverUrl = "/business/discard";
+            $.ajax({
+                type: 'post',
+                url: serverUrl,
+                dataType: 'json',
+                data:{clue_id:clue_id},
+                success: function (resp) {
+                    var msg = "";
+                    $.each(resp, function (k, v) {
+                        if (v.status == 'success') {
+                            msg = msg + v.clue_id + "丢弃成功";
+//                            $("input[type=checkbox]:checked").each(function(){
+//                                if($(this).parent().next().html() == v.clue_id ){
+//                                    $(this).parent().parent().remove();
+//                                }
+//                          });
+                        } else {
+                            msg = msg + v.clue_id + "丢弃失败";
+                        }
+                    })
+                    alert(msg)
+                    window.location.reload();
+                }
+            });
+
+
+        })
+        $(document).on('click', '.btn-online-save', function () {
+            ckRadio();
+            var clue_id = $("#clue_id").val();
+            if( clue_id == "0") {
+                MessageBox.error('请选择一条线索');
+                return;
+            }
+            var db_status = $('.online-select input[name="optionsRadiosinline"]:checked ').val();
+            if(typeof db_status == "undefined") {
+                MessageBox.error('请选择更新的状态');
+                return;
+            }
+            var bd = $("#db_status"+clue_id).val();
+
+            if( bd == "5" || bd == "8") {
+                MessageBox.error('当前BD进度不可修改');
+                return;
+            }
+            $.ajax({
+                type: 'post',
+                url: '/business/db_status',
+                dataType: 'json',
+                data:{clue_id:clue_id,db_status:db_status},
+                success: function (resp) {
+
+                    var msg = "";
+                    $.each(resp, function (k, v) {
+                        if (v.status == 'success') {
+                            msg = msg + v.clue_id + "更改成功";
+                          //  $("#db_status" + v.clue_id).parent().html(v.total)
+                        } else {
+                            msg = msg + v.clue_id + "更改失败";
+                        }
+                    })
+                    alert(msg)
+                    window.location.reload();
+                }
+            });
+
+        })
+         //维护点位线索
+        $(".btn-maintain").on('click', function(){
+            ckRadio();
+            var clue_id = $("#clue_id").val();
+            if( clue_id == "0") {
+                MessageBox.error('请选择一条线索');
+                return;
+            }
+            var clue_id_obj = clue_id.split(",");
+
+            if(clue_id_obj.length != 1){
+                MessageBox.error('只能选择一条线索');
+                return;
+            }
+            window.open("/business/maintain_add?clue_id="+clue_id);
+        });
+
+    });
+</script>

@@ -1,0 +1,110 @@
+<div class="form-group">
+    <div class="col-sm-7">
+        <label class="control-label">投放区域：</label>
+        <select style="width:25%;display:inline;" id="select_province_new" class="form-control" name="search_province">
+            <option value="-1">省份</option>
+        </select>
+        <select style="width:25%;display:inline;" id="select_city_new" class="form-control" name="search_city">
+            <option value="-1">市区</option>
+        </select>
+        <select style="width:25%;display:inline;" id="select_area_new" class="form-control" name="search_area">
+            <option value="-1">地区</option>
+        </select>
+    </div>
+    <div class="col-sm-5">
+        <label class="control-label">投放地址：</label>
+        <input style="width:50%;display:inline;" type="text" class="form-control" name="search_address" placeholder="投放地址">
+    </div>
+</div>
+
+<script type="text/javascript">
+    $(document).ready(function(){
+        var old_province = '<{$province}>';
+        var old_city = '<{$city}>';
+        var old_area = '<{$area}>';
+        if (old_province > 0){
+            //获取省份
+            $.post("/regions/search",{pid:0},function(respData){
+                if(respData.status=='success'){
+                    if (respData.region_list){
+                        var province_list = '<option value="-1">省份</option>';
+                        $(respData.region_list).each(function(i,val){
+                            if (val.AREAIDS == old_province){
+                                province_list = province_list + '<option selected value="'+val.AREAIDS+'">'+val.AREANAME+'</option>';
+                            } else {
+                                province_list = province_list + '<option value="'+val.AREAIDS+'">'+val.AREANAME+'</option>';
+                            }
+                        });
+                        $('#select_province_new').html(province_list);
+                        if (old_province > 0){
+                            $.post("/regions/search",{pid:old_province},function(respData){
+                                if(respData.status=='success'){
+                                    if (respData.region_list){
+                                        var city_list = '<option value="-1">市区</option>';
+                                        $(respData.region_list).each(function(i,val){
+                                            if (val.AREAIDS == old_city){
+                                                city_list = city_list + '<option selected value="'+val.AREAIDS+'">'+val.AREANAME+'</option>';
+                                            } else {
+                                                city_list = city_list + '<option value="'+val.AREAIDS+'">'+val.AREANAME+'</option>';
+                                            }
+
+                                        });
+                                        $('#select_city_new').html(city_list);
+                                        if (old_area > 0 ){
+                                            $.post("/regions/search",{pid:old_city},function(respData){
+                                                if(respData.status=='success'){
+                                                    if (respData.region_list){
+                                                        var area_list = '<option value="-1">地区</option>';
+                                                        $(respData.region_list).each(function(i,val){
+                                                            if (val.AREAIDS == old_area){
+                                                                area_list = area_list + '<option selected value="'+val.AREAIDS+'">'+val.AREANAME+'</option>';
+                                                            } else {
+                                                                area_list = area_list + '<option value="'+val.AREAIDS+'">'+val.AREANAME+'</option>';
+                                                            }
+
+                                                        });
+                                                        $('#select_area_new').html(area_list);
+                                                    }
+                                                }
+                                            },'json');
+                                        }
+                                    }
+                                }
+                            },'json');
+                        }
+                    }
+                }
+            },'json');
+        }
+
+
+        $('#select_province_new').change(function(){
+            $.post("/regions/search",{pid:$(this).val()},function(respData){
+                if(respData.status=='success'){
+                    if (respData.region_list){
+                        var city_list = '<option value="-1">市区</option>';
+                        $(respData.region_list).each(function(i,val){
+                            city_list = city_list + '<option value="'+val.AREAIDS+'">'+val.AREANAME+'</option>';
+                        });
+                        $('#select_city_new').html(city_list);
+                    }
+                }
+            },'json');
+        });
+
+        $('#select_city_new').change(function(){
+            $.post("/regions/search",{pid:$(this).val()},function(respData){
+                if(respData.status=='success'){
+                    if (respData.region_list){
+                        var area_list = '<option value="-1">地区</option>';
+                        $(respData.region_list).each(function(i,val){
+                            area_list = area_list + '<option value="'+val.AREAIDS+'">'+val.AREANAME+'</option>';
+                        });
+                        $('#select_area_new').html(area_list);
+                    }
+                }
+            },'json');
+        });
+
+    });
+</script>

@@ -1,0 +1,50 @@
+
+
+<style type="text/css">
+    .ui-autocomplete{
+        border: 1px solid #aaa;
+        -webkit-border-radius: 5px;
+        -moz-border-radius: 5px;
+        border-radius: 5px;
+        background-color: #FFFFFF;
+    }
+</style>
+<div class="panel panel-default">
+    <div class="panel-heading"> 查看工单</div>
+
+    <form id="add-user-form" class="form-horizontal" role="form" method="post" action="/workorder/edit_update">
+
+        <div class="panel-body">
+            <div class="form-horizontal" id="search">
+                <div class="form-group">
+                    <label  class="col-sm-2 control-label">所属商户：</label>
+                    <div class="col-sm-2">
+                        <input type="text" class="form-control"   value="<{$commercial_row['name']}>" readonly>
+                        <input type="hidden" name="platform_id" value="<{$commercial_row['merchant_owned']}>">
+
+                    </div>
+
+                </div>
+                <{foreach from=$result  key=key item=val }>
+                <div class="form-group">
+                    <label  class="col-sm-2 control-label">设备ID：</label>
+                    <div class="col-sm-2">
+                        <input type="text" class="form-control" name="equipment_id[]"   value="<{$val['equipment_id']}>"  placeholder="请输入设备唯一标示！"   readonly>
+
+                    </div>
+                    <label  class="col-sm-2 control-label">设备名称：</label>
+                    <div class="col-sm-2">
+                        <input type="text" class="form-control" name="name[]"  value="<{$val['equipment_name']}>"  placeholder="请输入设备名称！"   readonly>
+
+                    </div>
+
+
+
+
+                </div>
+                <{/foreach}>
+
+            </div>
+        </div>
+    </form>
+</div>

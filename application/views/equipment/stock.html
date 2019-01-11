@@ -1,0 +1,57 @@
+<div class="panel panel-default">
+	<div class="panel-heading">查看库存</div>
+	<div class="panel-body">
+		   <div class="bootstrap-table"><div class="fixed-table-container" style="padding-bottom:0px"><div class="fixed-table-body">
+		   <table id = "add-order" class="table table-hover" data-click-to-select="true" data-select-item-name="radioName">
+			<thead>
+				<tr>
+					<th style="text-align:center">
+						<div class="th-inner">商品名称</div>
+						<div class="fht-cell"></div>
+					</th>
+					<th style="text-align:center">
+						<div class="th-inner">售价</div>
+						<div class="fht-cell"></div>
+					</th>
+					<th style="text-align:center">
+						<div class="th-inner">当前库存量</div>
+						<div class="fht-cell"></div>
+					</th>
+					<th style="text-align:center">
+						<div class="th-inner">保鲜期</div>
+						<div class="fht-cell"></div>
+					</th>
+				</tr>
+			</thead>	
+			<tbody id="tbody">
+				<{foreach $stock_data as $val}>
+				<tr >
+					<td style="text-align:center">
+						<{$val['product_name']}>
+					</td>
+					<td style="text-align:center">
+						<{$val['price']}>
+					</td>
+					<td style="text-align:center">
+						<{$val['count_num']}>
+					</td>
+					<td style="text-align:center">
+						<{$val['preservation_time']}>
+					</td>
+				</tr>
+				<{/foreach}>
+				<tr>
+					<td colspan="4" style="text-align:center;">
+						总库存量：<b><{$count_all}></b>&nbsp;&nbsp;<button type="button" class="btn btn-danger" onclick="history.back()">返回</button>
+					</td>
+				</tr>
+			</tbody>
+		   </table>
+		   </div></div></div>
+	</div>
+</div>
+
+<script type="text/javascript">
+
+</script>
+

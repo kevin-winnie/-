@@ -1,0 +1,109 @@
+<search>
+	<div class="row">
+		<form id="search" class="form-inline" onsubmit="{ search }">
+			
+			<div class="row">
+				
+				<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+					<div class="form-group">
+						<label>目标用户：</label>
+						<input type="text" class="form-control" name="target" placeholder="手机号码/邮箱地址/用户id/微信id">
+					</div>
+					<div class="form-group">
+						<label>消息类型：</label>
+						<select name="type" class="form-control">
+							<option value="">所有</option>
+							<option value="sms">短信</option>
+							<option value="email">邮件</option>
+							<option value="app">app</option>
+							<option value="weixin">微信</option>
+						</select>		
+					</div>
+					<div class="form-group">
+						<label>来源：</label>
+						<select name="source" class="form-control">
+							<option value="">所有</option>
+							<option value="rbac">RBAC</option>				
+							<option value="tms-tl">tms-tl</option>
+							<option value="tms-wx">tms-wx</option>
+							<option value="tms-bi">tms-bi</option>
+							<option value="oms-notify">oms-notify</option>
+							<option value="oms-other">oms-other</option>
+							<option value="test">测试</option>
+							<option value="mysql-alert">MySQL报警</option>
+							<option value="api">API</option>
+							<option value="active">活动</option>
+						</select>	
+					</div>
+					<div class="form-group">
+						<label class="radio-inline">
+							<input type="radio" name="is_succ" value="" checked>所有发送
+						</label>	
+						<label class="radio-inline">
+							<input type="radio" name="is_succ" value="1">发送成功
+						</label>				
+						<label class="radio-inline">				
+							<input type="radio" name="is_succ" value="0">发送失败
+						</label>
+					</div>					
+				</div>
+				<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+					<div class="form-group">
+						<label>开始时间：</label>
+						<input type="text" class="form-control" name="start">
+					</div>			
+					<div class="form-group">
+						<label>结束时间：</label>
+						<input type="text" class="form-control" name="end">
+					</div>				
+					<div class="form-group">
+						<button type="submit" class="btn btn-primary">查询</button>
+						<button type="button" class="btn btn-default" onclick="{ reset }">重置</button>
+					</div>					
+				</div>
+				
+			</div>
+					
+		</form>
+	</div>
+
+	<script>
+		var self = this;
+
+		search() {
+			var params = {
+				fields:'*',
+				conditions:{}
+			};
+
+			$("form#search").serializeArray().forEach(function(item) {
+				if(item.value !== "")
+					params.conditions[item.name] = item.value;
+			});
+			opts.getLogs(params);
+		}
+
+		reset() {
+			$("form#search")[0].reset();
+		}
+
+		self.on('mount', function(){
+			$("input[name=start]").datetimepicker({
+				format: "YYYY-MM-DD HH:mm:ss"
+			});
+			$("input[name=end]").datetimepicker({
+				format: "YYYY-MM-DD HH:mm:ss"
+			});
+		});		
+	</script>
+
+	<style scoped>
+		#search .form-group input[name='target'].form-control {
+			width:330px;
+		}
+		#search .form-group {
+			padding-left: 15px;
+			padding-top: 10px;
+		} 		
+	</style>
+</search>

@@ -1,0 +1,69 @@
+<list>
+	<table class="table table-striped">
+		<thead>
+			<tr>
+				<th>#</th>
+				<th>类型</th>
+				<th>目标用户</th>
+				<th>启用</th>
+				<th>添加日期</th>
+				<th>修改日期</th>
+				<th>注释</th>
+				<th>最后编辑</th>
+				<th>操作</th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr each={ list }>
+				<th class="id">{ id }</th>
+				<td class="type">{ type }</td>
+				<td class="type">{ target }</td>
+				<td class="type">{ active == 1 ? '是' : '否'}</td>
+				<td class="type">{ create_date }</td>
+				<td class="type">{ update_date }</td>
+				<td class="comment">
+					<span title="{ comment }">{ comment }</span>
+				</td>
+				<td class="type">{ by }</td>
+				<td class="type">		
+					<button type="button" class="btn btn-default btn-xs" data-toggle="modal" data-target="#edit" onclick="{ edit }">修改</button>
+					<button type="button" class="btn btn-default btn-xs" onclick="{ remove }">删除</button>			
+				</td>
+			</tr>
+		</tbody>
+	</table>
+
+	<style scoped>
+    	td.target, td.error, td.title, td.comment { 
+		    max-width: 150px;
+		    overflow: hidden;
+		    text-overflow: ellipsis;
+		    white-space: nowrap;			 		
+    	}
+	</style>
+
+	<script>
+		var self = this;
+		
+		opts.get();
+		
+		opts.on('query_done', function(data) {
+			self.update({list: data.result});
+		})
+
+		opts.on('delete_done', function(element) {
+			$(element).fadeOut(500, function(e) {
+				this.remove();
+			});			
+			self.update({list: data.result});
+		})		
+
+		remove(e) {
+			opts.remove({conditions: {id:e.item.id}}, e.path[2]);
+		};
+
+		edit(e) {
+			opts.getOne({conditions:{id:e.item.id}});
+		}
+	</script>
+</list>

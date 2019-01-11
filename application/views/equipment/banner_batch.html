@@ -1,0 +1,46 @@
+<{if $tips eq ''}>
+<{else}>
+<div class="alert alert-danger" role="alert"><{$tips}></div>
+<{/if}>
+<div class="panel panel-default">
+	<div class="panel-heading">生成banner并导出[建议20个一次，不宜太多]</div>
+	<table class="table">
+		<form action="/equipment/save_batch_banner" id="myform" name="myform" method="post" >
+		  <tr class="tr">
+		    <td width="22%" align="right" > 盒子设备ID：</td>
+		    <td width="75%" >
+				<textarea name="equipment_ids" id="equipment_ids"  rows="20" cols="70" placeholder="盒子ID，如68805328909,68805328903,00D051AD002D 使用逗号分隔"></textarea>
+			</td>
+		  </tr>
+
+            <tr class="tr">
+                <td width="22%" align="right" > banner类型：</td>
+                <td width="75%" >
+                    <select class="form-control" name="refer" id="refer"  >
+                        <option value="common_banner">通用banner</option>
+                        <option value="common_banner_alipay">支付宝banner</option>
+                        <option value="common_banner_wechat">微信banner</option>
+                    </select>
+                </td>
+            </tr>
+		  
+		  <tr class="tr">
+		    <td align="right" >&nbsp;</td>
+		    <td ><input type="button" onclick="submitForm()" name="Submit" class="lostfocus" onFocus='this.className="getfocus";' onMouseOver='this.className="getfocus";' onBlur='this.className="lostfocus";' onMouseOut='this.className="lostfocus";'
+			value="生成并导出">
+			<input type="button" value="返回" onclick="history.back();" />
+		  </tr>
+		</form>
+	</table>
+</div>
+<script type="text/javascript">
+
+function submitForm(){
+	if ($('#equipment_ids').val() == ''){
+		alert('请输入盒子id！');
+		return;
+	}
+	$('#myform').submit();
+}
+</script>
+

@@ -1,0 +1,122 @@
+<strategy-table>
+	<table class="table table-striped">
+		<thead>
+			<tr>
+				<th>#</th>
+				<th>名称</th>
+				<th>注释</th>
+				<!--
+				<th>平台</th>
+				-->
+				<th>类型</th>
+				<th>方式</th>
+				<th>开始</th>
+				<th>结束</th>
+				<th>启用</th>
+				<th>商品</th>
+				<th>省市</th>
+				<th>提交</th>
+				<th>操作</th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr each={ strategies }>
+				<th class="id">
+					{ id }
+				</th>
+				<td class="name">
+					<span title="{ name }">{ name }</span>
+				</td>	
+				<td class="remarks">
+					<span title="{ remarks }">{ remarks }</span>
+				</td>				
+				<!--
+				<td>
+					{ JSON.parse(platform) }
+				</td>
+				-->
+				<td class="type">
+					<span show="{ type == 'amount' }">满额</span>
+					<span show="{ type == 'quantity' }">满件</span>
+				</td>
+				<td>
+					<span show="{ solution_type == 'gift' }">赠</span>
+					<span show="{ solution_type == 'discount' }">减</span>
+					<span show="{ solution_type == 'exchange' }">换</span> 
+				</td>
+				<td class="start">
+					<span show="{ Date.now() >= start*1000  }" class="label label-success">{ moment.unix(start).format('MM/DD HH:mm') }</span>
+					<span show="{ Date.now() < start*1000  }" class="label label-warning" title="{ moment.unix(start).format('YYYY-MM-DD HH:mm:ss') }">未开始</span>
+				</td>
+				<td class="end">
+					<span show="{ Date.now() <= end*1000 - 2*86400*1000 && Date.now() <= end*1000  }" class="label label-success" >{ moment.unix(end).format('MM/DD HH:mm') }</span>
+					<span show="{ Date.now() > end*1000 - 2*86400*1000 && Date.now() <= end*1000 }" class="label label-warning" title="{ moment.unix(end).format('YYYY-MM-DD HH:mm:ss') }">快结束</span>
+					<span show="{ Date.now() > end*1000  }" class="label label-danger label-lg" title="{ moment.unix(end).format('YYYY-MM-DD HH:mm:ss') }">已结束</span>
+				</td>		
+				<td>
+					<span show="{ active == 'true' }" class="label label-success">是</span>
+					<span show="{ active == 'false' }" class="label label-danger">否</span>
+				</td>		
+				<td class="product">
+					<span show="{ product_all == 'true'}">全场</span>
+					<span title="{ JSON.parse(product_white) }">{ JSON.parse(product_white) }</span>
+					<span title="{ JSON.parse(product_black) }"><s>{ JSON.parse(product_black) }</s></span>
+				</td>	
+				<td class="province">
+					<span show="{ JSON.parse(province).length == 12 }">不限</span>
+					<span show="{ JSON.parse(province).length < 12 }" title="{ province }">{ JSON.parse(province) }</span>
+				</td>
+				<td class="province">
+					{ by }
+				</td>	
+				<td>
+					<button type="button" if="{ window.location.pathname == '/promotion_v1/index/auth' }" class="btn btn-primary btn-xs" onclick="{ enable }">{ active == 'true' ? '关闭' : '开启' }</button>
+					<button type="button" class="btn btn-default btn-xs"  data-toggle="modal" data-target="#strategy-edit" onclick="{ edit }">{ active == 'true' ? '查看' : '修改' }</button>
+					<button type="button" if="{ active == 'false' }" class="btn btn-default btn-xs" onclick="{ remove }">删除</button>
+				</td>												
+			</tr>
+		</tbody>
+	</table>
+
+	<script>
+		var self = this;
+		
+		self.on('mount', function() {
+			opts.find();
+		});		
+				
+		remove(e) {
+			opts.remove(e.item.id);
+		}
+		
+		edit(e) {
+			opts.findOne(e.item.id);
+		}
+		
+		enable(e) {
+			if(e.item.active == 'false')
+				opts.enable(e.item.id);
+			else
+				opts.disable(e.item.id);
+		}
+
+		opts.on('find_strategy_done', function(strategies) {
+			self.update({strategies: strategies});
+		});
+	</script>
+
+	<style type="text/css" scoped>
+    	:scope td { 
+		    max-width: 120px;
+		    overflow: hidden;
+		    text-overflow: ellipsis;
+		    white-space: nowrap;			 		
+    	}
+		:scope td.name { 
+			max-width: 200px;
+		}
+		:scope td.remarks { 
+			max-width: 80px;
+		}
+    </style>	
+</strategy-table>

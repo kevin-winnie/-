@@ -1,0 +1,112 @@
+<div class="panel panel-default">
+	<div class="panel-heading">修改商品</div>
+	<table class="table">
+		<form enctype="multipart/form-data" action="/products/edit_save" name="myform" method="post" >
+		  <input type="hidden" name="id" value="<{$info.id}>"  />
+		  <tr class="tr">
+		    <td width="22%" align="right" > 商品类目：</td>
+		    <td width="75%" >
+		    	<{$class_info}>
+		    </td>
+		  </tr>
+
+		  <tr class="tr">
+		    <td width="22%" align="right" > 商品名称：</td>
+		    <td width="75%" >
+		    	<input name="product_name" type="text" id="product_name" value="<{$info.product_name}>" size="30" />
+		    </td>
+		  </tr>
+		  
+		  <tr class="tr">
+		    <td width="22%" align="right" > OMS编码：</td>
+		    <td width="75%" >
+		    	<input name="product_no" type="text" id="product_no" value="<{$info.product_no}>" size="30" />
+		    </td>
+		  </tr>
+		  
+		  <tr class="tr">
+		    <td width="22%" align="right" > SAP编码：</td>
+		    <td width="75%" >
+		    	<input name="inner_code" type="text" id="inner_code" value="<{$info.inner_code}>" size="30" />
+		    </td>
+		  </tr>
+		  
+		  <tr class="tr">
+		    <td width="22%" align="right" > 商品价格：</td>
+		    <td width="75%" >
+		    	<input name="price" type="text" id="price" value="<{$info.price}>" size="30" />
+		    </td>
+		  </tr>
+		  
+		  <tr class="tr">
+		    <td width="22%" align="right" > 商品原价：</td>
+		    <td width="75%" >
+		    	<input name="old_price" type="text" id="old_price" value="<{$info.old_price}>" size="30" />
+		    </td>
+		  </tr>
+		  
+		  <tr class="tr">
+		    <td width="22%" align="right" > 规格：</td>
+		    <td width="75%" >
+		    	<input name="volume" type="text" id="volume" value="<{$info.volume}>" size="30" />
+		    </td>
+		  </tr>
+		  
+		  <tr class="tr">
+		    <td width="22%" align="right" > 计量单位：</td>
+		    <td width="75%" >
+		    	<input name="unit" type="text" id="unit" value="<{$info.unit}>" size="30" />
+		    </td>
+		  </tr>
+		  
+		  <tr class="tr">
+		    <td width="22%" align="right" > 标签：</td>
+		    <td width="75%" >
+		    	<input name="tags" type="text" id="tags" value="<{$info.tags}>" size="30" />
+		    </td>
+		  </tr>
+
+		  <tr class="tr">
+			<td width="22%" align="right" > 保鲜期（天）：</td>
+			<td width="75%" >
+				<input name="preservation_time" type="text" id="preservation_time" value="<{$info.preservation_time}>" size="30" />
+			</td>
+		  </tr>
+		
+		  <tr>
+        	<td width="22%" align="right"> 商品图片：</td>
+        	<td width="75%" >
+        		<input name="img_url" type="file" id="img_url">
+        		上传的商品图片大小为：1000x1000 <span style="color: #FF0000">*</span>
+        		<{if $info.img_url}>
+        		<a  href="http://fdaycdn.fruitday.com/<{$info.img_url}>" target="_blank">
+                    <img src="http://fdaycdn.fruitday.com/<{$info.img_url}>" width="150" height="150" />
+                </a>	
+				<{/if}>
+                <input id="old_img_url" name="old_img_url" type="hidden" value="<{$info.img_url}>">
+        	</td>
+          </tr>
+
+		  <tr class="tr">
+		    <td align="right" >&nbsp;</td>
+		    <td ><input type="submit" name="Submit" class="lostfocus" onFocus='this.className="getfocus";' onMouseOver='this.className="getfocus";' onBlur='this.className="lostfocus";' onMouseOut='this.className="lostfocus";'
+			value="编辑">
+			<input type="button" value="返回" onclick="history.back();" />
+		  </tr>
+		</form>
+	</table>
+</div>
+<script type="text/javascript">
+    $(function(){
+        $('#config-table').bootstrapTable({
+        }).on('click-row.bs.table', function (e, row, $element) {
+            $("#curr_id").val(row.id);
+        });
+        $("#config-body").delegate(".show_img","click",function(){
+            MessageBox.alert($(this).attr('data-content'));
+        });
+
+
+
+    });
+</script>

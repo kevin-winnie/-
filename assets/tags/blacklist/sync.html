@@ -1,0 +1,18 @@
+<sync>
+	<button type="button" class="btn btn-warning" onclick="{ sync }">发布黑名单</button>
+
+	<script>
+
+		opts.on('sync_done', function(element) {
+			$(element).attr("disabled", false);
+			$(element).text("发布黑名单");
+		})
+
+		sync(e) {
+			var element = e.path[0];
+			opts.sync(element);
+			$(element).attr("disabled", true);
+			$(element).text("发布中.......");
+		}
+	</script>
+</sync>

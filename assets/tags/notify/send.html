@@ -1,0 +1,111 @@
+<send>
+
+	<button type="button" class="btn btn-success" data-toggle="modal" data-target="#modal">发送消息</button>
+
+	<!-- Modal -->
+	<div class="modal fade" id="modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+		<div class="modal-dialog" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+					<h4 class="modal-title" id="myModalLabel">立即发送消息</h4>
+				</div>
+				<div class="modal-body">
+					<!-- form -->
+					<form id="send" class="form-horizontal" submit="{ send }">
+						<div class="form-group">
+							<label class="col-sm-3 control-label">目标用户：</label>
+							<div class="col-sm-9">
+								<input type="email" class="form-control" name="target" placeholder="手机号码/邮箱地址/用户id/微信id">
+							</div>
+						</div>
+						<div class="form-group">
+							<label class="col-sm-3 control-label">消息类型：</label>
+							<div class="col-sm-9">
+								<select name="type" class="form-control" onchange="{ changeType }">
+									<option value="sms">短信</option>
+									<option value="app">app</option>
+								</select>
+							</div>
+						</div>
+						<div class="form-group" show="{ need_title }">
+							<label for="inputPassword3" class="col-sm-3 control-label">消息标题：</label>
+							<div class="col-sm-9">
+								<input type="text" class="form-control" name="title">
+							</div>
+						</div>						
+						<div class="form-group">
+							<label for="inputPassword3" class="col-sm-3 control-label">消息内容：</label>
+							<div class="col-sm-9">
+								<input type="text" class="form-control" name="message">
+							</div>
+						</div>
+						<div class="form-group" show="{ need_title }">
+							<label for="inputPassword3" class="col-sm-3 control-label">tabType：</label>
+							<div class="col-sm-9">
+								<input type="text" class="form-control" name="app_tabType">
+							</div>
+						</div>						
+						<div class="form-group" show="{ need_title }">
+							<label for="inputPassword3" class="col-sm-3 control-label">type：</label>
+							<div class="col-sm-9">
+								<input type="text" class="form-control" name="app_type">
+							</div>
+						</div>						
+						<div class="form-group" show="{ need_title }">
+							<label for="inputPassword3" class="col-sm-3 control-label">page_url：</label>
+							<div class="col-sm-9">
+								<input type="text" class="form-control" name="app_page_url">
+							</div>
+						</div>						
+						<div class="form-group" show="{ need_title }">
+							<label for="inputPassword3" class="col-sm-3 control-label">page_photo：</label>
+							<div class="col-sm-9">
+								<input type="text" class="form-control" name="app_page_photo">
+							</div>
+						</div>						
+					</form>
+					<!-- /form -->		
+				</div>
+
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+					<button type="button" class="btn btn-primary" onclick="{ send }">发送</button>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<style scoped>
+		:scoped	.form-group select[name='type'].form-control {
+			width: 100px;
+		}
+	</style>
+
+	<script>
+		var tag        = this;
+		var params     = {};
+
+		tag.need_title = false;	
+		
+		changeType(e) {
+			if(e.target.selectedIndex == 0)
+				tag.need_title = false;
+			else
+				tag.need_title = true;
+		}
+
+		send() {
+			$("#send").serializeArray().forEach(function(item) {
+				if(item.value)
+					params[item.name] = item.value;
+			});
+			opts.sendMessage(params);
+		}
+
+		opts.on('send_done', function(data) {
+			alert(data.code+', '+data.msg);
+		})		
+	</script>
+
+</send>

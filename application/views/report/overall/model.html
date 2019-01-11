@@ -1,0 +1,16 @@
+<div class="modal-header" >
+    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+    <h4 class="modal-title" id="myModalLabel">扫码开门来源分布</h4>
+</div>
+<div class="modal-body" >
+    <span>当日 <{$total['open_num']}></span>&nbsp;&nbsp;&nbsp;
+    <span>[
+         <{foreach key=key item=item from=$total['open_refer']}>
+         <span><{$item['refer_name']}>:<{$item['num']}></span>
+        <{/foreach}>
+        ]</span>
+</div>
+<div class="modal-footer" >
+    <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+    <button type="button" class="btn btn-primary" id="set_group_id">提交更改</button>
+</div>

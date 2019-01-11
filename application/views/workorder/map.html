@@ -1,0 +1,247 @@
+<style type="text/css">
+    body, html {width: 100%;height: 100%;margin:0;font-family:"微软雅黑";}
+    label{max-width: none;}
+    .cb-control {padding-left: 20px;}
+</style>
+<div class="panel panel-default ">
+
+    <div class="panel-body "   >
+
+            <div id="allmap" style="width:70%;height:680px" class="col-md-7"></div>
+
+            <div class="panel panel-default col-md-4" style="width:30%;height:680px ;float: right " >
+            <div class="panel-body" >
+                <!--<div class="form-group">-->
+
+                    <!--<label class="cb-control">-->
+                        <!--<input type="checkbox"  id="showname" name="showname" value="1" checked="true">是否显示名称-->
+                    <!--</label>-->
+                <!--</div>-->
+                <div class="form-group">
+
+                        <select  id="select_province" class="form-control" name="search_province" >
+                            <option value="-1">省份</option>
+                        </select>
+                </div>
+                <div class="form-group">
+                        <select  id="select_city" class="form-control" name="search_city" >
+                            <option value="-1">市区</option>
+                        </select>
+                </div>
+                <div class="form-group">
+                        <select  id="select_area" class="form-control" name="search_area" >
+                            <option value="-1">地区</option>
+                        </select>
+                </div>
+                <div class="form-group">
+                        <input type="text" class="form-control" size='11' name="search_address" placeholder="企业地址" >
+                </div>
+                <div class="form-group">
+                        <select class="form-control" name="search_work_status" >
+                            <option value="">工单状态</option>
+                            <{foreach from=$work_status  key=key item=val }>
+                            <option value="<{$key}>"><{$val}></option>
+                            <{/foreach}>
+
+                        </select>
+                </div>
+                <div class="form-group">
+                    <button type="button" class="btn btn-success" id="search-btn">查找</button>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    <!--<button type="button" class="btn btn-warning" onclick="yesterday_order(1)">前一天</button>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-->
+                    <!--&nbsp;&nbsp;&nbsp;&nbsp;-->
+                    <!--<button type="button" class="btn btn-info" id="export-btn"  >导出</button>-->
+                </div>
+                <div class="form-group">
+
+                    <div class="store-box" style="min-height:300px;overflow-y:auto;max-height:300px;border-radius:5px;border:1px solid #aaa;padding:10px;">
+
+                    </div>
+
+                </div>
+                <div class="form-group">
+                    <button type="button" class="btn btn-danger" id="remove">清空</button>&nbsp;&nbsp;&nbsp;
+                    <button type="button" class="btn btn-info" id="excel">导出</button>&nbsp;&nbsp;&nbsp;
+                    <button type="button" class="btn btn-info" id="see_info">查看</button>&nbsp;&nbsp;&nbsp;
+
+
+                </div>
+            </div>
+            </div>
+
+    </div>
+
+</div>
+
+<script type="text/javascript">
+      $('#excel').on('click',function(){
+          var clue_ids = "";
+          $('.clue_id').each(function () {
+              clue_ids += ","+$(this).val();
+          })
+
+          clue_ids = clue_ids.substr(1);
+          window.location = '/workorder/get_clue_ids?clue_ids='+clue_ids;
+      })
+      $('#see_info').on('click',function(){
+          var clue_ids = "";
+          $('.clue_id').each(function () {
+              clue_ids += ","+$(this).val();
+          })
+
+          clue_ids = clue_ids.substr(1);
+          window.open('/workorder/work_index?clue_ids='+clue_ids) ;
+      })
+      $('#search-btn').on('click',function(){
+          var serverUrl = '/workorder/get_map'
+          var filterData = "";
+          $.each($("[name^='search_']"), function() {
+              field = $(this).attr('name');
+              data  = $(this).val();
+              if(data!=-1 && data!=""){
+                  filterData += "&"+field+"="+data;
+              }
+          });
+          filterData  = filterData.substr(1);
+
+          if(filterData==""){
+              var url = serverUrl;
+          }else{
+              var url = serverUrl +'?'+filterData;
+          }
+          map.clearOverlays();
+
+          $.get(url,function(respData){
+              map = new BMap.Map("allmap");            // 创建Map实例
+              var point = new BMap.Point(121.4814075328,31.2367709624); // 创建点坐标
+              map.centerAndZoom(point,13);
+              map.enableScrollWheelZoom();                 //启用滚轮放大缩小
+              var myGeo = new BMap.Geocoder();
+
+              var top_left_control = new BMap.ScaleControl({anchor: BMAP_ANCHOR_TOP_LEFT});// 左上角，添加比例尺
+              var top_left_navigation = new BMap.NavigationControl();  //左上角，添加默认缩放平移控件
+              var top_right_navigation = new BMap.NavigationControl({anchor: BMAP_ANCHOR_TOP_RIGHT, type: BMAP_NAVIGATION_CONTROL_SMALL}); //右上角，仅包含平移和缩放按钮
+              map.addControl(top_left_control);
+              map.addControl(top_left_navigation);
+              map.addControl(top_right_navigation);
+              $.each(respData,function(k,v){
+
+                  // 将地址解析结果显示在地图上,并调整地图视野
+                  myGeo.getPoint(v.address, function(point){
+                      if(point) {
+                          markerClue(point,v.clue_id,v.name)
+                      }
+//
+                  }, "上海市");
+             })
+
+          },'json');
+      })
+      function removeOverlay(ln,la){
+          var allOverlay = map.getOverlays();
+          for(var i = 0;i<allOverlay.length;i++) {
+              if(allOverlay[i].toString()=="[object Marker]"){
+                  if (allOverlay[i].getPosition().lng == ln && allOverlay[i].getPosition().lat == la) {
+                      map.removeOverlay(allOverlay[i]);
+                  }
+              }
+          }
+      }
+     $('#remove').on('click',function(){
+        $('.clue_id').each(function () {
+            removeOverlay($(this).attr('attr').split(",")[0],$(this).attr('attr').split(",")[1])
+
+              var point = new BMap.Point($(this).attr('attr').split(",")[0],$(this).attr('attr').split(",")[1]);//获取坐标
+            markerClue(point,$(this).val(),$(this).attr('na'))
+
+
+        })
+
+
+          $('.store-box').empty();
+
+
+      })
+
+    //百度地图API功能
+    function loadJScript() {
+        var script = document.createElement("script");
+        script.type = "text/javascript";
+        script.src = "https://api.map.baidu.com/api?v=2.0&ak=kWUkKC7gkj1evEGcDAiO2hCYIUWdnPW2&callback=init";
+        document.body.appendChild(script);
+    }
+   function init() {
+        map = new BMap.Map("allmap");            // 创建Map实例
+        var point = new BMap.Point(121.4814075328,31.2367709624); // 创建点坐标
+        map.centerAndZoom(point,13);
+        map.enableScrollWheelZoom();                 //启用滚轮放大缩小
+        var myGeo = new BMap.Geocoder();
+
+        var equ_list = <{$list}>;
+    <{foreach $list as $val}>
+
+
+
+        // 将地址解析结果显示在地图上,并调整地图视野
+        myGeo.getPoint("<{$val.address}>", function(point){
+            if(point) {
+                markerClue(point,'<{$val.clue_id}>','<{$val.name}>')
+
+            }
+//
+        }, "上海市");
+    <{/foreach}>
+
+            var top_left_control = new BMap.ScaleControl({anchor: BMAP_ANCHOR_TOP_LEFT});// 左上角，添加比例尺
+            var top_left_navigation = new BMap.NavigationControl();  //左上角，添加默认缩放平移控件
+            var top_right_navigation = new BMap.NavigationControl({anchor: BMAP_ANCHOR_TOP_RIGHT, type: BMAP_NAVIGATION_CONTROL_SMALL}); //右上角，仅包含平移和缩放按钮
+            map.addControl(top_left_control);
+            map.addControl(top_left_navigation);
+            map.addControl(top_right_navigation);
+
+    }
+        window.onload = loadJScript;  //异步加载地图
+    function markerClue(point,content,name){
+
+
+        var marker = new BMap.Marker(point);
+        map.addOverlay(marker);            //增加点
+        var label = new BMap.Label('<span style="display: none">'+content+'</span>'+name,{offset:new BMap.Size(20,-10)});//设置坐标信息
+        marker.setLabel(label);
+//        var content = '<{$val.clue_id}>';
+//        var name = '<{$val.name}>';
+
+        //addClickHandler(content,marker,name,map);
+        marker.addEventListener("click",function(e){ //添加时间
+            var p = e.target;
+            var point = new BMap.Point(p.getPosition().lng, p.getPosition().lat);//获取坐标
+            var infoWindow = new BMap.InfoWindow(content);  // 创建信息窗口对象 点位clue_id
+            // map.openInfoWindow(infoWindow,point); //开启信息窗口
+            var myIcon = new BMap.Icon("https://cdnjd.fruitday.com/citybox/cityboxpoint5.png", new BMap.Size(32,32));//点位图标
+            var marker2 = new BMap.Marker(point,{icon:myIcon});  // 创建新标注
+            var label = new BMap.Label(name,{offset:new BMap.Size(20,-10)});
+            marker2.setLabel(label);
+            map.addOverlay(marker2);
+
+            marker2.addEventListener("click",function(e) { //设置新标注事件
+                marker2.hide();
+                marker.show();
+
+                $('#clue_id' + content).parent().remove();
+            })
+            marker.hide(); //隐藏以前坐标
+
+            if(typeof($('#clue_id'+content).val()) == "undefined") {
+                var p = marker.getPosition();       //获取marker的位置
+
+                $str = '<label style="margin-right:10px;font-weight: normal">' +
+                    '<input type="hidden"  id="clue_id' + content + '" attr=" '+p.lng + ',' + p.lat+'" class="clue_id"  na="'+name+'" value="' + content + '"> ' + name +
+                    '</label>';
+                console.log($str)
+                $('.store-box').append($str);
+            }
+        });
+    }
+
+
+
+</script>

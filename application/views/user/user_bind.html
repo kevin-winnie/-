@@ -1,0 +1,89 @@
+<h3 class="panel-title"><b>后台帐号绑定</b></h3>
+<div class="modal-body">
+    <a href="javascript:history.back();" role="button" class="btn btn-info btn-sm">返回</a>
+
+    <div class="form-group">
+        <label for="mobile" class="col-sm-1 control-label">用户手机号</label>
+        <div class="col-sm-2">
+            <input disabled type="text" class="form-control"  name="mobile"  value="<{$user['mobile']}>">
+        </div>
+        <div class="Validform_checktip"></div>
+    </div>
+
+    <div class="form-group" style="padding-top: 10px;">
+        <label for="user_name" class="col-sm-1 control-label">用户昵称</label>
+        <div class="col-sm-2">
+            <input disabled type="text" class="form-control"  name="user_name"  value="<{$user['user_name']}>">
+        </div>
+        <div class="Validform_checktip"></div>
+    </div>
+
+    <div class="form-group" style="padding-top: 10px;">
+        <label for="name" class="col-sm-1 control-label">后台账户</label>
+        <div class="col-sm-2">
+            <input disableautocomplete autocomplete="off" type="text" class="form-control"  name="name" id="name" data-provide="typeahead" value="<{$admin['name']}>">
+        </div>
+        <div class="Validform_checktip"></div>
+    </div>
+
+    <div class="form-group">
+        <div class="col-sm-offset-2 col-sm-10">
+            <input type="hidden" name="submit" value="1">
+            <input type="hidden" name="id" id="uid" value="<{$user['id']}>">
+            <button type="submit" class="btn btn-success" id="bind">绑定</button>
+            <button type="submit" class="btn btn-danger" id="unbind">解绑</button>
+        </div>
+    </div>
+</div>
+<script src="/assets/js/bootstrap-typeahead.js"></script>
+<script type="text/javascript">
+    $(function(){
+        $("#bind").click(function(){
+            var uid = $("#uid").val();
+            var name = $("#name").val();
+            if(uid==undefined){
+                MessageBox.error('系统异常，请重新登录');
+            }
+            if(confirm('确定要绑定该用户吗？')){
+                $.post("/user/do_bind", {uid:uid,name:name},function(data){
+                    if(data.code==200){
+                        MessageBox.success(data.msg);
+                        window.location.href='/user/user_list';
+                    }else{
+                        alert(data.msg)
+                    }
+                },'json');
+            }
+        });
+
+        $("#unbind").click(function(){
+            var uid = $("#uid").val();
+            if(uid==undefined){
+                MessageBox.error('系统异常，请重新登录');
+            }
+            if(confirm('确定要解绑该用户吗？')){
+                $.post("/user/do_unbild", {uid:uid},function(data){
+                    if(data.code==200){
+                        MessageBox.success(data.msg);
+                        window.location.href='/user/user_list';
+                    }else{
+                        alert(data.msg)
+                    }
+                },'json');
+            }
+        })
+
+       $("#name").typeahead({
+            source:function(query,process){
+                $.post('/user/s_admin_ap', {query:query}, function (data) {
+                    var array = [];
+//                    console.log(data);
+                    $.each(data,function(index,ele){
+                        array.push(ele.name)
+                    })
+                    process(array);
+                },'json');
+            },
+        })
+    })
+</script>

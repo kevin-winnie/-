@@ -1,0 +1,5 @@
+<ul class="nav nav-sidebar">
+<{foreach from=$sidebar item=item}>
+    <li <{if $item.active}> class="active" <{/if}> ><a href="<{$item.url}>"><{$item.name}></a></li>
+<{/foreach}>
+</ul>

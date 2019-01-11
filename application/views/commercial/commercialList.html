@@ -1,0 +1,257 @@
+<div class="panel panel-default">
+	<div class="panel-heading">商户列表</div>
+	<div class="panel-body">
+	<form class="form-horizontal" role="search"  method="post" action="/commercial/commercialList">
+			<div class="form-group">
+				  <div class="col-sm-2">
+					 <select class="form-control" name="search_need_deliver" id="search_need_deliver">
+						<option value="-1">账号状态</option>
+						<option value="1" <{if $search['search_need_deliver'] eq 1}>selected<{/if}>>是</option>
+						<option value="2" <{if $search['search_need_deliver'] eq 2}>selected<{/if}>>否</option>
+					 </select>
+				  </div>
+
+				  <div class="col-sm-2">
+					 <input type='text' class="form-control" name='name' placeholder="姓名" value="<{$search['name']}>">
+				  </div>
+				  <div class="col-sm-2">
+					 <input type='text' class="form-control" name='mobile' placeholder="手机号" value="<{$search['mobile']}>">
+				  </div>
+				  
+				  <button type="submit" class="btn btn-default">查找</button>
+			</div>
+	</form>
+	</div>
+
+	<table class="table">
+		<thead>
+		<tr>
+			<th></th>
+            <th>ID</th>
+			<th>商户主账号</th>
+			<th>商户名称</th>
+			<th>联系地址</th>
+			<th>联系人</th>
+			<th>联系手机</th>
+			<th>账号状态</th>
+			<th>相关操作</th>
+		</tr>
+		</thead>
+		<tbody>
+		<{foreach $list as $val}>
+		<tr>
+			<td><input type="checkbox" value="<{$val['id']}>" name="handle_admin_id"></td>
+            <td><{$val['id']}></td>
+			<td><{$val['admin_name']}></td>
+			<td><{$val['name']}></td>
+			<td><{$val['address']}></td>
+			<td><{$val['contacts']}></td>
+			<td><{$val['phone']}></td>
+			<td>
+                <{if $val['status'] eq 1}>
+                <span style="color:green">✔正常</span>
+                <{else}>
+                <span style="color:red">×冻结</span>
+                <{/if}>
+			</td>
+			<td>
+				<a href="/commercial/commercialUpdate/<{$val['id']}>" role="button" class="btn btn-info btn-sm">更新账户</a>
+				<{if $val['admin_name'] eq ''}>
+					<a href='javascript:void(0)' role="button" class="btn btn-danger btn-sm" onclick="genSadmin('<{$val['id']}>')">生成平台主账号</a>
+				<{else}>
+					<a href='javascript:void(0)'  role="button" class="btn btn-success btn-sm" onclick="resetPwd('<{$val['id']}>')">重置密码</a>
+				<{/if}>
+				<a href='/equipment/index/<{$val["id"]}>' role="button" class="btn btn-warning btn-sm">查看设备</a>
+				<a href='/admin/rbac/<{$val["id"]}>' role="button" class="btn btn-info btn-sm">rbac权限</a>
+			</td>
+		</tr>
+		<{/foreach}>
+		</tbody>
+	</table>
+
+	<div class="panel-footer" style="min-height:40px">
+		<input type="hidden" value="/commercial/commercialList" id="curr_url">
+		<input type="checkbox"  id="handleCheckBox">
+		批量操作:
+		<select name="is_hidden" id="is_hidden">
+			<option value="-1" >是否隐藏</option>
+			<option value="0" >否</option>
+			<option value="1" >是</option>
+		</select>
+		<select name="is_lock" id="is_lock">
+			<option value="-1" >是否冻结</option>
+			<option value="1" >否</option>
+			<option value="2" >是</option>
+		</select>
+		<select name="need_deliver" id="need_deliver">
+			<option value="-1" >是否自配送</option>
+			<option value="2" >否</option>
+			<option value="1" >是</option>
+		</select>
+		<select name="need_product" id="need_product">
+			<option value="-1" >是否供应商品</option>
+			<option value="2" >否</option>
+			<option value="1" >是</option>
+		</select>
+	</div>
+</div>
+<script type="text/javascript">
+	function genSadmin(id){
+		if(confirm("确认生成平台主账号吗?")){
+ 			$.ajax({
+ 				type: 'POST',
+				url: "/commercial/ajaxGenSadmin" ,
+				data: {id:id},
+				beforeSend:function(){
+					loadind();
+				},
+				success: function(data){
+ 					alert(data.msg);
+                    $('.loading-content').hide();
+                    $('.loading-bg').hide();
+                    window.location.reload();
+				} ,
+				dataType: 'json'
+ 			})
+ 		}
+	}
+
+	function resetPwd(id){
+		if(confirm("确认重置商户平台主账号密码吗?")){
+ 			$.ajax({
+ 				type: 'POST',
+				url: "/commercial/ajaxResetPwd" ,
+				data: {id:id},
+				beforeSend:function(){
+					loadind();
+				},
+				success: function(data){
+                    alert(data.msg);
+                    $('.loading-content').hide();
+                    $('.loading-bg').hide();
+                    window.location.reload();
+				} ,
+				dataType: 'json'
+ 			})
+ 		}
+	}
+	
+	function exportProduct(id){
+		if(confirm("确认要导入商品库中的商品到此商户吗?")){
+ 			$.ajax({
+ 				type: 'POST',
+				url: "/commercial/exportProduct" ,
+				data: {id:id},
+				beforeSend:function(){
+					loadind();
+				},
+				success: function(data){
+                    alert(data.msg);
+                    $('.loading-content').hide();
+                    $('.loading-bg').hide();
+                    window.location.reload();
+				} ,
+				dataType: 'json'
+ 			})
+ 		}
+	}
+
+	function select(val){
+		if(val == -1){
+			return false;
+		}
+		var ids_obj = $("input[name=handle_admin_id]:checked");
+
+		var id = [];
+		if(ids_obj.length==0){
+			alert("请选择分组");
+			return false;
+		}else{
+			var id = [];
+			ids_obj.each(function(){
+				id.push($(this).val());
+			})
+		}
+		return id;
+	}
+
+    function ajax(key,val,id){
+        $.ajax({
+            type : "POST",
+            url : "/commercial/ajax_commercial",
+            data : {"id": id, "key" : key,"val":val},
+            beforeSend:function(){
+                loadind();
+            },
+            success: function(data){
+                alert(data.msg);
+                if(data.code==1){
+                    window.location.href=$("#curr_url").val();
+                }else{
+                    $('.loading-content').hide();
+                    $('.loading-bg').hide();
+                }
+            } ,
+            dataType: 'json'
+        });
+    }
+	window.addEventListener("DOMContentLoaded", () => {
+		document.querySelector("#is_hidden").addEventListener("input", () => {
+			const val = document.querySelector("#is_hidden").value;
+			const id = select(val)
+			if(id !== false) ajax("is_hidden", val, id);
+		})
+	})
+	$(function(){
+		$('#is_lock').change(function(){
+			if(confirm("确认是否锁定吗?")){
+				var val = $(this).val();
+				var id = select(val);
+				if(id !== false){
+					ajax("status",val,id);
+				}else{
+					$(this).val("-1");
+				}
+			}else{
+				$(this).val("-1");
+			}
+		});
+
+		$('#need_deliver').change(function(){
+			if(confirm("确认是否自配送?")){
+				var val = $(this).val();
+				var id = select(val);
+				if(id !== false){
+					ajax("need_deliver",val,id);
+				}else{
+					$(this).val("-1");
+				}
+			}else{
+				$(this).val("-1");
+			}
+		});
+
+		$('#need_product').change(function(){
+			if(confirm("确认是否供应商品?")){
+				var val = $(this).val();
+				var id = select(val);
+				if(id !== false){
+					ajax("need_product",val,id);
+				}else{
+					$(this).val("-1");
+				}
+			}else{
+				$(this).val("-1");
+			}
+		});
+
+        $("#handleCheckBox").click(function() {
+            if ($("#handleCheckBox").is(":checked")) {
+                allCkb('handle_admin_id');
+            }else{
+                unAllCkb('handle_admin_id');
+            }
+        });
+
+	})
+</script>

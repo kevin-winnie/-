@@ -1,0 +1,200 @@
+
+<style type="text/css">
+    .ui-autocomplete{
+        border: 1px solid #aaa;
+        -webkit-border-radius: 5px;
+        -moz-border-radius: 5px;
+        border-radius: 5px;
+        background-color: #FFFFFF;
+    }
+</style>
+<div class="panel panel-default">
+    <div class="panel-heading">编辑故障设备</div>
+
+    <form id="add-user-form" class="form-horizontal" role="form" method="post" action="/equipment/pault_update"  onsubmit="return submit_model(this);">
+
+        <div class="panel-body">
+            <div class="form-horizontal" id="search">
+
+                <div class="form-group">
+                    <label  class="col-sm-2 control-label">设备id：</label>
+                    <div class="col-sm-2">
+                        <input type="text" class="form-control blur" name="equipment_id"  value="<{$rows['equipment_id']}>" datatype="*" nullmsg="请输入设备id！" readonly>
+                    </div>
+                    <div class="Validform_checktip"></div>
+                </div>
+                <div class="form-group">
+                    <label  class="col-sm-2 control-label"> 故障类别：</label>
+                    <div class="col-sm-2">
+                        <select class="form-control" name="pault_type"  datatype="*" nullmsg="请选择故障类别！">
+                            <option value="">--请选择--</option>
+                            <{foreach $pault_type as $key=>$val}>
+                            <option value="<{$key}>" <{if $rows['pault_type'] ==$key }>selected<{/if}>><{$val}></option>
+                            <{/foreach}>
+
+                        </select>
+
+                    </div>
+                    <div class="Validform_checktip"></div>
+                </div>
+                <div class="form-group">
+                    <label  class="col-sm-2 control-label"> 故障代码：</label>
+                    <div class="col-sm-2">
+                        <select class="form-control" name="pault_code"  datatype="*" nullmsg="请选择故障代码！">
+                            <option value="">--请选择--</option>
+                            <{foreach $pault_code as $key=>$val}>
+                            <option value="<{$key}>" <{if $rows['pault_code'] ==$key }>selected<{/if}>>code=<{$key}>(<{$val}>)</option>
+                            <{/foreach}>
+
+                        </select>
+
+                    </div>
+                    <div class="Validform_checktip"></div>
+                </div>
+                <div class="form-group">
+                    <label  class="col-sm-2 control-label">故障详情：</label>
+                    <div class="col-sm-2">
+                        <textarea name="pault_info" id="" cols="30" rows="5" datatype="*" nullmsg="请填写详情！"><{$rows['pault_info']}></textarea>
+                    </div>
+                    <div class="Validform_checktip"></div>
+                </div>
+                <div class="form-group">
+                    <label  class="col-sm-2 control-label">是否紧急：</label>
+                    <div class="col-sm-2">
+                        <input type="radio" name="urgent_status" value="紧急" <{if $rows['urgent_status'] == "紧急"}>checked<{/if}>>紧急(当天) <br>
+                        <input type="radio" name="urgent_status" value="一般" <{if $rows['urgent_status'] == "一般"}>checked<{/if}>>一般(1-2天)
+                    </div>
+
+                </div>
+                <div class="form-group">
+                    <label  class="col-sm-2 control-label">预约上门维修开始时间：</label>
+                    <div class="col-sm-2">
+                        <div class="input-group date  col-md-12" data-link-field="dtp_input1" id="time" >
+                            <input class="form-control" type="text" name="make_time" value="<{$rows['make_time']}>" placeholder="预约上门维修开始时间"  datatype="*" nullmsg="预约时间！" readonly>
+                            <span class="input-group-addon"><span class="glyphicon glyphicon-remove"></span></span>
+                            <span class="input-group-addon"><span class="glyphicon glyphicon-th"></span></span>
+                        </div>
+                    </div>
+                    <div class="Validform_checktip"></div>
+                </div>
+                <div class="form-group">
+                    <label  class="col-sm-2 control-label">预约上门维修结束时间：</label>
+                    <div class="col-sm-2">
+                        <div class="input-group date  col-md-12" data-link-field="dtp_input1" id="time2" >
+                            <input class="form-control" type="text" name="make_time_end" value="<{$rows['make_time_end']}>" placeholder="预约上门维修结束时间"  datatype="*" nullmsg="预约时间！" readonly>
+                            <span class="input-group-addon"><span class="glyphicon glyphicon-remove"></span></span>
+                            <span class="input-group-addon"><span class="glyphicon glyphicon-th"></span></span>
+                        </div>
+                    </div>
+                    <div class="Validform_checktip"></div>
+                </div>
+                <div class="form-group">
+                    <label  class="col-sm-2 control-label">状态：</label>
+                    <div class="col-sm-2">
+
+                        <select class="form-control" name="pault_status"   >
+
+                            <{foreach $pault_status as $key=>$val}>
+                            <option value="<{$key}>" <{if $rows['pault_status'] == $key}>selected<{/if}> ><{$val}></option>
+                            <{/foreach}>
+
+                        </select>
+                    </div>
+                    <div class="Validform_checktip"></div>
+                </div>
+                <div class="form-group">
+                    <label  class="col-sm-2 control-label">故障结果：</label>
+                    <div class="col-sm-2">
+                        <textarea name="pault_result" id="" cols="30" rows="5" ><{$rows['pault_result']}></textarea>
+                    </div>
+                    <!--<div class="Validform_checktip"></div>-->
+                </div>
+                <div class="form-group">
+                    <label  class="col-sm-2 control-label"></label>
+                    <div class="col-sm-2">
+                        <input type="hidden" name="id" value="<{$rows['id']}>">
+                        <button type="submit" class="btn btn-info" id="explore-btn">更新</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+<script type="text/javascript">
+    $("#add-user-form").Validform(
+        {tiptype:2}
+    );
+    $('#time').datetimepicker({
+        language: 'zh', //汉化
+        autoclose: 1,
+        format: 'yyyy-mm-dd hh:00:00',
+        minView: 'day'
+    });
+    $('#time2').datetimepicker({
+        language: 'zh', //汉化
+        autoclose: 1,
+        format: 'yyyy-mm-dd hh:00:00',
+        minView: 'day'
+    });
+        function submit_model(obj){
+
+                var dataPara = getFormJson();
+
+                    $.ajax({
+                        url: "/equipment/pault_update",
+                        type: 'POST',
+                        data: dataPara,
+                        dataType:'json',
+                        success: function(data){
+                            if(data =='success'){
+                                MessageBox.success('成功');
+
+                            }else if(data == false){
+                                MessageBox.error('已上报');
+                            }else{
+                                MessageBox.error('失败');
+                            }
+                        }
+                    });
+
+        }
+
+
+    //将form中的值转换为键值对。
+    function getFormJson() {
+        var o = {};
+        var a = $('#add-user-form').serializeArray();
+        $.each(a, function () {
+            if (o[this.name] !== undefined) {
+                if (!o[this.name].push) {
+                    o[this.name] = [o[this.name]];
+                }
+                o[this.name].push(this.value || '');
+            } else {
+                o[this.name] = this.value || '';
+            }
+        });
+        return o;
+    }
+    $('[name="pault_type"]').on('change',function(){
+        var pault_type = $(this).val();
+        $.ajax({
+            url: "/equipment/get_pault_type",
+            type: 'POST',
+            data: {pault_type:pault_type},
+            dataType:'json',
+            success: function(data){
+                if(data !='error'){
+                    $('[name="pault_code"]').empty();
+                    $('[name="pault_code"]').append( '<option value="">--请选择--</option>');
+                    $.each(data,function(k,v){
+                        $('[name="pault_code"]').append( '<option value="'+k+'">'+v+'</option>');
+                    })
+
+
+                }
+            }
+        });
+    })
+
+</script>

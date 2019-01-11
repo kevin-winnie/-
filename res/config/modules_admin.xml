@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Menu>
+    <ModulesList>
+        <name value="12" menu = "11" workgroup="warn">告警设置</name>
+        <name value="2" menu = "2" workgroup="showlog">日志管理</name>
+        <!--<name value="1" menu = "1" workgroup="admin">管理员</name>-->
+        <name value="10" menu = "10" workgroup="employee">店员管理</name>
+        <name value="6" menu = "6" workgroup="equipment">设备管理</name>
+        <name value="9" menu = "9" workgroup="products">商品管理</name>
+        <name value="5" menu = "5" workgroup="deliver">补货管理</name>
+        <name value="8" menu = "8" workgroup="active">活动管理</name>
+        <name value="3" menu = "3" workgroup="order">交易管理</name>
+        <!--<name value="7" menu = "7" workgroup="refund">售后管理</name>-->
+        <name value="4" menu = "4" workgroup="user">用户管理</name>
+        <!--<name value="11" menu = "11" workgroup="showlog">新老系统切换</name>-->
+
+        <name value="13" menu = "13" workgroup="report">数据报表</name>
+        <name value="14" menu = "14" workgroup="mall">商城管理</name>
+
+        <name value="15" menu = "15" workgroup="warehouse">仓储管理</name>
+
+        <name value="17" menu = "17" workgroup="ad">广告机</name>
+    </ModulesList>
+    <OptionList>
+        <name type ="10" value ="101" url="/employee/adduser">添加店员</name>
+        <name type ="10" value ="102" url="/employee/getuserlist">店员信息管理</name>
+        <name type ="10" value ="16" url="/admin/getgrouplist">分组管理</name>
+
+		<name type ="6" value ="65" url="/equipment/newbox">新设备待分配</name>
+        <name type ="6" value ="61" url="/equipment/index">设备信息管理</name>
+        <name type ="6" value ="62" url="/equipment/map">设备分布概览</name>
+        <name type ="6" value ="63" url="/equipment/show_reset">设备作废</name>
+        <name type ="6" value ="64" url="/equipment/code">批量设备二维码</name>
+        <name type ="6" value ="106" url="/equipment/banner">批量设备Banner</name>
+        <name type ="6" value ="107" url="/equipment/alipay">批量设备同步支付宝</name>
+        <name type ="6" value ="67" url="/report/equipment/bi_data">设备数据获取</name>
+        <name type ="6" value ="68" url="/report/equipment/sharpratio">设备SharpRatio</name>
+        <name type ="6" value ="69" url="/equipment/get_near_equipment">获取坐标周围设备</name>
+        <name type ="6" value ="611" url="/price/index">设备价格分组</name>
+        <name type ="6" value ="612" url="/equipment/device_fault">一键报修</name>
+        <name type ="6" value ="613" url="/location/index">设备点位</name>
+
+        <name type ="9" value ="91" url="/products/index">商品信息列表</name>
+        <name type ="9" value ="92" url="/products/labels_list">商品标签录入</name>
+        <name type ="9" value ="94" url="/products/labels_bind">商品标签绑定</name>
+        <name type ="9" value ="94" url="/products/labels_read">商品标签动态读取</name>
+        <name type ="9" value ="95" url="/products/bi_data">商品数据获取</name>
+        <name type ="9" value ="96" url="/export/products">商品取数工具</name>
+
+        <name type ="9" hidden ="true" value ="93" url="###">商品添加</name>
+        <name type ="9" value ="97" url="/products/rr_labels_bind">荣睿商品标签绑定</name>
+
+
+        <name type ="2" value ="21" url="/showlog/open_door">开门日志</name>
+        <name type ="2" value ="22" url="/showlog/pay_log">支付日志</name>
+        <name type ="2" value ="23" url="/showlog/log_abnormal">异常记录</name>
+
+        <name type ="2" value ="24" url="/showlog/log_stock">盘点日志</name>
+        <name type ="2" value ="25" url="/showlog/log_device_receive">盒子推送日志</name>
+        <name type ="2" value ="26" url="/showlog/log_request">请求第三方日志</name>
+        <name type ="2" value ="27" url="/showlog/log_api">API调用日志</name>
+        <name type ="2" value ="27" url="/showlog/device_status">设备运行状态</name>
+
+        <name type ="3" value ="31" url="/order/index">交易订单管理</name>
+        <name type ="3" value ="32" url="/order/sale_bi">销量汇总</name>
+        <name type ="3" value ="33" url="/bi/index">热销商品</name>
+        <name type ="3" value ="34" url="/bi/today_product">实时商品榜单</name>
+        
+        <name type ="4" value = "41" url="/user/user_list">用户列表</name>
+        <name type ="4" value = "99" url="/user/user_black_list">用户黑名单</name>
+        <name type ="4" value ="42" url="/card/card_model">优惠券模板配置</name>
+        <name type ="4" value ="43" url="/card/index">优惠券列表</name>
+        <name type ="4" value ="44" url="/card/qrcard">活动发券</name>
+        <name type ="4" value ="45" url="/card/indexcard">首页领券</name>
+        <name type ="4" value ="46" url="/card/ordercard">结算页领券</name>
+        <name type ="4" value ="200" url="/card/modou_exchange">魔豆兑换</name>
+        <name type ="4" value ="47" url="/card/thirdpartycard">第三方优惠券</name>
+		<name type ="4" value ="411" url="/user/pingan">平安银行数据</name>
+		<name type ="4" value ="48" url="/user/question_model">问卷列表</name>
+		<name type ="4" value ="412" url="/template_message">支付通知模板广告</name>
+        <name type ="4" value ="413" url="/admin/mob_banding">小程序手机绑定开关</name>
+
+        <name type="5" value="52" url="/deliver/shipping">添加出库/下架单</name>
+        <name type="5" value="55" url="/deliver/shipping_order_list">出库/下架单列表</name>
+        <name type="5" value="56" url="/deliver_order/replenish_config">自动补货商品配置</name>
+        <name type="5" value="54" url="/deliver/member">配送员列表</name>
+        <name type="5" value="53" url="/deliver/permission">开门权限配置</name>
+        <name type="5" value="51" url="/deliver/deliver_list">配送工单查询</name>
+        <name type ="5" value ="57" url="/deliver/question_model_add">补货问卷配置</name>
+        <!--<name type ="5" value ="58" url="/deliver/notice_add">补货公告配置</name>-->
+        <name type ="3" value ="71" url="/refund/index">退货管理</name>
+        <!--<name type ="8" value ="81" url="/active/first">首单活动</name>-->
+        <name type ="8" value ="82" url="/active/discount">活动管理</name>
+
+
+
+        <name type ="11" value ="80" url="/sys/change_bind">新老系统商品绑定</name>
+        <name type ="11" value ="84" url="/sys/change_new">新老系统切换</name>
+        <name type ="11" value ="85" url="/sys/check_label">老系统标签</name>
+        <name type ="12" value ="86" url="/warn_system/setting">告警设置</name>
+        <name type ="12" value ="87" url="/warn_system/user">告警对象</name>
+        <name type ="12" value ="88" url="/warn_system/group">告警对象组</name>
+
+        <name type ="13" value ="130" url="/report/current">实时概况</name>
+        <name type ="13" value ="131" url="/report/overall">整体看板</name>
+        <name type ="13" value ="132" url="/report/pinSave">进销存导出</name>
+        <name type ="13" value ="133" url="/admin/separate">分账单查看</name>
+        <name type ="13" value ="134" url="/report/pvuv">埋点数据查看</name>
+        
+        <name type ="14" value ="83" url="/active/banner">首页轮播</name>
+        <name type ="14" value ="161" url="/tag/tag/index">标签管理</name>
+        <name type ="14" value ="141" url="/recharge/index">充值设置</name>
+        <name type ="14" value ="142" url="/recharge/table_list">余额充值记录</name>
+        <name type ="14" value ="167" url="/personal/personal_set">个性化设置</name>
+        <name type ="14" value ="414" url="/admin/to_greet">小程序问候语设置</name>
+        <name type ="14" value ="147" url="/admin/shop_config">商城设置</name>
+
+
+        <name type ="15" value ="150" url="/warehouse/warehouse_list">仓储设置</name>
+        <name type ="15" value ="152" url="/warehouse/product_stock_list">仓库库存</name>
+        <name type ="15" value ="157" url="/warehouse/product_label">仓库标签</name>
+        <name type ="15" value ="159" url="/warehouse/stock_lock">库存冻结</name>
+        <name type ="15" value ="158" url="/warehouse/supplier">供应商</name>
+        <name type ="15" value ="156" url="/warehouse/order_list/allocate">叫货</name>
+        <name type ="15" value ="155" url="/warehouse/order_list/stock_in">入库</name>
+        <name type ="15" value ="153" url="/warehouse/order_list/stock_out">出库</name>
+        <name type ="15" value ="151" url="/warehouse/order_list/check">盘点</name>
+        <name type ="15" value ="154" url="/warehouse/order_list/lose_report">报损</name>
+        <name type ="15" value ="166" url="/warehouse/order_list/distribute">调拨</name>
+        <name type ="15" value ="166" url="/warehouse/order_list/pick">取货</name>
+        <name type ="15" value ="166" url="/warehouse/order_list/retreat">退货</name>
+        <name type ="15" value ="163" url="/warehouse/sorting_diff">分拣差异登记</name>
+        <name type ="15" value ="164" url="/warehouse/diff_shelf">上下架差异</name>
+        <name type ="15" value ="160" url="/cases/cases_list">物料管理</name>
+
+        <name type ="17" value ="171" url="/ad/material/index">素材管理</name>
+        <name type ="17" value ="172" url="/ad/material_group/index">素材组管理</name>
+        <name type ="17" value ="173" url="/ad/release/index">发布管理</name>
+        <name type ="17" value ="174" url="/ad/play_strategy/index">已发布节目管理</name>
+        <name type ="17" value ="175" url="/ad/ad_device_group/index">广告机分组</name>
+    </OptionList>
+</Menu>

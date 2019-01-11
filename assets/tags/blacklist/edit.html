@@ -1,0 +1,80 @@
+<edit>
+	<!-- Modal -->
+	<div class="modal fade" id="edit" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+		<div class="modal-dialog" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+					<h4 class="modal-title" id="myModalLabel">修改</h4>
+				</div>
+				<div class="modal-body">
+
+					<!-- form -->
+					<form id="send" class="form-horizontal" submit="">
+						<div class="form-group">
+							<label class="col-sm-3 control-label">目标用户：</label>
+							<div class="col-sm-9">
+								<input class="form-control" name="target" value="{ item.target }">
+							</div>
+						</div>
+						<div class="form-group">
+							<label class="col-sm-3 control-label">消息类型：</label>
+							<div class="col-sm-9">
+								<select name="type" class="form-control" value="{ item.type }">
+									<option value="sms">短信</option>
+									<option value="app">APP</option>
+									<option value="email">邮件</option>
+									<option value="weixin">微信</option>
+								</select>
+							</div>
+						</div>
+						<div class="form-group">
+							<label class="col-sm-3 control-label">注释：</label>
+							<div class="col-sm-9">
+								<input type="text" class="form-control" name="comment" value="{ item.comment }">
+							</div>
+						</div>
+						<div class="form-group">
+							<label class="col-sm-3 control-label">启用：</label>
+							<div class="col-sm-9">
+								<label class="radio-inline">
+									<input name="active" type="radio" value="1" checked="">是
+								</label>
+								<label class="radio-inline">
+									<input name="active" type="radio" value="0" checked="">否
+								</label>											
+							</div>
+						</div>											
+					</form>
+					<!-- /form -->					
+				</div>
+
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+					<button type="button" class="btn btn-primary" data-dismiss="modal" onclick="{ submit }">提交</button>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<script>
+		var self = this;
+		opts.on('edit_start', function(data) {
+			$("#edit input:radio[value="+data.result[0].active+"]").prop("checked", true);
+			self.update({item: data.result[0]});
+		})
+	
+		submit(e) {
+			var params = {};
+			params.data = {};
+			params.conditions = {id:self.item.id};
+			$("#edit form").serializeArray().forEach(function(item) {
+				params.data[item.name] = item.value;
+			});
+			// 最后编辑的人
+			params.data.by = $(".nav.navbar-nav.navbar-right a.dropdown-toggle").text().trim();
+			opts.update(params);
+		}		
+	</script>
+
+</edit>

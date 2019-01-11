@@ -1,0 +1,96 @@
+<{if $tips eq ''}>
+<{elseif $tips eq '更新成功'}>
+<div class="alert alert-success" role="alert"><{$tips}></div>
+<{else}>
+<div class="alert alert-danger" role="alert"><{$tips}></div>
+<{/if}>
+<div class="panel panel-default">
+	<div class="panel-heading">
+		更新管理员
+		<a href='/admin/getuserlist' role="button" class="btn btn-info btn-sm">返回上一级</a>
+	</div>
+	<div class="panel-body">
+		<form id="add-user-form" class="form-horizontal" role="form" method="post" action="/admin/upuser/<{$item->id}>">
+		   <div class="form-group">
+			  <label for="name" class="col-sm-2 control-label">用户：</label>
+			  <div class="col-sm-2">
+				<input type="text" class="form-control" id="name" name="name" value="<{$item->name}>" readonly>
+			  </div>
+		   </div>
+		   <div class="form-group">
+			  <label for="group" class="col-sm-2 control-label">职能：</label>
+			  <div class="col-sm-2">
+				 <select class="form-control" name="group[]" id="group" multiple='true' size='10'>
+				 	<!-- <option value="0">请选择分组</option> -->
+					<{foreach $groupList as $val}>
+					<option value="<{$val->id}>" <{if $val->id|in_array:$groups}>selected<{/if}>><{$val->name}></option>
+					<{/foreach}>
+				  </select>
+			  </div>
+		   </div>
+		   
+		   <div class="form-group">
+                <label  class="col-sm-2 control-label"></label>
+                <div class="col-sm-10">
+                    <{foreach key=key item=val from=$store_list}>
+                    <label style="margin-right:10px;font-weight: normal">
+                        <input onclick="get_box_list(this)" type="checkbox" name="store_id[]" data-store-type="<{$val['code']}>" value="<{$val['code']}>"> <{$val['name']}>
+                    </label>
+                    <{/foreach}>
+                </div>
+            </div>
+
+		   <div class="form-group">
+			  <label for="alias" class="col-sm-2 control-label">姓名：</label>
+			  <div class="col-sm-2">
+				<input type="text" class="form-control" id="alias" name="alias" datatype="*" nullmsg="请输入姓名！" value="<{$item->alias}>" placeholder="请输入姓名">
+			  </div>
+			  <div class="Validform_checktip"></div>
+		   </div>
+		   <div class="form-group">
+			  <label for="mobile" class="col-sm-2 control-label">手机：</label>
+			  <div class="col-sm-2">
+				<input type="text" class="form-control" id="mobile" name="mobile" datatype="*" nullmsg="请输入手机号！" value="<{$item->mobile}>" placeholder="请输入手机">
+			  </div>
+			  <div class="Validform_checktip"></div>
+		   </div>
+		   <div class="form-group">
+			  <label for="id_card" class="col-sm-2 control-label">身份证：</label>
+			  <div class="col-sm-2">
+				<input type="text" class="form-control" id="id_card" name="id_card" value="<{$item->id_card}>" placeholder="请输入身份证">
+			  </div>
+		   </div>
+		   <div class="form-group">
+			  <label for="email" class="col-sm-2 control-label">邮箱：</label>
+			  <div class="col-sm-2">
+				<input type="text" class="form-control" id="email" name="email" value="<{$item->email}>" placeholder="请输入邮箱">
+			  </div>
+		   </div>
+		   <!--<div class="form-group">
+			  <label for="alias" class="col-sm-2 control-label">帐号管理(组)：</label>
+			  <div class="col-sm-2">
+				<input type="checkbox" class="form-control" value=1 id="is_first" name="is_first" <{if $item->is_first eq 1}>checked<{/if}>>
+			  </div>
+		   </div>-->
+		   <div class="form-group">
+			  <div class="col-sm-offset-2 col-sm-10">
+				 <input type="hidden" name="submit" value="1">
+				 <input type="hidden" name="id" value="<{$id}>">
+				 <button type="submit" class="btn btn-default">确定</button>
+			  </div>
+		   </div>
+		</form>
+	</div>
+</div>
+
+<script type="text/javascript">
+	$("#add-user-form").Validform(
+		{tiptype:2}
+	);
+	
+	function get_box_list(obj){
+        var code = $(obj).attr('data-store-type');
+        var flag = $(obj).prop('checked');
+        $('.store-box').find('input[data-store-type="'+code+'"]').prop('checked', flag)
+    }
+</script>

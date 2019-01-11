@@ -1,0 +1,103 @@
+<strategy-find>
+    <form id="find" class="form-inline" onsubmit="{ submit }">
+  
+        <div class="row">
+            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                <div class="form-group">
+                    <label>名称：</label>
+                    <input class="form-control" type="text" name="name" />
+                </div>
+
+                <div class="form-group">
+                    <label>商品：</label>
+                    <input class="form-control" type="text" name="product" placeholder="仅限商品ID"/>
+                </div>        
+
+                <div class="form-group">
+                    <label>类型：</label>
+                    <select class="form-control" name="type">
+                        <option value="">所有</option>
+                        <option value="amount">满额</option>
+                        <option value="quantity">满件</option>
+                    </select>		
+                </div>		
+
+                <div class="form-group">
+                    <label>方式：</label>
+                    <select class="form-control" name="solution_type">
+                        <option value="">所有</option>
+                        <option value="gift">赠品</option>
+                        <option value="discount">减免</option>
+                        <option value="exchange">换购</option>
+                    </select>		
+                </div>	                
+            </div>
+            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                <div class="form-group">
+                    <label>开始：</label>
+                    <input class="form-control" type="text"  name="start" />
+                </div>  
+
+                <div class="form-group">
+                    <label>结束：</label>
+                    <input class="form-control" type="text"  name="end" />
+                </div>                
+
+                <div class="form-group">
+                    <label>启用：</label>
+                    <select class="form-control" name="active">
+                        <option value="">所有</option>
+                        <option value="true">是</option>
+                        <option value="false">否</option>
+                    </select>		
+                </div>				
+
+                <div class="form-group">
+                    <button type="submit" class="btn btn-primary">查询</button>
+                    <button type="button" class="btn btn-default" onclick="{ reset }">重置</button>
+                </div>                
+            </div>
+        </div>
+    </form>
+
+    <script>
+        
+        var self = this;
+        
+        opts.on('find_strategy', function(strategies) {
+			opts.find( $("#find").serialize() );
+		});
+
+		self.on('mount', function(){
+			$("input[name=start]").datetimepicker({
+				format: "YYYY-MM-DD HH:mm:ss"
+			});
+			$("input[name=end]").datetimepicker({
+				format: "YYYY-MM-DD HH:mm:ss"
+			});
+		});	        
+        
+        submit(e) {
+            opts.find( $("#find").serialize() );
+        }
+        
+		reset() {
+			$("#find")[0].reset();
+		}        
+        
+    </script>
+
+    <style type="text/css" scoped>
+        :scope form {
+            margin-top: 5px;
+        }         
+
+        :scope .form-group {
+            margin-top: 5px
+        }  
+
+        :scope button:nth-of-type(1) {
+            margin-left: 10px
+        }  
+    </style>
+</strategy-find>

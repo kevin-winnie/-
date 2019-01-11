@@ -1,0 +1,15 @@
+<div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+    <h4 class="modal-title" id="myModalLabel">导出列表</h4>
+</div>
+<div class="modal-body">
+    <ul class="list-group">
+        <{foreach key=key item=item from=$list}>
+        <li class="list-group-item" onclick="download_order(this,'<{$item['url']}>')"><{$key}>.<{$item['text']}></li>
+        <{/foreach}>
+    </ul>
+</div>
+<div class="modal-footer">
+    <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+    <!--<button type="button" class="btn btn-primary" id="set_group_id">提交更改</button>-->
+</div>

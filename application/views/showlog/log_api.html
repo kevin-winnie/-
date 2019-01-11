@@ -1,0 +1,97 @@
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <h3 class="panel-title">API调用日志</h3>
+    </div>
+    <div class="panel-body">
+        <div class="form-horizontal" id="search">
+            <div class="form-group">
+                <div class="col-sm-2">
+                    <input type="text" class="form-control" size='8' name="search_uri" placeholder="URL">
+                </div>
+                <div class="col-sm-2">
+                    <input type="text" class="form-control" size='8' name="search_param" placeholder="参数">
+                </div>
+                <div class="col-sm-3">
+                    <div class="input-group date  col-md-10" data-link-field="dtp_input1" id="time" >
+                        <input class="form-control" type="text" name="time"  placeholder="发生时间"  readonly>
+                        <span class="input-group-addon"><span class="glyphicon glyphicon-remove"></span></span>
+                        <span class="input-group-addon"><span class="glyphicon glyphicon-th"></span></span>
+                    </div>
+                    <input type="hidden" name="search_pay_time" class="check_text" id="dtp_input1" value="" data-attr="开始时间不能为空" />
+                </div>
+                <div class="col-sm-2">
+                    <select class="form-control" name="search_type">
+                        <option value="-1">类型</option>
+                        <option value="get">GET</option>
+                        <option value="post">POST</option>
+                    </select>
+                </div>
+
+                <div class="col-sm-2">
+                    <input type="text" class="form-control" size='8' name="search_response" placeholder="响应内容">
+                </div>
+                <button type="button" class="btn btn-default" id="search-btn">查找</button>
+                <input type="hidden" id="origin_url" value="/showlog/log_api_table">
+            </div>
+        </div>
+    </div>
+    <div class="panel-body">
+        <div id="config-body">
+            <table id="config-table" data-toggle="table" style="font-size: 10px;" data-url="/showlog/log_api_table" data-select-item-name="radioName" data-pagination="true" data-page-size="10" data-side-pagination="server" data-page-list="[5,10,15,20]">
+                <thead>
+                <tr>
+                    <th data-field="uri" data-align="center">URL</th>
+                    <th data-field="method" data-align="center">方法</th>
+                    <th data-field="params" data-align="center">参数</th>
+                    <th data-field="time" data-sortable="true" data-align="center">请求时间</th>
+                    <th data-field="rtime" data-sortable="true" data-align="center">执行时间</th>
+                    <th data-field="ip_address" data-align="center">IP</th>
+                    <th data-field="response_code" data-align="center">响应码</th>
+                    <th data-field="response" data-align="center">响应</th>
+                </tr>
+                </thead>
+            </table>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    $(function(){
+        $('#time').datetimepicker({
+            language: 'zh', //汉化
+            autoclose: 1,
+            format: 'yyyy-mm-dd hh:00:00',
+            minView: 'day'
+        });
+        $('#to_date').datetimepicker({
+            language: 'zh', //汉化
+            autoclose: 1,
+            format: 'yyyy-mm-dd hh:00:00',
+            minView: 'day'
+        });
+
+        $('#config-table').bootstrapTable({
+        }).on('click-row.bs.table', function (e, row, $element) {
+            $("#curr_id").val(row.id);
+        });
+        $("#config-body").delegate(".show_img","click",function(){
+            MessageBox.alert($(this).attr('data-content'));
+        });
+        $("#search-btn").on('click', function(){
+            var serverUrl = $('#origin_url').val();
+            var filterData = "";
+            $.each($("[name^='search_']"), function() {
+                field = $(this).attr('name');
+                data = $(this).val();
+                if(data!=-1 && data!=""){
+                    filterData += field+"="+data+"&";
+                }
+            });
+            if(filterData==""){
+                var url = serverUrl;
+            }else{
+                var url = serverUrl +'?'+filterData;
+            }
+            $('#config-table').bootstrapTable('refresh', {url: url});
+        });
+    });
+</script>

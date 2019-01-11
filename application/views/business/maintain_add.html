@@ -1,0 +1,1262 @@
+
+<{if $status eq ''}>
+<{else }>
+<div class="alert alert-success" role="alert"><{$status}></div>
+
+<{/if}>
+<ul id="myTab" class="nav nav-tabs">
+    <li class="active">
+        <a href="#home" data-toggle="tab" >
+            点位资料
+        </a>
+    </li>
+    <li><a href="#ios" data-toggle="tab">装机信息</a></li>
+    <li><a href="#contract" data-toggle="tab">合同信息</a></li>
+
+</ul>
+<div id="myTabContent" class="tab-content">
+
+    <div class="tab-pane fade in active" id="home">
+        <div class="panel panel-default">
+
+            <div class="panel-body">
+                <div class="form-horizontal " role="form" id="search">
+                    <form id="add-user-form" class="form-horizontal" role="form" method="post"   action="/business/save" enctype="multipart/form-data" onsubmit="return submit_model(this);">
+                        <input type="hidden" name="clue_id" id="clue_id" value="<{$clue_list['clue_id']}>">
+                    <div class="form-group ">
+                        <label  class="col-sm-2 control-label"><font color="#FF0000">*</font> 点位名称：</label>
+                        <div class="col-sm-2">
+                            <input type="text" class="form-control" name="name" placeholder="点位名称" value="<{$clue_list['name']}>">
+                        </div>
+                        <label  class="col-sm-2 control-label"><font color="#FF0000">*</font>点位人数：</label>
+                        <div class="col-sm-2">
+                            <input type="text" class="form-control" name="number" placeholder="点位人数" value="<{$clue_list['number']}>">
+                        </div>
+                        <label  class="col-sm-2 control-label">男女比例：</label>
+                        <div class="col-sm-2 form-inline">
+                        <input type="text" class="form-control" name="boynumber"  style="width: 50px" value="<{$clue_list['boynumber']}>">--
+                        <input type="text" class="form-control" name="girlnumber"  style="width: 50px"value="<{$clue_list['girlnumber']}>">
+                        </div>
+                    </div>
+
+                        <div class="form-group">
+                            <label  class="col-sm-2 control-label"><font color="#FF0000">*</font>联系人：</label>
+                            <div class="col-sm-2">
+                                <input type="text" class="form-control" name="contacts" value="<{$clue_list['contacts']}>">
+                            </div>
+                            <label  class="col-sm-2 control-label"><font color="#FF0000">*</font>联系人电话：</label>
+                            <div class="col-sm-2">
+                                <input type="text" class="form-control" name="phone" value="<{$clue_list['phone']}>">
+                            </div>
+                            <label  class="col-sm-2 control-label " >联系人职位：</label>
+                            <div class="col-sm-2">
+                            <input type="text" class="form-control" name="contacts_title" value="<{$clue_list['contacts_title']}>">
+                            </div>
+                        </div>
+                    <div class="form-group ">
+                        <label  class="col-sm-2 control-label"><font color="#FF0000">*</font> 点位地址：</label>
+                        <!--input-group-btn-->
+                        <input type="hidden" id="p" value="<{$clue_list['province']}>">
+                        <input type="hidden" id="c" value="<{$clue_list['city']}>">
+                        <input type="hidden" id="a" value="<{$clue_list['area']}>">
+                            <div class="col-sm-2">
+                                <select  id="pr" class="form-control" name="province" >
+                                    <option value="-1">省份</option>
+                                </select>
+                            </div>
+                           <div class="col-sm-2">
+                                <select  id="ci" class="form-control" name="city" >
+                                    <{if $clue_list['city'] != 0 && $clue_list['city'] != "" && $clue_list['city'] != -1}>
+                                    <option value="<{$clue_list['city']}>"><{$clue_list['city_name']}></option>
+                                    <{else}>
+                                    <option value="-1">市区</option>
+                                    <{/if}>
+                                </select>
+                            </div>
+                            <div class="col-sm-2">
+                                <select  id="ar" class="form-control" name="area" >
+                                    <{if $clue_list['area'] != 0 && $clue_list['area'] != "" && $clue_list['area'] != -1}>
+                                    <option value="<{$clue_list['area']}>"><{$clue_list['area_name']}></option>
+                                    <{else}>
+                                    <option value="-1">地区</option>
+                                    <{/if}>
+                                </select>
+                            </div>
+
+                            <div class=" col-sm-2">
+                            <input type="text" class="form-control" name="address" placeholder="省、市、县（区）街道、巷" value="<{$clue_list['address']}>">
+                            </div>
+                    </div>
+
+
+                    <div class="form-group">
+                        <label  class="col-sm-2 control-label"><font color="#FF0000">*</font>所属商户：</label>
+                        <div class="col-sm-2">
+                            <select   class="form-control " name="merchant_owned">
+                                <option value="-1">请选择</option>
+                                <{foreach from=$commercial_list item=val }>
+                                    <{if $val['id'] == $clue_list['merchant_owned']}>
+                                    <option value="<{$val['id']}>" selected><{$val['name']}></option>
+                                    <{else}>
+                                    <option value="<{$val['id']}>" ><{$val['name']}></option>
+                                    <{/if}>
+                                <{/foreach}>
+                            </select>
+                        </div>
+                        <label  class="col-sm-2 control-label">点位场景：</label>
+                        <div class="col-sm-2">
+                            <select   class="form-control " name="scene" id="scene_additional">
+                                <option value="-1">请选择</option>
+                                <{foreach from=$scene key=key item=val }>
+                                <{if $key == $clue_list['scene']}>
+                                <option value="<{$key}>" selected="selected"><{$val}></option>
+                                <{else}>
+                                <option value="<{$key}>" ><{$val}></option>
+                                <{/if}>
+                                <{/foreach}>
+
+                            </select>
+                            <{if $clue_list['scene'] == 11}>
+                                <input type="text" class="form-control" name="scene_additional" value=" <{$clue_list['scene_additional']}>">
+                            <{else}>
+                                <input type="text" class="form-control" name="scene_additional" style="display: none">
+                            <{/if}>
+                        </div>
+                        <label  class="col-sm-2 control-label " >等級：</label>
+                        <div class="col-sm-2">
+
+                            <select class="form-control" name="grade" >
+                                <option value="" <{if $clue_list['grade'] == ""}> selected<{/if}>>请选择</option>
+
+                                <option value="A" <{if $clue_list['grade'] == "A"}> selected<{/if}>>A</option>
+                                <option value="B" <{if $clue_list['grade'] == "B"}> selected<{/if}>>B</option>
+                                <option value="C" <{if $clue_list['grade'] == "C"}> selected<{/if}>>C</option>
+
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label  class="col-sm-2 control-label">点位性质：</label>
+                        <div class="col-sm-2">
+                            <select   class="form-control " name="nature">
+                                <option value="-1">请选择</option>
+                                <{foreach from=$nature key=key item=val }>
+                                <{if $key == $clue_list['nature']}>
+                                <option value="<{$key}>" selected="selected"><{$val}></option>
+                                <{else}>
+                                <option value="<{$key}>" ><{$val}></option>
+                                <{/if}>
+                                <{/foreach}>
+                            </select>
+                        </div>
+                        <label  class="col-sm-2 control-label">所属行业：</label>
+                        <div class="col-sm-2">
+                            <select   class="form-control " name="industry">
+                                <option value="-1">请选择</option>
+                                <{foreach from=$industry key=key  item=val }>
+
+                                <{if $key == $clue_list['industry']}>
+                                <option value="<{$key}>" selected="selected"><{$val}></option>
+                                <{else}>
+                                <option value="<{$key}>" ><{$val}></option>
+                                <{/if}>
+                                <{/foreach}>
+                            </select>
+                        </div>
+                        <label  class="col-sm-2 control-label " ><font color="#FF0000">*</font>乙方公司名(合约)：</label>
+                        <div class="col-sm-2">
+                            <input type="text" class="form-control" name="company" value="<{$clue_list['company']}>">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label  class="col-sm-2 control-label">工作日：</label>
+                        <div class="col-sm-2">
+
+                            <input type="checkbox" name="days[]" value="1" <{foreach from=$clue_list['days']    item=val }><{if $val == 1}> checked="checked" <{/if}><{/foreach}>> 周一
+
+                            <input type="checkbox" name="days[]" value="2" <{foreach from=$clue_list['days']    item=val }><{if $val == 2}> checked="checked" <{/if}><{/foreach}>> 周二
+                            <input type="checkbox" name="days[]" value="3" <{foreach from=$clue_list['days']    item=val }><{if $val == 3}> checked="checked" <{/if}><{/foreach}>> 周三
+                            <input type="checkbox" name="days[]" value="4" <{foreach from=$clue_list['days']    item=val }><{if $val == 4}> checked="checked" <{/if}><{/foreach}>> 周四
+                            <input type="checkbox" name="days[]" value="5" <{foreach from=$clue_list['days']    item=val }><{if $val == 5}> checked="checked" <{/if}><{/foreach}>> 周五
+                            <input type="checkbox" name="days[]" value="6" <{foreach from=$clue_list['days']    item=val }><{if $val == 6}> checked="checked" <{/if}><{/foreach}>> 周六
+                            <input type="checkbox" name="days[]" value="7" <{foreach from=$clue_list['days']    item=val }><{if $val == 7}> checked="checked" <{/if}><{/foreach}>> 周日
+                        </div>
+                        <label  class="col-sm-2 control-label">商品偏好：</label>
+                        <div class="col-sm-2">
+                            <input type="radio" name="goods" value="1" <{if $clue_list['goods'] == 1}> checked="checked" <{/if}> > 高端
+                            <input type="radio" name="goods" value="2" <{if $clue_list['goods'] == 2}> checked="checked" <{/if}> > 中端
+                            <input type="radio" name="goods" value="3" <{if $clue_list['goods'] == 3}> checked="checked" <{/if}> > 低端
+
+                        </div>
+                    </div>
+                        <div class="form-group form-inline ">
+                            <label  class="col-sm-2 control-label">工作时间：</label>
+
+                            <div class="input-group-btn col-sm-2  ">
+                                <select   class="form-control " style = "width:100px;" name="start_hours">
+                                    <option value="-1">选择24h的时间</option>
+                                    <{for $i = 00; $i <= 23; $i++}>
+                                    <{if $i == $clue_list['start_hours']}>
+                                    <option value="<{$i}>" selected><{$i}>:00</option>
+                                    <{else}>
+                                    <option value="<{$i}>"><{$i}>:00</option>
+                                    <{/if}>
+
+                                    <{/for}>
+                                </select>
+                                <select   class="form-control " style = "width:100px;" name="end_hours">
+                                    <option value="-1">选择24h的时间</option>
+                                    <{for $i = 00; $i <= 23;$i++}>
+                                    <{if $i == $clue_list['end_hours']}>
+                                    <option value="<{$i}>" selected><{$i}>:00</option>
+                                    <{else}>
+                                    <option value="<{$i}>"><{$i}>:00</option>
+                                    <{/if}>
+                                    <{/for}>
+
+                                </select>
+                            </div>
+
+                        </div>
+                    <div class="form-group">
+                        <label  class="col-sm-2 control-label">公司福利：</label>
+                        <div class="col-sm-2">
+                            <input type="radio" name="welfare" value="1" <{if $clue_list['welfare'] == 1}> checked="checked" <{/if}>> 有
+                            <input type="radio" name="welfare" value="2" <{if $clue_list['welfare'] == 2}> checked="checked" <{/if}>> 无
+                        </div>
+                        <label  class="col-sm-2 control-label">是否有便利店：</label>
+                        <div class="col-sm-2">
+                            <input type="radio" name="facilitate_status" value="1" <{if $clue_list['facilitate_status'] == 1}> checked="checked" <{/if}>> 有
+                            <input type="radio" name="facilitate_status" value="2" <{if $clue_list['facilitate_status'] == 2}> checked="checked" <{/if}>> 无
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label  class="col-sm-2 control-label">是否有微波炉：</label>
+                        <div class="col-sm-2">
+                            <input type="radio" name="micro_status" value="1" <{if $clue_list['micro_status'] == 1}> checked="checked" <{/if}>> 有
+                            <input type="radio" name="micro_status" value="2" <{if $clue_list['micro_status'] == 2}> checked="checked" <{/if}>> 无
+                        </div>
+                        <label  class="col-sm-2 control-label">加班情况：</label>
+                        <div class="col-sm-2 ">
+                            <input type="text" class="form-control" name="overtime" value="<{$clue_list['overtime']}>">
+                        </div>
+                    </div>
+
+
+                    <div class="form-group">
+                        <label  class="col-sm-2 control-label">福利描述：</label>
+                        <div class="col-sm-2 ">
+                            <input type="text" class="form-control" name="welfare_describe" value="<{$clue_list['welfare_describe']}>">
+                        </div>
+                        <label  class="col-sm-2 control-label">备注：</label>
+                        <div class="col-sm-2">
+                            <input type="text" class="form-control" name="remark" value="<{$clue_list['remark']}>">
+
+                        </div>
+                    </div>
+                        <div class="form-group">
+                            <label  class="col-sm-2 control-label">是否有售卖机：</label>
+                            <div class="col-sm-2">
+                                <input type="radio" name="sell_status" value="1" <{if $clue_list['sell_status'] == 1}> checked="checked" <{/if}>> 有
+                                <input type="radio" name="sell_status" value="2" <{if $clue_list['sell_status'] == 2}> checked="checked" <{/if}>> 无
+                                <input type="file" value="上传图片"   name="sell_img_file" id="sell_img_file" onchange="ajaxFileUpload(this.id);">
+                                <input type="hidden" name="sell_img" value="<{$clue_list['sell_img']|default:''}>">
+                                <img src="<{$img_http}><{$clue_list['sell_img']}>" alt="" class="show_img <{if $clue_list['sell_img'] eq ''}>hide<{/if}>" style="width:300px;height: 300px">
+
+
+                            </div>
+                            <label  class="col-sm-2 control-label">点位停车信息：</label>
+                            <div class="col-sm-2">
+                                <textarea class="form-control" name="parkinginfo"  cols="30" rows="10"><{$clue_list['parkinginfo']|default:''}></textarea>
+
+                            </div>
+                        </div>
+
+                    <h5 class="page-header" style="margin: auto">点位商务信息</h5>
+                    <h5 class="page-header" style="margin: auto"></h5><br/><br/>
+
+                    <div class="form-group">
+                        <label  class="col-sm-2 control-label">推荐源：</label>
+                        <div class="col-sm-2 ">
+                            <input type="text" class="form-control" name="source" value="<{$clue_list['source']}>">
+                        </div>
+                        <label  class="col-sm-2 control-label">DB负责人：</label>
+                        <div class="col-sm-2">
+                            <input type="text" class="form-control"  value="<{$clue_list['admin_name']}>" disabled="disabled">
+                            <input type="hidden" name="db_duty" value="<{$clue_list['db_duty']}>">
+
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label  class="col-sm-2 control-label">客户经理：</label>
+                        <div class="col-sm-2 ">
+                            <input type="text" class="form-control" name="merchant_name" placeholder="平台端账号的姓名" value="<{$clue_list['merchant_name']}>">
+                        </div>
+                        <label  class="col-sm-2 control-label">协议时间：</label>
+                        <div class="col-sm-2  ">
+
+                                <div class="input-group date  "  id="time" style="width: 300px">
+                                    <input class="form-control" type="text" name="protocol_start_time" placeholder="协议开始时间" <{if $clue_list['protocol_start_time'] !="0000-00-00 00:00:00"}> value="<{$clue_list['protocol_start_time']  }>" <{/if}>  readonly>
+                                    <span class="input-group-addon"><span class="glyphicon glyphicon-remove"></span></span>
+                                    <span class="input-group-addon"><span class="glyphicon glyphicon-th"></span></span>
+                                </div>
+
+
+                                <div class="input-group date  "  id="time2" style="width: 300px">
+                                    <input class="form-control" type="text" name="protocol_end_time" placeholder="协议截止时间"  <{if $clue_list['protocol_end_time'] !="0000-00-00 00:00:00"}> value="<{$clue_list['protocol_end_time']  }>" <{/if}>  readonly>
+                                    <span class="input-group-addon"><span class="glyphicon glyphicon-remove"></span></span>
+                                    <span class="input-group-addon"><span class="glyphicon glyphicon-th"></span></span>
+                                </div>
+
+
+                        </div>
+
+                    </div>
+                    <div class="form-group">
+                            <label  class="col-sm-2 control-label">开户行：</label>
+                            <div class="col-sm-2 ">
+                                <input type="text" class="form-control" name="banak" value="<{$clue_list['banak']}>">
+                            </div>
+                            <label  class="col-sm-2 control-label">打款账户：</label>
+                            <div class="col-sm-2 ">
+                                <input type="text" class="form-control" name="bank_number" value="<{$clue_list['bank_number']}>">
+                            </div>
+                        <label  class="col-sm-2 control-label">打款账户名称：</label>
+                        <div class="col-sm-2 ">
+                            <input type="text" class="form-control" name="bank_name" value="<{$clue_list['bank_name']}>">
+                        </div>
+
+                    </div>
+                        <div class="form-group">
+                            <label  class="col-sm-2 control-label">税号：</label>
+                            <div class="col-sm-2 ">
+                                <input type="text" class="form-control" name="paragraph" value="<{$clue_list['paragraph']}>">
+                            </div>
+                            <label  class="col-sm-2 control-label"></label>
+                            <div class="col-sm-6 ">
+                                <input type="radio" name="paragraph_fare" value="1" <{if $clue_list['paragraph_fare'] == 1}> checked="checked" <{/if}>>先款后票
+                                <input type="radio"  name="paragraph_fare" value="2" <{if $clue_list['paragraph_fare'] == 2}> checked="checked" <{/if}>>先票后款
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label  class="col-sm-2 control-label">合同扫描件上传：</label>
+                            <div class="col-sm-2 ">
+                                <input type="file" value="上传图片"   name="contrac_img_file" id="contrac_img_file" onchange="ajaxFileUpload(this.id);">
+                                <input type="hidden" name="contrac_img" value="<{$clue_list['contrac_img']|default:''}>">
+                                <img src="<{$img_http}><{$clue_list['contrac_img']}>" alt="" class="show_img  <{if $clue_list['contrac_img'] eq ''}>hide<{/if}>" style="width:250px;height: 250px">
+                            </div>
+
+                            <label  class="col-sm-2 control-label">是否委托收款</label>
+                            <div class="col-sm-2 ">
+                                <input type="radio" name="entrust_status"  class="entrust_status" value="1" <{if $clue_list['entrust_status'] == 1}> checked="checked" <{/if}>>是
+                                <input type="radio"  name="entrust_status" class="entrust_status" value="2" <{if $clue_list['entrust_status'] == 2}> checked="checked" <{/if}>>否
+                            </div>
+                            <label  class="col-sm-2 control-label entrust1"  <{if $clue_list['entrust_status'] == 2}> style="display: none" <{/if}>>委托收款函上传</label>
+                            <div class="col-sm-2 entrust2" <{if $clue_list['entrust_status'] == 2}> style="display: none" <{/if}>>
+                            <input type="file" value="上传图片"   name="entrust_img_file" id="entrust_img_file" onchange="ajaxFileUpload(this.id);">
+                            <input type="hidden" name="entrust_img" value="<{$clue_list['entrust_img']|default:''}>">
+                            <img src="<{$img_http}><{$clue_list['entrust_img']}>" alt="" class="show_img  <{if $clue_list['entrust_img'] eq ''}>hide<{/if}>" style="width:250px;height: 250px">
+                            </div>
+                        </div>
+                    <div class="form-group">
+                        <label  class="col-sm-2 control-label">电费补贴：</label>
+                        <div class="col-sm-2 ">
+                            <input type="radio" name="power_status" value="1" <{if $clue_list['power_status'] == 1}> checked="checked" <{/if}>>有
+                            <input type="radio"  name="power_status" value="2" <{if $clue_list['power_status'] == 2}> checked="checked" <{/if}>>无
+                        </div>
+
+                    </div>
+                    <div class="form-group">
+
+                        <label  class="col-sm-2 control-label"></label>
+                        <div class="col-sm-2 ">
+                            <input type="text" class="form-control" name="power_money" placeholder="每月补贴金额，填写数字金额" value="<{$clue_list['power_money']}>">
+
+                        </div>
+                        <div class="col-sm-2 ">
+                            <select   class="form-control " name="power_payment_cycle">
+                                <option value="0" >支付周期</option>
+                                <option value="1" <{if $clue_list['power_payment_cycle'] == 1}> selected="selected" <{/if}>>1个月</option>
+                                <option value="2" <{if $clue_list['power_payment_cycle'] == 2}> selected="selected" <{/if}>>2个月</option>
+                                <option value="3" <{if $clue_list['power_payment_cycle'] == 3}> selected="selected" <{/if}>>3个月</option>
+                                <option value="6" <{if $clue_list['power_payment_cycle'] == 6}> selected="selected" <{/if}>>6个月</option>
+                                <option value="12" <{if $clue_list['power_payment_cycle'] == 12}> selected="selected" <{/if}>>12个月</option>
+
+                            </select>
+
+                        </div>
+                        <div class="col-sm-2 ">
+                            <select   class="form-control " name="power_payment">
+                                <option value="0">预付/后付</option>
+                                <option value="1" <{if $clue_list['power_payment'] == 1}> selected="selected" <{/if}>>预付</option>
+                                <option value="2" <{if $clue_list['power_payment'] == 2}> selected="selected" <{/if}>>后付</option>
+                            </select>
+
+                        </div>
+                        <div class="col-sm-2 ">
+                            <!--<div class="input-group date  col-md-12" data-link-field="dtp_input2" id="time4" >-->
+                                <!--<input class="form-control"  style="width:300px" type="text" name="power_payment_time" placeholder="首次支付时间" value="<{if $clue_list['power_payment_time'] != '0000-00-00 00:00:00' }> <{$clue_list['power_payment_time'] }> <{/if}>"   readonly>-->
+                                <!--<span class="input-group-addon"><span class="glyphicon glyphicon-remove"></span></span>-->
+                                <!--<span class="input-group-addon"><span class="glyphicon glyphicon-th"></span></span>-->
+                            <!--</div>-->
+                            <div class="input-group date  col-md-12" data-link-field="dtp_input2"  >
+                                <input type="radio" name="power_fare" value="1" <{if $clue_list['power_fare'] == 1}> checked="checked" <{/if}>>先款后票
+                                <input type="radio"  name="power_fare" value="2" <{if $clue_list['power_fare'] == 2}> checked="checked" <{/if}>>先票后款
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label  class="col-sm-2 control-label">综合补贴：</label>
+                        <div class="col-sm-2 ">
+                            <input type="radio" name="synthesize_status" value="1" <{if $clue_list['synthesize_status'] == 1}> checked="checked" <{/if}>>有
+                            <input type="radio"  name="synthesize_status" value="2" <{if $clue_list['synthesize_status'] == 2}> checked="checked" <{/if}>>无
+                        </div>
+
+                    </div>
+                    <div class="form-group">
+
+                        <label  class="col-sm-2 control-label"></label>
+                        <div class="col-sm-2 ">
+                            <input type="text" class="form-control" name="synthesize_money" placeholder="每月补贴金额，填写数字金额" value="<{$clue_list['synthesize_money']}>">
+
+                        </div>
+                        <div class="col-sm-2 ">
+                            <select   class="form-control " name="synthesize_payment_cycle">
+                                <option value="0">支付周期</option>
+                                <option value="1" <{if $clue_list['synthesize_payment_cycle'] == 1}> selected="selected" <{/if}>>1个月</option>
+                                <option value="2" <{if $clue_list['synthesize_payment_cycle'] == 2}> selected="selected" <{/if}>>2个月</option>
+                                <option value="3" <{if $clue_list['synthesize_payment_cycle'] == 3}> selected="selected" <{/if}>>3个月</option>
+                                <option value="6" <{if $clue_list['synthesize_payment_cycle'] == 6}> selected="selected" <{/if}>>6个月</option>
+                                <option value="12" <{if $clue_list['synthesize_payment_cycle'] == 12}> selected="selected" <{/if}>>12个月</option>
+
+                            </select>
+
+                        </div>
+                        <div class="col-sm-2 ">
+                            <select   class="form-control " name="synthesize_payment">
+                                <option value="0">预付/后付</option>
+                                <option value="1" <{if $clue_list['synthesize_payment'] == 1}> selected="selected" <{/if}>>预付</option>
+                                <option value="2" <{if $clue_list['synthesize_payment'] == 2}> selected="selected" <{/if}>>后付</option>
+                            </select>
+
+                        </div>
+                        <div class="col-sm-2 ">
+                            <!--<div class="input-group date  col-md-12" data-link-field="dtp_input2" id="time5" >-->
+                                <!--<input class="form-control"  style="width:300px" type="text" name="synthesize_payment_time" placeholder="首次支付时间" value="<{if $clue_list['synthesize_payment_time'] != '0000-00-00 00:00:00' }><{$clue_list['synthesize_payment_time']}><{/if}>"   readonly>-->
+                                <!--<span class="input-group-addon"><span class="glyphicon glyphicon-remove"></span></span>-->
+                                <!--<span class="input-group-addon"><span class="glyphicon glyphicon-th"></span></span>-->
+                            <!--</div>-->
+                            <div class="input-group date  col-md-12" data-link-field="dtp_input2"  >
+                                <input type="radio" name="synthesize_fare" value="1" <{if $clue_list['synthesize_fare'] == 1}> checked="checked" <{/if}>>先款后票
+                                <input type="radio"  name="synthesize_fare" value="2" <{if $clue_list['synthesize_fare'] == 2}> checked="checked" <{/if}>>先票后款
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label  class="col-sm-2 control-label">销售提成：</label>
+                        <div class="col-sm-2 ">
+                            <input type="radio" name="sale_status" value="1" <{if $clue_list['sale_status'] == 1}> checked="checked" <{/if}>>有
+                            <input type="radio"  name="sale_status" value="2" <{if $clue_list['sale_status'] == 2}> checked="checked" <{/if}>>无
+                        </div>
+
+                    </div>
+                    <div class="form-group">
+
+                        <label  class="col-sm-2 control-label"></label>
+                        <div class="col-sm-2 form-inline">
+                            <input type="text" class="form-control" name="sale_money" placeholder="销售额的百分百，填写数字金额 (最多2个小数点)" value="<{$clue_list['sale_money']}>">%
+
+                        </div>
+                        <div class="col-sm-2 ">
+                            <select   class="form-control " name="sale_payment_cycle">
+                                <option value="0">支付周期</option>
+                                <option value="1" <{if $clue_list['sale_payment_cycle'] == 1}> selected="selected" <{/if}>>1个月</option>
+                                <option value="2" <{if $clue_list['sale_payment_cycle'] == 2}> selected="selected" <{/if}>>2个月</option>
+                                <option value="3" <{if $clue_list['sale_payment_cycle'] == 3}> selected="selected" <{/if}>>3个月</option>
+                                <option value="6" <{if $clue_list['sale_payment_cycle'] == 6}> selected="selected" <{/if}>>6个月</option>
+                                <option value="12" <{if $clue_list['sale_payment_cycle'] == 12}> selected="selected" <{/if}>>12个月</option>
+
+                            </select>
+
+                        </div>
+                        <div class="col-sm-2 ">
+                            <select   class="form-control " name="sale_payment">
+                                <option value="0">预付/后付</option>
+                                <option value="1" <{if $clue_list['sale_payment'] == 1}> selected="selected" <{/if}>>预付</option>
+                                <option value="2" <{if $clue_list['sale_payment'] == 2}> selected="selected" <{/if}>>后付</option>
+                            </select>
+
+                        </div>
+                        <div class="col-sm-2 ">
+                            <!--<div class="input-group date  col-md-12" data-link-field="dtp_input2" id="time6" >-->
+                                <!--<input class="form-control"  style="width:300px" type="text" name="sale_payment_time" placeholder="首次支付时间" value="<{if $clue_list['sale_payment_time'] != '0000-00-00 00:00:00' }><{$clue_list['sale_payment_time']}><{/if}>"   readonly>-->
+                                <!--<span class="input-group-addon"><span class="glyphicon glyphicon-remove"></span></span>-->
+                                <!--<span class="input-group-addon"><span class="glyphicon glyphicon-th"></span></span>-->
+                            <!--</div>-->
+                            <div class="input-group date  col-md-12" data-link-field="dtp_input2"  >
+                                <input type="radio" name="sale_fare" value="1" <{if $clue_list['sale_fare'] == 1}> checked="checked" <{/if}>>先款后票
+                                <input type="radio"  name="sale_fare" value="2" <{if $clue_list['sale_fare'] == 2}> checked="checked" <{/if}>>先票后款
+                            </div>
+                        </div>
+                    </div>
+                        <div class="form-group">
+                            <label  class="col-sm-2 control-label">场地费：</label>
+                            <div class="col-sm-2 ">
+                                <input type="radio" name="field_status" value="1" <{if $clue_list['field_status'] == 1}> checked="checked" <{/if}>>有
+                                <input type="radio"  name="field_status" value="2" <{if $clue_list['field_status'] == 2}> checked="checked" <{/if}>>无
+                            </div>
+
+                        </div>
+                        <div class="form-group">
+
+                            <label  class="col-sm-2 control-label"></label>
+                            <div class="col-sm-2 ">
+                                <input type="text" class="form-control" name="field_money" placeholder="每月场地费用，填写数字金额" value="<{$clue_list['field_money']}>">
+
+                            </div>
+                            <div class="col-sm-2 ">
+                                <select   class="form-control " name="field_payment_cycle">
+                                    <option value="0">支付周期</option>
+                                    <option value="1" <{if $clue_list['field_payment_cycle'] == 1}> selected="selected" <{/if}>>1个月</option>
+                                    <option value="2" <{if $clue_list['field_payment_cycle'] == 2}> selected="selected" <{/if}>>2个月</option>
+                                    <option value="3" <{if $clue_list['field_payment_cycle'] == 3}> selected="selected" <{/if}>>3个月</option>
+                                    <option value="6" <{if $clue_list['field_payment_cycle'] == 6}> selected="selected" <{/if}>>6个月</option>
+                                    <option value="12" <{if $clue_list['field_payment_cycle'] == 12}> selected="selected" <{/if}>>12个月</option>
+
+                                </select>
+
+                            </div>
+                            <div class="col-sm-2 ">
+                                <select   class="form-control " name="field_payment">
+                                    <option value="0">预付/后付</option>
+                                    <option value="1" <{if $clue_list['field_payment'] == 1}> selected="selected" <{/if}>>预付</option>
+                                    <option value="2" <{if $clue_list['field_payment'] == 2}> selected="selected" <{/if}>>后付</option>
+                                </select>
+
+                            </div>
+                            <div class="col-sm-2 ">
+                                <!--<div class="input-group date  col-md-12" data-link-field="dtp_input2" id="time5" >-->
+                                <!--<input class="form-control"  style="width:300px" type="text" name="synthesize_payment_time" placeholder="首次支付时间" value="<{if $clue_list['synthesize_payment_time'] != '0000-00-00 00:00:00' }><{$clue_list['synthesize_payment_time']}><{/if}>"   readonly>-->
+                                <!--<span class="input-group-addon"><span class="glyphicon glyphicon-remove"></span></span>-->
+                                <!--<span class="input-group-addon"><span class="glyphicon glyphicon-th"></span></span>-->
+                                <!--</div>-->
+                                <div class="input-group date  col-md-12" data-link-field="dtp_input2"  >
+                                    <input type="radio" name="field_fare" value="1" <{if $clue_list['field_fare'] == 1}> checked="checked" <{/if}>>先款后票
+                                    <input type="radio"  name="field_fare" value="2" <{if $clue_list['field_fare'] == 2}> checked="checked" <{/if}>>先票后款
+                                </div>
+                            </div>
+                        </div>
+                    <div class="form-group">
+                        <label  class="col-sm-2 control-label">发票类型:</label>
+                        <div class="col-sm-2 ">
+                            <input type="radio" name="invoice_status" value="1" <{if $clue_list['invoice_status'] == 1}> checked="checked" <{/if}>>普票
+                            <input type="radio"  name="invoice_status" value="2" <{if $clue_list['invoice_status'] == 2}> checked="checked" <{/if}>>专票
+
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label  class="col-sm-2 control-label">活动备注:</label>
+                        <div class="col-sm-2 ">
+                            <input type="text" class="form-control" name="activity_remark" value="<{$clue_list['activity_remark']}>">
+                        </div>
+                        <label  class="col-sm-2 control-label">特殊备注:</label>
+                        <div class="col-sm-2 ">
+                            <input type="text" class="form-control" name="special_remark" value="<{$clue_list['special_remark']}>">
+                        </div>
+                    </div>
+                        <{if $edit_status eq false}>
+                    <div class="form-group">
+                        <label  class="col-sm-2 control-label"></label>
+                        <div class="col-sm-2 ">
+                            <button type="submit" class="btn btn-info btn-lg btn_clue"  >保存</button>
+                        </div>
+                    </div>
+                        <{/if}>
+                    <!--</form>-->
+                </div>
+
+            </div>
+        </div>
+    </div>
+    <div class="tab-pane fade in " id="ios">
+        <div class="panel panel-default">
+
+            <div class="panel-body">
+                <div class="form-horizontal" >
+                    <!--<form  class="form-horizontal" role="form" method="post" action="/business/install" enctype="multipart/form-data">-->
+                        <!--<input type="hidden" name="clue_id" value="<{$clue_list['clue_id']}>">-->
+                        <div class="form-group">
+                            <label  class="col-sm-2 control-label"><font color="#FF0000">*</font> 装机数量：</label>
+                            <div class="col-sm-2">
+                                <input type="text" style="width:300px" class="form-control" name="equipment_number" placeholder="请填写数字" value="<{$clue_list['equipment_number']}>">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label  class="col-sm-2 control-label"><font color="#FF0000">*</font>装机位置：</label>
+                            <div class="col-sm-2">
+                                <textarea name="equipment_address" placeholder="装机详细位置" id="" cols="50" rows="5"><{$clue_list['equipment_address']}></textarea>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label  class="col-sm-2 control-label"><font color="#FF0000">*</font> 装机联系人：</label>
+                            <div class="col-sm-2">
+                                <input type="text" style="width:300px" class="form-control" name="equipment_name" placeholder="请填写姓名 安装时的公司联系人" value="<{$clue_list['equipment_name']}>">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label  class="col-sm-2 control-label"><font color="#FF0000">*</font> 联系人手机号：</label>
+                            <div class="col-sm-2">
+                                <input type="text"  style="width:300px" class="form-control" name="equipment_phone" placeholder="请填写对方手机号" value="<{$clue_list['equipment_phone']}>">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label  class="col-sm-2 control-label">摄像头：</label>
+                            <div class="col-sm-2 ">
+                                <input type="radio"  name="camera_status" placeholder="" value="1" <{if $clue_list['camera_status'] == 1}> checked="checked" <{/if}>>需要
+                                <input type="radio"  name="camera_status" placeholder="" value="2" <{if $clue_list['camera_status'] == 2}> checked="checked" <{/if}>>不需要
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label  class="col-sm-2 control-label">对方期望安装时间：</label>
+                            <div class="col-sm-2">
+                                <div class="input-group date  col-md-12" data-link-field="dtp_input3" id="time3" >
+                                    <input class="form-control"  style="width:300px" type="text" name="install_time" value="<{$clue_list['install_time']}>"   readonly>
+                                    <span class="input-group-addon"><span class="glyphicon glyphicon-remove"></span></span>
+                                    <span class="input-group-addon"><span class="glyphicon glyphicon-th"></span></span>
+                                </div>
+
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label  class="col-sm-2 control-label"><font color="#FF0000">*</font> 对方首次补货情况：</label>
+                            <div class="col-sm-2">
+                                <textarea name="first_deliver" placeholder="如：何时首次补货，商品特殊注意事项等" id="" cols="50" rows="5"><{$clue_list['first_deliver']}></textarea>
+
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label  class="col-sm-2 control-label"><font color="#FF0000">*</font> 是否有现成电源：</label>
+                            <div class="col-sm-2">
+                                <input type="radio"  name="socket_status" placeholder="" value="1" <{if $clue_list['socket_status'] == 1}> checked="checked" <{/if}>>有
+                                <input type="radio"  name="socket_status" placeholder="" value="2" <{if $clue_list['socket_status'] == 2}> checked="checked" <{/if}>>无
+
+                            </div>
+                            <input type="text" class="form-control "  style="width:300px" name="socket_remark" placeholder="没有现成电源备注取线信息" value="<{$clue_list['socket_remark']}>">
+                        </div>
+                        <!--<div class="form-group">-->
+                            <!--<label  class="col-sm-2 control-label"></label>-->
+                            <!--<div class="col-sm-2">-->
+                                <!--<input type="text" class="form-control "  style="width:300px" name="socket_remark" placeholder="没有插座备注取线信息" value="<{$clue_list['socket_remark']}>">-->
+                            <!--</div>-->
+                        <!--</div>-->
+                        <div class="form-group">
+                            <label  class="col-sm-2 control-label"><font color="#FF0000">*</font> 是否需要拉接线板：</label>
+                            <div class="col-sm-2">
+                                <input type="radio"  name="ground_status" placeholder="" value="1" <{if $clue_list['ground_status'] == 1}> checked="checked" <{/if}>>有
+                                <input type="radio"  name="ground_status" placeholder="" value="2" <{if $clue_list['ground_status'] == 2}> checked="checked" <{/if}>>无
+
+                            </div>
+                            <input type="text" class="form-control "  style="width:300px" name="ground_remark" placeholder="没有则拉接线板备注配置信息" value="<{$clue_list['ground_remark']}>">
+
+                        </div>
+                        <!--<div class="form-group">-->
+                            <!--<label  class="col-sm-2 control-label"></label>-->
+                            <!--<div class="col-sm-2">-->
+                                <!--<input type="text" class="form-control "  style="width:300px" name="ground_remark" placeholder="没有地线备注配置信息" value="<{$clue_list['ground_remark']}>">-->
+                            <!--</div>-->
+                        <!--</div>-->
+                        <div class="form-group">
+                            <label  class="col-sm-2 control-label"><font color="#FF0000">*</font> 周末是否可以装机：</label>
+                            <div class="col-sm-2">
+                                <input type="radio"  name="ladder_status" placeholder="" value="1" <{if $clue_list['ladder_status'] == 1}> checked="checked" <{/if}>>有
+                                <input type="radio"  name="ladder_status" placeholder="" value="2" <{if $clue_list['ladder_status'] == 2}> checked="checked" <{/if}>>无
+
+                            </div>
+                            <input type="text" class="form-control "  style="width:300px" name="ladder_remark" placeholder="无时备注" value="<{$clue_list['ladder_remark']}>">
+
+                        </div>
+                        <!--<div class="form-group">-->
+                            <!--<label  class="col-sm-2 control-label"></label>-->
+                            <!--<div class="col-sm-2">-->
+                                <!--<input type="text" class="form-control "  style="width:300px" name="ladder_remark" placeholder="无时备注搬运信息有时使用货梯时间" value="<{$clue_list['ladder_remark']}>">-->
+                            <!--</div>-->
+                        <!--</div>-->
+                        <div class="form-group">
+                            <label  class="col-sm-2 control-label">需人搬运：</label>
+                            <div class="col-sm-2">
+                                <input type="radio"  name="carry_status" placeholder="" value="1" <{if $clue_list['carry_status'] == 1}> checked="checked" <{/if}>>需要
+                                <input type="radio"  name="carry_status" placeholder="" value="2" <{if $clue_list['carry_status'] == 2}> checked="checked" <{/if}>>不需要
+
+                            </div>
+                            <input type="text" class="form-control "  style="width:300px" name="carry_remark" placeholder="需要时备注搬运信息" value="<{$clue_list['carry_remark']}>">
+
+                        </div>
+                        <div class="form-group">
+                            <label  class="col-sm-2 control-label">安装注意事项</label>
+                            <div class="col-sm-2">
+                                <textarea name="attention" id="" cols="30" rows="10" placeholder="台阶、货梯使用时间,电梯大小是否够用,以及其它备注"><{$clue_list['attention']}></textarea>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label  class="col-sm-2 control-label">特殊备注</label>
+                            <div class="col-sm-2">
+                                <input type="text" class="form-control "  style="width:300px" name="remark_two" placeholder="" value="<{$clue_list['remark']}>">
+
+                            </div>
+
+                        </div>
+                            <div class="form-group">
+                                <label  class="col-sm-2 control-label">点位名称照片</label>
+                                <div class="col-sm-2">
+                                    <input type="file" value="上传图片" name="equipment_img_file" id="equipment_img_file" onchange="ajaxFileUpload(this.id);">
+                                    <input type="hidden" name="equipment_img" value="<{$clue_list['equipment_img']|default:''}>">
+                                    <img src="<{$img_http}><{$clue_list['equipment_img']}>" alt="" class="show_img <{if $clue_list['equipment_img'] eq ''}>hide<{/if}>" style="width:300px;height: 300px">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label  class="col-sm-2 control-label">点位地址照片</label>
+                                <div class="col-sm-2">
+                                    <input type="file" value="上传图片" name="equipment_address_file" id="equipment_address_file" onchange="ajaxFileUpload(this.id);">
+                                    <input type="hidden" name="equipment_address_img" value="<{$clue_list['equipment_address_img']|default:''}>">
+                                    <img src="<{$img_http}><{$clue_list['equipment_address_img']}>" alt="" class="show_img <{if $clue_list['equipment_address_img'] eq ''}>hide<{/if}>" style="width:300px;height: 300px">
+                                </div>
+                            </div>
+                            <div class="form-group ">
+                                <label  class="col-sm-2 control-label file1">点位位置照片</label>
+                                <div class="col-sm-2 file1" >
+                                    <input type="file" value="上传图片" name="equipment_position_file" attr="1" id="equipment_position_file1" onchange="ajaxFileUpload(this.id);" >
+                                    <input type="hidden" name="equipment_position_img" value="<{$clue_list['equipment_position_img']|default:''}>">
+                                    <img src="<{$img_http}><{$clue_list['equipment_position_img']}>" alt="" class="show_img <{if $clue_list['equipment_position_img'] eq ''}>hide<{/if}>" style="width:300px;height: 300px">
+                                </div>
+
+
+                            </div>
+
+                              <!--<div class="form-group ">-->
+
+                                <!--<label  class="col-sm-2 control-label file1">点位位置照片</label>-->
+                                <!--<div class="col-sm-2 file1" >-->
+                                    <!--<input type="file" value="上传图片" name="position_file" attr="1" id="position_file1" onchange="ajaxFileUpload(this.id);">-->
+                                    <!--<input type="hidden" name="position_img" value="http://www.cityboxplatform.com/assets/image/chrome.png">-->
+                                    <!--<img src="" alt="" class="show_img " style="width:200px;height: 200px">-->
+                                <!--</div>-->
+
+                            <!--</div>-->
+
+
+                              <div class="form-group ">
+                                <label  class="col-sm-2 control-label file1"></label>
+                                <div class="col-sm-2">
+
+                                    <button type="button" class="add_files" >+</button>
+                                    <button type="button" class="del_files" >-</button>
+                                </div>
+                            </div>
+                        <{if $edit_status eq false}>
+                        <div class="form-group">
+                            <label  class="col-sm-2 control-label"></label>
+                            <div class="col-sm-2 ">
+                                <button type="submit" class="btn btn-info btn-lg btn_clue"  >保存</button>
+                            </div>
+                        </div>
+                        <{/if}>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="tab-pane fade in " id="contract">
+        <div class="panel panel-default">
+            <div class="panel-body">
+                <!--<form  class="form-horizontal" role="form" method="post"   action="/business/contract" enctype="multipart/form-data" >-->
+                <div class="form-horizontal" >
+                    <!--<input type="hidden" name="clue_id"  value="<{$clue_list['clue_id']}>">-->
+                    <div class="form-group">
+                        <label  class="col-sm-2 control-label"> 合同名称备注：</label>
+                        <div class="col-sm-2">
+                            <input type="text"  style="width:300px" class="form-control" id="contract_remark" placeholder="合同名称备注" value="<{$clue_list['contract_remark']}>">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label  class="col-sm-2 control-label"> 合同归档编号：</label>
+                        <div class="col-sm-2">
+                            <input type="text"  style="width:300px" class="form-control" id="contract_number" placeholder="合同归档编号" value="<{$clue_list['contract_number']}>">
+                        </div>
+                    </div>
+                    <{if $contract_img[0]['contract_img'] == ""}>
+                    <div class="form-group ">
+                        <label  class="col-sm-2 control-label file1"> 合同PDF: </label>
+                        <div class="col-sm-2 file1" >
+                            <input type="hidden" name="contract_name" value="">
+                            <input type="file" value="上传图片" name="contract_file" attr="1" id="contract_file1" onchange="ajaxFileUpload(this.id);" >
+                            <input type="hidden" name="contract_img[]" value="">
+                            <!--<img src="" alt="" class="show_img  " style="width:300px;height: 300px">-->
+                            <span class="form-group "></span>
+                        </div>
+                        <div class="col-sm-2">
+                            <button type="button" class="del_contract_img" id="<{$clue_list['contract_id']}>">删除</button>
+                        </div>
+
+                    </div>
+                    <{/if}>
+                    <div class="form-group ">
+                        <label  class="col-sm-2 control-label file1"></label>
+                        <div class="col-sm-2">
+
+                            <button type="button" class="add_contract" >+</button>
+                            <button type="button" class="del_contract" >-</button>
+                        </div>
+                    </div>
+                    <{if $edit_status eq false}>
+                    <div class="form-group">
+                        <label  class="col-sm-2 control-label"></label>
+                        <div class="col-sm-2 ">
+                            <button type="button" class="btn btn-info btn-lg button_save"  >保存</button>
+                        </div>
+                    </div>
+                    <{/if}>
+                </div>
+                <!--</form>-->
+            </div>
+        </div>
+    </div>
+</div>
+<script type="application/javascript" src="/assets/js/ajaxfileupload.js"></script>
+<script type="text/javascript">
+    $(".add_contract").on("click",function(){
+        var length = document.getElementsByName("contract_file").length;
+        var a   = length+1;
+
+        if(length%2 == 0){
+            var res = '<div class="form-group "></div>';
+            $(this).parent().parent().before(res);
+        }
+
+
+        var str = '<label  class="col-sm-2 control-label "> 合同PDF: </label>'+
+            '<div class="col-sm-2">'+
+            '<input type="hidden" name="contract_name" value="">'+
+            '<input type="file" value="上传图片" name="contract_file" id="contract_file'+a+'"  onchange="ajaxFileUpload(this.id)">'+
+            '<input type="hidden" name="contract_img[]" value="">'+
+//           '<img src="" alt="" class="show_img " style="width:200px;height: 200px">'+
+            '<span class="form-group "></span>'+
+            '</div>'+
+             '<div class="col-sm-2">'+
+             '<button type="button" class="del_contract_img" id="">删除</button>'+
+             '</div>';
+
+        $(this).parent().parent().prev().append(str)
+    })
+    $(document).on("click",".del_contract",function(){
+        var length = document.getElementsByName("contract_file").length;
+        if($('#contract_file'+length).next().val() !=""){
+            alert("不可删除")
+        }else{
+            if(length%2 !=0 ){
+                $("#contract_file"+length).parent().parent().remove();
+            }else{
+                $("#contract_file"+length).parent().prev().remove();
+                $("#contract_file"+length).parent().next().remove();
+                $("#contract_file"+length).parent().remove();
+            }
+
+        }
+
+
+
+    })
+    $(document).on("click",".del_contract_img",function(){
+        var id = $(this).attr("id");
+        var _this =$(this);
+
+
+            var id = $(this).attr("id");
+            if (confirm("确认要删除吗？")) {
+                if(id == ""){
+                    _this.parent().prev().prev().remove();
+                    _this.parent().prev().remove();
+                    _this.parent().remove();
+                }else{
+                    $.ajax({
+                        url: "/business/del_contract_img",
+                        type: "post",
+                        data: {id:id},
+                        dataType:'json',
+                        success: function(data){
+                            if(data.status=='success'){
+                                _this.parent().prev().prev().remove();
+                                _this.parent().prev().remove();
+                                _this.parent().remove();
+
+
+                            }else{
+                                alert(data.msg);
+                                return false;
+                            }
+                        }
+                    });
+                }
+            }
+
+
+
+
+
+
+
+    })
+    $(".button_save").on("click",function(){
+        var  contract_remark = $("#contract_remark").val();
+        var  contract_number = $("#contract_number").val();
+        var  clue_id = $("#clue_id").val();
+        var length = document.getElementsByName('contract_file').length;
+        var val ="";
+        var contract_name = "";
+        for(var i=1;i<=length;i++){
+            val += ","+$("#contract_file"+i).next().val();
+            contract_name += ","+$("#contract_file"+i).prev().val();
+
+        }
+        val = val.substr(1);
+        contract_name = contract_name.substr(1);
+
+        $.ajax({
+            url: "/business/contract",
+            type: "post",
+            data: {clue_id:clue_id,contract_remark:contract_remark,contract_number:contract_number,contract_img:val,name:contract_name},
+            dataType:'json',
+            success: function(data){
+                if(data.status=='success'){
+                    alert(data.msg);
+                    location.href='/business/clue_index';
+                }else{
+                    alert(data.msg);
+                    return false;
+                }
+            }
+        });
+    })
+    var date = new Date();
+    month=date.getMonth()+1;
+    year=date.getFullYear();
+    date=date.getDate();
+
+
+    $('#time').datetimepicker({
+        language: 'zh', //汉化
+        autoclose: 1,
+        format: 'yyyy-mm-dd',
+      //  startDate:year+"-"+month+"-"+date,
+        minView: 'month'
+
+    });
+    $('#time2').datetimepicker({
+        language: 'zh', //汉化
+        autoclose: 1,
+        format: 'yyyy-mm-dd ',
+
+        minView: 'month',
+
+
+    });
+    $('#time3').datetimepicker({
+        language: 'zh', //汉化
+        autoclose: 1,
+        format: 'yyyy-mm-dd hh:00:00',
+        startDate:year+"-"+month+"-"+date,
+        minView: 'day'
+
+    });
+//   $('#time4').datetimepicker({
+//    language: 'zh', //汉化
+//    autoclose: 1,
+//    format: 'yyyy-mm-dd',
+//    startDate:year+"-"+month+"-"+date,
+//    minView: 'month'
+//
+//});
+//   $('#time5').datetimepicker({
+//    language: 'zh', //汉化
+//    autoclose: 1,
+//    format: 'yyyy-mm-dd',
+//    startDate:year+"-"+month+"-"+date,
+//    minView: 'month'
+//
+//    });
+//   $('#time6').datetimepicker({
+//        language: 'zh', //汉化
+//        autoclose: 1,
+//        format: 'yyyy-mm-dd',
+//        startDate:year+"-"+month+"-"+date,
+//        minView: 'month'
+//
+//    });
+
+
+  var p = $("#p").val();
+    $.post("/regions/search",{pid:0},function(respData){
+        if(respData.status=='success'){
+            if (respData.region_list){
+                var province_list = '<option value="0">省份</option>';
+                $(respData.region_list).each(function(i,val){
+                    if( p == val.AREAIDS){
+
+                        province_list = province_list + '<option value="'+val.AREAIDS+'" selected>'+val.AREANAME+'</option>';
+                    }else{
+                        province_list = province_list + '<option value="'+val.AREAIDS+'" >'+val.AREANAME+'</option>';
+                    }
+                });
+                $('#pr').html(province_list);
+                $('#pr').change(function(){
+                    $('#ar').html('<option value="-1">地区</option>');
+                    $.post("/regions/search",{pid:$(this).val()},function(respData){
+                        if(respData.status=='success'){
+                            if (respData.region_list){
+                                var city_list = '<option value="-1">市区</option>';
+                                $(respData.region_list).each(function(i,val){
+                                    city_list = city_list + '<option value="'+val.AREAIDS+'">'+val.AREANAME+'</option>';
+                                });
+                                $('#ci').html(city_list);
+                                $('#ci').change(function(){
+                                    $.post("/regions/search",{pid:$(this).val()},function(respData){
+                                        if(respData.status=='success'){
+                                            if (respData.region_list){
+                                                var area_list = '<option value="-1">地区</option>';
+                                                $(respData.region_list).each(function(i,val){
+                                                    area_list = area_list + '<option value="'+val.AREAIDS+'">'+val.AREANAME+'</option>';
+                                                });
+                                                $('#ar').html(area_list);
+                                            }
+                                        }
+                                    },'json');
+                                })
+                            }
+                        }
+                    },'json');
+                })
+            }
+        }
+    },'json');
+
+
+//ajax上传图片
+function ajaxFileUpload(elementId) {
+    var arr = elementId.split('_');
+
+    if(arr[0] == 'contract'){
+        var url = '/business/ajax_upload?pdf=1';
+    }else{
+        var url = '/business/ajax_upload';
+    }
+    $.ajaxFileUpload({
+        url: url, //用于文件上传的服务器端请求地址
+        secureuri: false, //是否需要安全协议，一般设置为false
+        fileElementId: elementId, //文件上传域的ID
+        dataType: 'json', //返回值类型 一般设置为json
+        success: function (data)  //服务器成功响应处理函数
+        {  console.log(data);
+            if(data.status=='error'){
+                alert(data.message);
+                return false;
+            }
+            if (typeof (data.status) != 'undefined') {
+                if(arr[0] == 'contract'){
+                    $("#"+elementId).next().val(data.url);
+                    $("#"+elementId).prev().val(data.name);
+                    $("#"+elementId).next().next().html('<a href="'+data.img_http+data.url+'">'+data.name+'</a>&nbsp;&nbsp;&nbsp;<button type="button" class="contract_img_show" value="'+data.img_http+data.url+'">查看</button>');
+                }else{
+                    $("#"+elementId).next().val(data.url);
+                    $("#"+elementId).next().next().removeClass('hide').val('src',data.img_http+data.url);
+
+
+                }
+            }
+        },
+
+    });
+    return false;
+}
+//查看合同
+    $(document).on('click',".contract_img_show",function(){
+        var val = $(this).val();
+        window.open('/business/contract_img_show?url='+val);
+    })
+function submit_model(obj){
+
+
+
+        ajaxSubmit(obj, function(data){
+            if(data.status=='success'){
+                alert(data.msg);
+                location.href='/business/clue_index';
+            }else{
+                alert(data.msg);
+                return false;
+            }
+        });
+
+
+    return false;
+}
+//将form转为AJAX提交
+function ajaxSubmit(frm, fn) {
+    var dataPara = getFormJson(frm);
+    var length = document.getElementsByName('position_file').length;
+     var val ="";
+    for(var i=1;i<=length;i++){
+         val += ","+$("#position_file"+i).next().val();
+
+    }
+    val = val.substr(1);
+    dataPara['position_img'] = val;
+
+    console.log(dataPara)
+
+    $.ajax({
+        url: frm.action,
+        type: frm.method,
+        data: dataPara,
+        dataType:'json',
+        success: fn
+    });
+}
+
+//将form中的值转换为键值对。
+function getFormJson(frm) {
+    var o = {};
+    var a = $(frm).serializeArray();
+    $.each(a, function () {
+        if (o[this.name] !== undefined) {
+            if (!o[this.name].push) {
+                o[this.name] = [o[this.name]];
+            }
+            o[this.name].push(this.value || '');
+        } else {
+            o[this.name] = this.value || '';
+        }
+    });
+    return o;
+}
+$(".entrust_status").on("click",function(){
+    var val = $(this).val();
+    if(val == 1){
+        $(".entrust1").show();
+        $(".entrust2").show();
+    }else{
+        $(".entrust1").hide();
+        $(".entrust2").hide();
+    }
+
+
+})
+
+    $('.add_files').on("click",function(){
+
+         var length = document.getElementsByName("position_file").length;
+         var a   = length+1;
+
+        if(length%3 == 0){
+            var res = '<div class="form-group "></div>';
+            $(this).parent().parent().before(res);
+        }
+
+
+        var str = '<label  class="col-sm-2 control-label ">点位位置照片</label>'+
+            '<div class="col-sm-2">'+
+            '<input type="file" value="上传图片" name="position_file" id="position_file'+a+'"  onchange="ajaxFileUpload(this.id)">'+
+            '<input type="hidden" name="position_img[]" value="">'+
+            '<img src="" alt="" class="show_img " style="width:200px;height: 200px">'+
+
+            '</div>';
+
+
+        $(this).parent().parent().prev().append(str)
+    })
+
+
+
+    $(document).on("click",".del_files",function(){
+        var length = document.getElementsByName("position_file").length;
+         if($('#position_file'+length).val() !=""){
+             alert("不可以删除");
+         }else{
+             $("#position_file"+length).parent().prev().remove();
+             $("#position_file"+length).parent().remove();
+         }
+
+
+
+    })
+    $(document).ready(function(){
+        var clue_id =  $('#clue_id').val();
+
+        $.ajax({
+            url: "/business/clue_img",
+            type: "GET",
+            data: {clue_id:clue_id},
+            dataType:'json',
+            success: function(data){
+               if(data != ""){
+                   $.each(data,function(k,v){
+                       var a = k+1;
+                       if((k+1)%3 == 0){
+                           var res = '<div class="form-group "></div>';
+                           $(".add_files").parent().parent().before(res);
+                       }
+                           var str = '<label  class="col-sm-2 control-label ">点位位置照片</label>'+
+                               '<div class="col-sm-2">'+
+                               '<input type="file" value="上传图片" name="position_file" id="position_file'+a+'"  onchange="ajaxFileUpload(this.id)">'+
+                               '<input type="hidden" name="position_img[]" value="'+v.position_img+'">'+
+                               '<img src="<{$img_http}>'+v.position_img+'" alt="" class="show_img " style="width:200px;height: 200px">'+
+
+                               '</div>';
+                           $(".add_files").parent().parent().prev().append(str);
+
+                   })
+               }
+            }
+        });
+        $.ajax({
+            url: "/business/contract_img",
+            type: "GET",
+            data: {clue_id:clue_id},
+            dataType:'json',
+            success: function(data){
+                if(data != ""){
+                    $.each(data,function(k,v){
+                        var a = k+1;
+                        if((k+1)%2 != 0){
+                            var res = '<div class="form-group "></div>';
+                            $(".add_contract").parent().parent().before(res);
+                        }
+                        var str = '<label  class="col-sm-2 control-label "> 合同PDF: </label>'+
+                            '<div class="col-sm-2"><input type="hidden" name="contract_name" value="'+v.contract_name+'">'+
+                            '<input type="file" value="上传图片" name="contract_file" id="contract_file'+a+'"  onchange="ajaxFileUpload(this.id)">'+
+                            '<input type="hidden" name="contract_img[]" value="'+v.contract_img+'">'+
+//                            '<img src="<{$img_http}>'+v.contract_img+'" alt="" class="show_img " style="width:200px;height: 200px">'+
+                            '<span class="form-group "><a href="<{$img_http}>'+v.contract_img+'">'+v.contract_name+'</a>&nbsp;&nbsp;&nbsp;<button type="button" class="contract_img_show" value="<{$img_http}>'+v.contract_img+'">查看</button></span>'+
+                            '</div>'+
+                            '<div class="col-sm-2">'+
+                            '<button type="button" class="del_contract_img" id="'+v.id+'">删除</button>'+
+                            '</div>';
+                             $(".add_contract").parent().parent().prev().append(str);
+
+                    })
+                }
+            }
+        });
+
+
+    })
+    $('#scene_additional').on('change',function(){
+        var scene_additional = $(this).val();
+        if(scene_additional == 11){
+            $('#scene_additional').next().show();
+        }else{
+            $('#scene_additional').next().hide();
+        }
+
+    })
+
+</script>

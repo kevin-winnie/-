@@ -1,0 +1,28 @@
+<div class="modal-header" >
+    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+    <h4 class="modal-title" id="myModalLabel">扫码开门来源分布</h4>
+</div>
+<div class="modal-body" >
+    <span>当日 <{$count['today']}></span>&nbsp;&nbsp;&nbsp;
+    <span>[
+         <{foreach key=key item=item from=$today_detail}>
+         <span><{$item['refer_name']}>:<{$item['open_num']}></span>
+        <{/foreach}>
+        ]</span><br>
+    <span>昨日 <{$count['yesday']}></span>&nbsp;&nbsp;&nbsp;
+    <span>[
+         <{foreach key=key item=item from=$yesday_detail}>
+         <span><{$item['refer_name']}>:<{$item['open_num']}></span>
+        <{/foreach}>
+        ]</span><br>
+    <span>上周 <{$count['yeswek']}></span>&nbsp;&nbsp;&nbsp;
+    <span>[
+         <{foreach key=key item=item from=$yeswek_detail}>
+         <span><{$item['refer_name']}>:<{$item['open_num']}></span>
+        <{/foreach}>
+        ]</span>
+</div>
+<div class="modal-footer" >
+    <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+    <button type="button" class="btn btn-primary" id="set_group_id">提交更改</button>
+</div>

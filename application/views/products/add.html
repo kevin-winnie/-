@@ -1,0 +1,134 @@
+<{if $tips eq ''}>
+<{else}>
+<div class="alert alert-danger" role="alert"><{$tips}></div>
+<{/if}>
+<div class="panel panel-default">
+	<div class="panel-heading">添加商品</div>
+	<table class="table">
+		<form enctype="multipart/form-data" action="/products/add_save" name="myform" method="post" >
+		  <tr class="tr">
+		    <td colspan="2" style="padding-left:200px;" > <input type="radio" name="is_oms" value="1" checked="checked" />&nbsp;OMS编码：
+		    	<input name="product_code" type="text" id="product_code" placeholder="官网erp的oms编码" size="30" value="<{$info.equipment_id}>" >
+		    	<input id="search-btn" type="button" value="获取信息" />
+		    </td>
+		  </tr>
+		  
+		  <tr class="tr">
+		    <td colspan="2" style="padding-left:200px;" > <input type="radio" name="is_oms" value="0" />&nbsp;OMS尚未登记，先预录入魔盒系统</td>
+		  </tr>
+		  
+		  <tr class="tr">
+		    <td width="22%" align="right" > 商品类目：</td>
+		    <td width="75%" >
+		    	<{$class_info}>
+		    </td>
+		  </tr>
+
+		  <tr class="tr">
+		    <td width="22%" align="right" > 商品名称：</td>
+		    <td width="75%" >
+		    	<input name="product_name" type="text" id="product_name" size="30" />
+		    </td>
+		  </tr>
+		  
+		  <tr class="tr">
+		    <td width="22%" align="right" > 商品价格：</td>
+		    <td width="75%" >
+		    	<input name="price" type="text" id="price" size="30" />
+		    </td>
+		  </tr>
+		  
+		  <tr class="tr">
+		    <td width="22%" align="right" > 商品原价：</td>
+		    <td width="75%" >
+		    	<input name="old_price" type="text" id="old_price" size="30" />
+		    </td>
+		  </tr>
+		  
+		  <tr class="tr">
+		    <td width="22%" align="right" > 规格：</td>
+		    <td width="75%" >
+		    	<input name="volume" type="text" id="volume" size="30" />
+		    </td>
+		  </tr>
+		  
+		  <tr class="tr">
+		    <td width="22%" align="right" > 计量单位：</td>
+		    <td width="75%" >
+		    	<input name="unit" type="text" id="unit" size="30" />
+		    </td>
+		  </tr>
+		  
+		  <tr class="tr">
+		    <td width="22%" align="right" > 标签：</td>
+		    <td width="75%" >
+		    	<input name="tags" type="text" id="tags" size="30" />
+		    </td>
+		  </tr>
+
+		  <tr class="tr">
+		    <td width="22%" align="right" > 保鲜期（天）：</td>
+		    <td width="75%" >
+		    	<input name="preservation_time" type="text" id="preservation_time" size="30" />
+		    </td>
+		  </tr>
+		  
+		  <tr>
+        	<td width="22%" align="right"> 商品图片：</td>
+        	<td width="75%" >
+        		<input name="img_url" type="file" id="img_url" datatype="*" nullmsg="必须上传一张商品图片！">
+        		上传的商品图片大小为：1000x1000 <span style="color: #FF0000">*</span>
+        		<div class="Validform_checktip"></div>
+        	</td>
+          </tr>
+
+		  <tr class="tr">
+		    <td align="right" >&nbsp;<input type ="hidden" id="inner_code" name="inner_code" value="" /><input type ="hidden" id="product_no" name="product_no" value="" /></td>
+		    <td ><input type="submit" name="Submit" class="lostfocus" onFocus='this.className="getfocus";' onMouseOver='this.className="getfocus";' onBlur='this.className="lostfocus";' onMouseOut='this.className="lostfocus";'
+			value="确认添加">
+			<input type="button" value="返回" onclick="history.back();" />
+		  </tr>
+		</form>
+	</table>
+</div>
+<script type="text/javascript">
+    $(function(){
+        $('#config-table').bootstrapTable({
+        }).on('click-row.bs.table', function (e, row, $element) {
+            $("#curr_id").val(row.id);
+        });
+        $("#config-body").delegate(".show_img","click",function(){
+            MessageBox.alert($(this).attr('data-content'));
+        });
+        $("#search-btn").on('click', function(){
+        	var product_no = $('#product_code').val();
+            $.post("/products/search_product",{product_no: product_no},function(respData){
+	            if(respData.result== 200){
+	            	$('#product_name').val(respData.product_data.product_name);
+	            	$('#price').val(respData.product_data.price);
+	            	$('#old_price').val(respData.product_data.old_price);
+	            	$('#volume').val(respData.product_data.volume);
+	            	$('#unit').val(respData.product_data.unit);
+	            	$('#tags').val(respData.product_data.tags);
+	            	$('#inner_code').val(respData.product_data.inner_code);
+	            	$('#product_no').val(respData.product_data.product_no);
+	            } else {
+	            	alert(respData.msg);
+	            	return;
+	            }
+	        },'json');
+        });
+        
+        $('input[name="is_oms"]').click(function(){
+        	if ($(this).val() == 1){
+        		$('#product_code').removeAttr('disabled');
+        	} else {
+        		$('#product_code').val('');
+        		$('#product_code').attr('disabled','disabled');
+        	}
+        });
+
+
+
+    });
+</script>

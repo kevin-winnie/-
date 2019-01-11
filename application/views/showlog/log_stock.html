@@ -1,0 +1,98 @@
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <h3 class="panel-title">盘点日志</h3>
+    </div>
+    <div class="panel-body">
+        <div class="form-horizontal" id="search">
+            <div class="form-group">
+                <div class="col-sm-2">
+                    <input type="text" class="form-control" size='8' name="search_device_id" placeholder="设备号">
+                </div>
+                <div class="col-sm-2">
+                    <input type="text" class="form-control" size='8' name="search_old" placeholder="库存标签">
+                </div>
+                <div class="col-sm-2">
+                    <input type="text" class="form-control" size='8' name="search_new" placeholder="盘点返回标签">
+                </div>
+                <div class="col-sm-3">
+                    <div class="input-group date  col-md-10" data-link-field="dtp_input1" id="time" >
+                        <input class="form-control" type="text" name="time"  placeholder="发生时间"  readonly>
+                        <span class="input-group-addon"><span class="glyphicon glyphicon-remove"></span></span>
+                        <span class="input-group-addon"><span class="glyphicon glyphicon-th"></span></span>
+                    </div>
+                    <input type="hidden" name="search_pay_time" class="check_text" id="dtp_input1" value="" data-attr="开始时间不能为空" />
+                </div>
+                <div class="col-sm-2">
+                    <select class="form-control" name="search_type">
+                        <option value="-1">类型</option>
+                        <option value="user">用户购买</option>
+                        <option value="admin">上下货</option>
+                        <option value="sys">系统</option>
+                    </select>
+                </div>
+
+                <button type="button" class="btn btn-default" id="search-btn">查找</button>
+                <input type="hidden" id="origin_url" value="/showlog/log_stock_table">
+            </div>
+        </div>
+    </div>
+    <div class="panel-body">
+        <div id="config-body">
+            <table id="config-table" data-toggle="table" style="font-size: 10px;" data-url="/showlog/log_stock_table" data-select-item-name="radioName" data-pagination="true" data-page-size="50" data-side-pagination="server" data-page-list="[50,100,200]">
+                <thead>
+                <tr>
+                    <th data-field="device_id" data-align="center">设备ID</th>
+                    <th data-field="create" data-align="center">接收时间</th>
+                    <th data-field="type" data-align="center">类型</th>
+                    <th data-field="obj_no" data-align="center">对象标识</th>
+                    <th data-field="old" data-align="center">库存标签</th>
+                    <th data-field="stock" data-align="center">盘点返回标签</th>
+                    <th data-field="diff" data-align="center">处理结果</th>
+                    <th data-field="device_status" data-align="center">此时盒子状态</th>
+                </tr>
+                </thead>
+            </table>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    $(function(){
+        $('#time').datetimepicker({
+            language: 'zh', //汉化
+            autoclose: 1,
+            format: 'yyyy-mm-dd hh:00:00',
+            minView: 'day'
+        });
+        $('#to_date').datetimepicker({
+            language: 'zh', //汉化
+            autoclose: 1,
+            format: 'yyyy-mm-dd hh:00:00',
+            minView: 'day'
+        });
+
+        $('#config-table').bootstrapTable({
+        }).on('click-row.bs.table', function (e, row, $element) {
+            $("#curr_id").val(row.id);
+        });
+        $("#config-body").delegate(".show_img","click",function(){
+            MessageBox.alert($(this).attr('data-content'));
+        });
+        $("#search-btn").on('click', function(){
+            var serverUrl = $('#origin_url').val();
+            var filterData = "";
+            $.each($("[name^='search_']"), function() {
+                field = $(this).attr('name');
+                data = $(this).val();
+                if(data!=-1 && data!=""){
+                    filterData += field+"="+data+"&";
+                }
+            });
+            if(filterData==""){
+                var url = serverUrl;
+            }else{
+                var url = serverUrl +'?'+filterData;
+            }
+            $('#config-table').bootstrapTable('refresh', {url: url});
+        });
+    });
+</script>

@@ -1,0 +1,99 @@
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <h3 class="panel-title"> access log</h3>
+    </div>
+    <div class="panel-body">
+        <div class="form-horizontal" id="search">
+            <div class="form-group">
+                <div class="col-sm-2">
+                    <input type="text" class="form-control" size='8' name="search_uri" placeholder="查询接口url">
+                </div>
+                <div class="col-sm-2">
+                    <input type="text" class="form-control" size='8' name="search_params" placeholder="查询关键字">
+                </div>
+                <div class="col-sm-2">
+                    <input type="text" class="form-control" name="search_response" placeholder="查询结果集">
+                </div>
+                <div class="col-sm-2">
+                    <div class="input-group date  col-md-10" data-link-field="dtp_input1" id="time" >
+                        <input class="form-control" type="text" name="search_start" value="" placeholder="开始时间"  readonly>
+                        <span class="input-group-addon"><span class="glyphicon glyphicon-remove"></span></span>
+                        <span class="input-group-addon"><span class="glyphicon glyphicon-th"></span></span>
+                    </div>
+                </div>
+
+                <div class="col-sm-2">
+                    <div class="input-group date  col-md-10" data-link-field="dtp_input2" id="to_date" >
+                        <input class="form-control" type="text" name="search_end" value="" placeholder="结束时间"  readonly>
+                        <span class="input-group-addon"><span class="glyphicon glyphicon-remove"></span></span>
+                        <span class="input-group-addon"><span class="glyphicon glyphicon-th"></span></span>
+                    </div>
+                </div>
+
+
+                <div class="col-sm-2">
+                    <button type="button" class="btn btn-default" id="search-btn">查找</button>
+                    <input type="hidden" id="origin_url" value="/showlog/access_log_table">
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="panel-body">
+        <div id="config-body">
+            <table id="config-table" data-toggle="table" data-url="/showlog/access_log_table" data-select-item-name="radioName" data-pagination="true" data-side-pagination="server" data-page-list="[10,15,20,50,100]">
+                <thead>
+                <tr>
+                    <th data-field="uri" data-align="center" data-class="col-sm-1">api</th>
+                    <th data-field="params" data-align="center">request</th>
+                    <th data-field="response" data-align="center">response</th>
+                    <th data-field="time" data-align="center">时间</th>
+                    <th data-field="ip_address" data-align="center">ip</th>
+                </tr>
+                </thead>
+            </table>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    $(function(){
+        $('#time').datetimepicker({
+            language: 'zh', //汉化
+            autoclose: 1,
+            format: 'yyyy-mm-dd hh:00:00',
+            minView: 'day'
+        });
+        $('#to_date').datetimepicker({
+            language: 'zh', //汉化
+            autoclose: 1,
+            format: 'yyyy-mm-dd hh:00:00',
+            minView: 'day'
+        });
+
+        $('#config-table').bootstrapTable({
+        }).on('click-row.bs.table', function (e, row, $element) {
+            $("#curr_id").val(row.id);
+        });
+        $("#config-body").delegate(".show_img","click",function(){
+            MessageBox.alert($(this).attr('data-content'));
+        });
+        $("#search-btn").on('click', function(){
+            var serverUrl = $('#origin_url').val();
+            var filterData = "";
+            $.each($("[name^='search_']"), function() {
+                field = $(this).attr('name');
+                data = $(this).val();
+                if(data!=-1 && data!=""){
+                    filterData += field+"="+data+"&";
+                }
+            });
+            if(filterData==""){
+                var url = serverUrl;
+            }else{
+                var url = serverUrl +'?'+filterData;
+            }
+            $('#config-table').bootstrapTable('refresh', {url: url});
+        });
+    });
+
+
+</script>

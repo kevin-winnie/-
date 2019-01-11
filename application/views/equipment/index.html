@@ -1,0 +1,268 @@
+<style>
+	.hide-th{
+		display:none;
+	}
+</style>
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <h3 class="panel-title">设备信息管理</h3>
+    </div>
+    <div class="panel-body">
+        <div class="form-horizontal" id="search">
+
+            <div class="form-group">
+            	<div class="col-sm-4">
+                    <select class="form-control" name="search_platform_id" id="search_platform_id" style="width:100px;display:inline;">
+                        <option value="-1">选择商户</option>
+                        <{foreach $platform_list as $val}>
+                        <option value="<{$val.id}>" <{if $val.id eq $id}>selected<{/if}>><{$val.name}></option>
+                        <{/foreach}>
+                    </select>
+                    <select class="form-control" name="search_platform_is_hidden" style="width:100px;display:inline;" placeholder="商户状态">
+                        <option value="0">商户状态</option>
+                        <option value="-1">全部</option>
+                        <option value="0">正常</option>
+                        <option value="1">隐藏</option>
+                    </select>
+                    <input style="width:40%;display:inline;" type="text" class="form-control" name="search_equipment_id" placeholder="设备ID">
+                    <input style="width:30%;display:inline;" type="text" class="form-control" name="search_code" placeholder="设备编码">
+                </div>
+            	
+                <!-- <div class="col-sm-2">
+                	<select class="form-control" name="search_status">
+                        <option value="-1">请选择设备状态</option>
+                        <option value="1">启用</option>
+                        <option value="0">停用</option>
+                        
+                	</select>
+                </div> -->
+                
+                <div class="col-sm-3">
+                    <div class="input-group date  col-md-12 datetime_input" data-link-field="dtp_input1" id="time" >
+                        <input class="form-control" type="text" class="" name="search_start_time" value="" placeholder="开始时间"  readonly>
+                        <span class="input-group-addon"><span class="glyphicon glyphicon-remove"></span></span>
+                        <span class="input-group-addon"><span class="glyphicon glyphicon-th"></span></span>
+                    </div>
+                </div>
+                <div class="col-sm-3">
+                    <div class="input-group date  col-md-12 datetime_input" data-link-field="dtp_input2" id="time2" >
+                        <input class="form-control" type="text" class="" name="search_end_time" value="" placeholder="截止时间"  readonly>
+                        <span class="input-group-addon"><span class="glyphicon glyphicon-remove"></span></span>
+                        <span class="input-group-addon"><span class="glyphicon glyphicon-th"></span></span>
+                    </div>
+                </div>
+                
+                <button type="button" class="btn btn-default" id="search-btn">查找</button>
+                <input type="hidden" id="origin_url" value="/equipment/table">
+            </div>
+        </div>
+    </div>
+    <div class="panel-body">
+        <div class="table-toolbar">
+        	<button type="button" class="btn btn-info btn-sm" id="equipment_add">添加设备</button>
+            <button type="button" class="btn btn-info btn-sm" id="equipment_edit">编辑</button>
+            <button type="button" class="btn btn-info btn-sm" id="equipment_export">导出</button>
+            <button style="float:right;margin:0 10px;" type="button" class="btn btn-danger btn-sm" id="equipment_stop">停用</button>
+            <button style="float:right;" type="button" class="btn btn-success btn-sm" id="equipment_start">启用</button>
+            <input type="hidden" id="curr_id" value="0">
+            <input type="hidden" id="device_id" value="0">
+            <!--<a href='javascript:void(0)' onclick="refresh_cache()" role="button" class="btn btn-info btn-sm">刷新配置缓存</a>-->
+        </div>
+        <div id="config-body">
+        <table id="config-table" data-toggle="table" data-url="/equipment/table/<{$id}>" data-click-to-select="true" data-select-item-name="radioName" data-pagination="true" data-page-size="100" data-side-pagination="server" data-page-list="[5,10,15,20,50,100]">
+            <thead>
+                <tr>
+                    <th data-field="state" data-radio="true"></th>
+                    <th data-field="id" data-align="center">id</th>
+                    <th data-field="platform_name" data-align="center">商户</th>
+                    <th data-field="equipment_id" data-align="center">设备id</th>
+                    <th data-field="type" data-align="center">设备类型</th>
+                    <th data-field="status_name" data-align="center">状态</th>
+                    <th data-field="code" data-align="center">设备编码</th>
+                    <th data-field="created_time" data-align="center">创建时间</th>
+                    <!--<th data-field="qr_action" data-align="center">支付宝二维码</th>
+                    <th data-field="qr_fruitday_action" data-align="center">果园二维码</th>-->
+                    <th data-field="qr_common_action" data-align="center">通用二维码</th>
+                    <th data-field="banner_common" data-align="center">通用banner</th>
+                    <th data-field="banner_common_alipay" data-align="center">通用支付宝banner</th>
+                    <th data-field="banner_common_wechat" data-align="center">通用微信banner</th>
+                    <th data-field="config" data-align="center">特别配置</th>
+                </tr>
+            </thead>
+        </table>
+    </div>
+    </div>
+</div>
+<script type="text/javascript">
+	
+    function ckRadio(){
+        var curr_id = $("input[type=radio]:checked").parent().next().html();
+        if(typeof(curr_id) == "undefined"){
+            $("#curr_id").val(0);
+        }else{
+            $("#curr_id").val(curr_id);
+        }
+    }
+
+    $(function(){
+    	$('.datetime_input').each(function(){
+			$(this).datetimepicker({
+				language: 'zh', //汉化
+				autoclose: 1,
+				format: 'yyyy-mm-dd hh:ii:00',
+				timepicker:false    //关闭时间选项
+			});
+		});
+    	
+        $('#config-table').bootstrapTable({
+        }).on('check.bs.table', function (e, row, $element) {
+            $("#curr_id").val(row.id);
+            $("#device_id").val(row.equipment_id);
+        });
+        $("#config-body").delegate(".show_img","click",function(){
+            MessageBox.alert($(this).attr('data-content'));
+        });
+
+        $("#search-btn").on('click', function(){
+            var serverUrl = $('#origin_url').val();
+            var filterData = "";
+            $.each($("[name^='search_']"), function() {
+                field = $(this).attr('name');
+                data = $(this).val();
+                if(data!=-1 && data!=""){
+                    filterData += field+"="+data+"&";
+                }
+            });
+            if(filterData==""){
+                var url = serverUrl;
+            }else{
+                var url = serverUrl +'?'+filterData;
+            }
+            $('#config-table').bootstrapTable('refresh', {url: url});
+        });
+
+        //编辑
+        $("#equipment_edit").on('click', function () {
+            ckRadio();
+            var curr_id = $("#curr_id").val();
+            if (curr_id == 0) {
+                MessageBox.error('请选择编辑项');
+                return;
+            }
+            window.location.href = "/equipment/edit/" + curr_id;
+        });
+        
+        $("#equipment_export").on('click', function () {
+            var goUrl = '/equipment/export';
+            var filterData = "";
+            $.each($("[name^='search_']"), function() {
+                field = $(this).attr('name');
+                data = $(this).val();
+                if(data!=-1 && data!=""){
+                    filterData += field+"="+data+"&";
+                }
+            });
+            if(filterData==""){
+                var url = goUrl;
+            }else{
+                var url = goUrl +'?'+filterData;
+            }
+            if (confirm('确认要导出当前条件的设备吗？')){
+            	location.href = url;
+            } else {
+            	return false;
+            }
+            
+        });
+
+        //心跳
+        $("#equipment_heart").on('click', function () {
+            var device_id = $("#device_id").val();
+            if (device_id == 0) {
+                MessageBox.error('请选择编辑项');
+                return;
+            }
+
+            $.ajax({
+                type: "post",
+                url: "/equipment/ajax_eq_heart",
+                data: {
+                    device_id:device_id
+                },
+                success: function (data, status) {
+                    data = JSON.parse(data);
+                    var str ='没有找到心跳记录';
+                    if(data['receive_time']){
+                        var str = '设备最后一次心跳发生在'+data['receive_time'];
+                    }
+                    MessageBox.warning(str);
+                },
+                error: function () {
+
+                },
+                complete: function () {
+
+                }
+
+            });
+        });
+
+
+        //编辑
+        $("#equipment_stock").on('click', function () {
+            ckRadio();
+            var curr_id = $("#curr_id").val();
+            if (curr_id == 0) {
+                MessageBox.error('请选择编辑项');
+                return;
+            }
+            window.location.href = "/equipment/stock/" + curr_id;
+        });
+
+        //盘点
+        $('#equipment_pandian').on('click', function () {
+            ckRadio();
+            var curr_id = $("#curr_id").val();
+            if (curr_id == 0) {
+                MessageBox.error('请选择编辑项');
+                return;
+            }
+            window.location.href = "/equipment/pandian/" + curr_id;
+        });
+        
+        //编辑
+        $("#equipment_start").on('click', function () {
+            ckRadio();
+            var curr_id = $("#curr_id").val();
+            if (curr_id == 0) {
+                MessageBox.error('请选择编辑项');
+                return;
+            }
+            if (confirm("确认要启用设备吗？")){
+            	window.location.href = "/equipment/start/" + curr_id;
+            }
+            
+        });
+        
+        //编辑
+        $("#equipment_stop").on('click', function () {
+            ckRadio();
+            var curr_id = $("#curr_id").val();
+            if (curr_id == 0) {
+                MessageBox.error('请选择编辑项');
+                return;
+            }
+            if (confirm("确认要停用设备吗？")){
+            	window.location.href = "/equipment/stop/" + curr_id;
+            }
+            
+        });
+        
+
+		//添加设备
+        $("#equipment_add").on('click', function () {
+            window.location.href = "/equipment/add";
+        });
+
+    });
+</script>

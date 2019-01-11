@@ -1,0 +1,249 @@
+
+<{if $tips eq ''}>
+<{else }>
+<div class="alert alert-success" role="alert"><{$tips}></div>
+
+<{/if}>
+<style type="text/css">
+    .ui-autocomplete{
+        border: 1px solid #aaa;
+        -webkit-border-radius: 5px;
+        -moz-border-radius: 5px;
+        border-radius: 5px;
+        background-color: #FFFFFF;
+    }
+</style>
+<div class="panel panel-default" >
+    <div class="panel-heading"> 编辑工单</div>
+
+    <form id="add-user-form" class="form-horizontal" role="form" method="post" action="/workorder/edit_add">
+
+        <div class="panel-body" style="height: 400px">
+            <div class="form-horizontal" id="search">
+                <div class="form-group"> </div>
+                <div class="form-group"> </div>
+                <div class="form-group ">
+                    <label  class="col-sm-2 control-label">企业地址：</label>
+                    <!--input-group-btn-->
+                    <input type="hidden" id="p" value="<{$clue_list['province']}>">
+                    <input type="hidden" id="c" value="<{$clue_list['city']}>">
+                    <input type="hidden" id="a" value="<{$clue_list['area']}>">
+                    <div class="col-sm-2">
+                        <select  id="pr" class="form-control" name="province" >
+                            <option value="0">省份</option>
+                        </select>
+                    </div>
+                    <div class="col-sm-2">
+                        <select  id="ci" class="form-control" name="city" >
+                            <{if $clue_list['city'] != 0 && $clue_list['city'] != "" && $clue_list['city'] != -1}>
+                            <option value="<{$clue_list['city']}>"><{$clue_list['city_name']}></option>
+                            <{else}>
+                            <option value="0">市区</option>
+                            <{/if}>
+                        </select>
+                    </div>
+                    <div class="col-sm-2">
+                        <select  id="ar" class="form-control" name="area" >
+                            <{if $clue_list['area'] != 0 && $clue_list['area'] != "" && $clue_list['area'] != -1}>
+                            <option value="<{$clue_list['area']}>"><{$clue_list['area_name']}></option>
+                            <{else}>
+                            <option value="0">地区</option>
+                            <{/if}>
+                        </select>
+                    </div>
+
+                    <div class=" col-sm-2">
+                        <input type="text" id="ad" class="form-control" name="address" placeholder="省、市、县（区）街道、巷" value="<{$clue_list['address']}>">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label  class="col-sm-2 control-label">所属商户：</label>
+                    <div class="col-sm-2">
+                        <input type="text" class="form-control"   value="<{$commercial_row['name']}>" readonly>
+                        <input type="hidden" name="platform_id" id="platform_id" value="<{$commercial_row['merchant_owned']}>">
+                        <input type="hidden" name="clue_id" id="clue_id" value="<{$clue_id}>">
+                    </div>
+                    <label  class="col-sm-2 control-label">企业名称：</label>
+                    <div class="col-sm-2">
+                        <input type="text"  id="en" class="form-control"   name="enterprise" value="<{$clue_list['name']}>" >
+
+                    </div>
+                </div>
+                <{foreach from=$clue_equipment item=val }>
+                <div class="form-group">
+                    <label  class="col-sm-2 control-label">设备ID：</label>
+                    <div class="col-sm-2">
+                        <input type="text" class="form-control "    value="<{$val['equipment_id']}>"  disabled >
+
+                    </div>
+                    <div class="col-sm-2">
+                        <input type="text" class="form-control "    value="<{$val['equipment_name']}>" disabled >
+
+                    </div>
+                </div>
+                <{/foreach}>
+                <div class="form-group">
+                    <label  class="col-sm-2 control-label">设备ID：</label>
+                    <div class="col-sm-2">
+                        <input type="text" class="form-control equipment_id" name="equipment_id[]"   placeholder="请输入设备唯一标示！"  >
+
+                    </div>
+                    <div class="col-sm-2">
+                        <input type="text" class="form-control name" name="name[]"   placeholder="请输入设备名称！"  >
+
+                    </div>
+                    <div class="col-sm-2">
+                        <button type="button" class="btn btn-info" id="btn-add">新增</button>
+                    </div>
+
+                </div>
+                <div class="form-group" id="add">
+                    <label  class="col-sm-2 control-label"></label>
+                    <div class="col-sm-2">
+                        <input type="hidden" name="submit" value="1">
+                        <button type="button" class="btn btn-info" id="explore-btn">保存</button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </form>
+</div>
+<script type="text/javascript">
+    $("#add-user-form").Validform(
+        {tiptype:2}
+    );
+    var data =   '<div class="form-group">'+
+                 '<label  class="col-sm-2 control-label">设备ID：</label>'+
+                 '<div class="col-sm-2">'+
+                 '<input type="text" class="form-control equipment_id" name="equipment_id[]"   placeholder="请输入设备唯一标示！" >'+
+                 '</div>'+
+                 ' <div class="col-sm-2">'+
+                 '<input type="text" class="form-control name" name="name[]"   placeholder="请输入设备名称！"  >'+
+                 '</div>'+
+                 '<div class="col-sm-2">'+
+                 '<button type="button" class="btn btn-info btn-del" >删除</button>'+
+                 '</div>'+
+                 '</div>';
+    $(function(){
+        $("#btn-add").on("click",function(){
+
+            $("#add").prepend(data);
+        })
+        $(document).on("click",".btn-del",function(){
+           $(this).parent().parent().remove();
+        })
+    })
+
+    $("#explore-btn").on("click",function(){
+        //获取所有设备名称
+
+        var name_obj = $(".name");
+        var names = "";
+        var name_msg = true;
+        name_obj.each(function(){
+            if($(this).val() == ""){
+                name_msg = false;
+            }else{
+                names += ","+$(this).val();
+            }
+        })
+        if(name_msg == false){
+            MessageBox.alert("设备名称不能为空");
+            return;
+        }
+        names = names.substr(1);
+
+        //获取所有设备ID
+        var equipment_id_obj = $(".equipment_id");
+        var equipment_msg = true;
+        var equipment_id = "";
+        equipment_id_obj.each(function(){
+            if($(this).val() == ""){
+                equipment_msg = false;
+            }else{
+                equipment_id += ","+$(this).val();
+            }
+
+        })
+        if(equipment_msg == false){
+            MessageBox.alert("设备id不能为空");
+            return;
+        }
+        equipment_id = equipment_id.substr(1);
+
+        //获取商户id
+        var platform_id = $("#platform_id").val();
+        //获取线索id
+        var clue_id = $("#clue_id").val();
+        var province = $("#pr").val();
+        var city = $("#ci").val();
+        var area = $("#ar").val();
+        var address = $("#ad").val();
+        var enterprise = $("#en").val();
+
+        var serverUrl = "/workorder/edit_add";
+
+        $.ajax({
+            type: 'post',
+            url: serverUrl,
+            dataType: 'json',
+            data: {clue_id: clue_id, name:names,platform_id:platform_id,equipment_id:equipment_id,province:province,city:city,area:area,address:address,enterprise:enterprise},
+            success: function (resp) {
+
+               if(resp.status == "success"){
+                   alert("保存成功")
+                   window.location.href = "/workorder/work_index";
+               }else{
+                   MessageBox.error(resp.msg)
+               }
+
+            }
+        });
+    })
+    var p = $("#p").val();
+    $.post("/regions/search",{pid:0},function(respData){
+        if(respData.status=='success'){
+            if (respData.region_list){
+                var province_list = '<option value="0">省份</option>';
+                $(respData.region_list).each(function(i,val){
+                    if( p == val.AREAIDS){
+
+                        province_list = province_list + '<option value="'+val.AREAIDS+'" selected>'+val.AREANAME+'</option>';
+                    }else{
+                        province_list = province_list + '<option value="'+val.AREAIDS+'" >'+val.AREANAME+'</option>';
+                    }
+                });
+                $('#pr').html(province_list);
+                $('#pr').change(function(){
+                    $('#ar').html('<option value="-1">地区</option>');
+                    $.post("/regions/search",{pid:$(this).val()},function(respData){
+                        if(respData.status=='success'){
+                            if (respData.region_list){
+                                var city_list = '<option value="-1">市区</option>';
+                                $(respData.region_list).each(function(i,val){
+                                    city_list = city_list + '<option value="'+val.AREAIDS+'">'+val.AREANAME+'</option>';
+                                });
+                                $('#ci').html(city_list);
+                                $('#ci').change(function(){
+                                    $.post("/regions/search",{pid:$(this).val()},function(respData){
+                                        if(respData.status=='success'){
+                                            if (respData.region_list){
+                                                var area_list = '<option value="-1">地区</option>';
+                                                $(respData.region_list).each(function(i,val){
+                                                    area_list = area_list + '<option value="'+val.AREAIDS+'">'+val.AREANAME+'</option>';
+                                                });
+                                                $('#ar').html(area_list);
+                                            }
+                                        }
+                                    },'json');
+                                })
+                            }
+                        }
+                    },'json');
+                })
+            }
+        }
+    },'json');
+
+</script>

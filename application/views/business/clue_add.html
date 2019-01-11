@@ -1,0 +1,192 @@
+<{if $tips eq ''}>
+<{elseif $tips eq '新增成功'}>
+<div class="alert alert-success" role="alert"><{$tips}></div>
+<{else}>
+<div class="alert alert-danger" role="alert"><{$tips}></div>
+<{/if}>
+<style type="text/css">
+    .ui-autocomplete{
+        border: 1px solid #aaa;
+        -webkit-border-radius: 5px;
+        -moz-border-radius: 5px;
+        border-radius: 5px;
+        background-color: #FFFFFF;
+    }
+</style>
+<div class="panel panel-default">
+    <div class="panel-heading"> 添加线索</div>
+
+    <form id="add-user-form" class="form-horizontal" role="form" method="post" action="/business/clue_add" onsubmit="return rececive()">
+
+    <div class="panel-body">
+        <div class="form-horizontal" id="search">
+            <div class="form-group">
+                <label  class="col-sm-2 control-label">点位名称：</label>
+                <div class="col-sm-2">
+                    <input type="text" class="form-control" name="name"  datatype="*" nullmsg="请输入点位名称！" placeholder="点位名称">
+                </div>
+                <div class="Validform_checktip"></div>
+            </div>
+            <div class="form-group">
+                <label  class="col-sm-2 control-label">等级：</label>
+                <div class="col-sm-2">
+                    <select class="form-control" name="grade" >
+                        <option value="">请选择</option>
+
+                        <option value="A">A</option>
+                        <option value="B">B</option>
+                        <option value="C">C</option>
+
+                    </select>
+                </div>
+
+            </div>
+            <div class="form-group">
+                <label  class="col-sm-2 control-label">点位地址：</label>
+                <div class="col-sm-2">
+                    <select  id="select_province" class="form-control" name="province" datatype="*" nullmsg="请输入点位地址！">
+                        <option value="-1">省份</option>
+                    </select>
+                </div>
+                <div class="col-sm-2">
+                    <select  id="select_city" class="form-control" name="city" datatype="*" nullmsg="请输入点位地址！">
+                        <option value="-1">市区</option>
+                    </select>
+                </div>
+                <div class="col-sm-2">
+                    <select  id="select_area" class="form-control" name="area" datatype="*" placeholder="请输入点位地址!">
+                        <option value="-1">地区</option>
+                    </select>
+                </div>
+
+
+            </div>
+            <div class="form-group">
+                <label  class="col-sm-2 control-label">详细地址：</label>
+                <div class="col-sm-2">
+                    <input type="text" class="form-control" name="address" placeholder="详细地址" datatype="*" nullmsg="请输入详细地址！">
+                </div>
+                <div class="Validform_checktip"></div>
+            </div>
+            <div class="form-group">
+                <label  class="col-sm-2 control-label">联系人：</label>
+                <div class="col-sm-2">
+                    <input type="text" class="form-control" name="contacts" placeholder="联系人" datatype="*" nullmsg="请输入联系人！">
+                </div>
+                <div class="Validform_checktip"></div>
+            </div>
+            <div class="form-group">
+                <label  class="col-sm-2 control-label">联系人电话：</label>
+                <div class="col-sm-2">
+                    <input type="text" class="form-control" name="phone" placeholder="电话" datatype="*" nullmsg="请输入联系人电话！">
+                </div>
+                <div class="Validform_checktip"></div>
+            </div>
+            <div class="form-group">
+                <label  class="col-sm-2 control-label">点位场景：</label>
+                <div class="col-sm-2">
+                    <select class="form-control" name="scene" datatype="*" nullmsg="请选择点位场景！" id="scene_additional">
+                        <option value="">请选择</option>
+                        <{foreach from=$scene key=key item=val }>
+                        <option value="<{$key}>"><{$val}></option>
+                        <{/foreach}>
+                    </select>
+                    <input type="text" class="form-control" name="scene_additional" placeholder="选择其它选项 可添" style="display: none">
+                </div>
+
+                <div class="Validform_checktip"></div>
+
+            </div>
+
+
+
+            <div class="form-group">
+                <label  class="col-sm-2 control-label">所属商户：</label>
+                <div class="col-sm-2">
+                    <select class="form-control" name="merchant_owned" datatype="*" nullmsg="请选择所属商户！>
+                        <option value="">请选择</option>
+                        <{foreach from=$commercial_list item=val }>
+                        <option value="<{$val['id']}>"><{$val['name']}></option>
+                        <{/foreach}>
+                    </select>
+                </div>
+                <div class="Validform_checktip"></div>
+            </div>
+            <div class="form-group">
+                <label  class="col-sm-2 control-label">推荐源：</label>
+                <div class="col-sm-2">
+                    <input type="text" class="form-control" name="source" placeholder="">
+                </div>
+
+            </div>
+            <div class="form-group">
+                <label  class="col-sm-2 control-label">BD负责人：</label>
+                <div class="col-sm-2">
+                    <input type="hidden" name="db_duty" value="<{$admin_id}>">
+                    <input type="text" class="form-control" name="" value="<{$admin_name}>" disabled="disabled">
+                </div>
+                <div class="Validform_checktip"></div>
+            </div>
+            <div class="form-group">
+                <label  class="col-sm-2 control-label">BD进度：</label>
+                <div class="col-sm-2">
+
+                    <select class="form-control" name="db_status" datatype="*" nullmsg="请选择DB进度！">
+                        <option value="">请选择</option>
+                        <option value="1">联系中</option>
+                        <option value="2">意向确立</option>
+                        <option value="3">协议流程</option>
+                        <option value="4">等待装机</option>
+                        <option value="6">失败</option>
+                        <option value="7">暂停</option>
+
+                    </select>
+                </div>
+                <div class="Validform_checktip"></div>
+            </div>
+            <div class="form-group">
+                <label  class="col-sm-2 control-label"></label>
+                <div class="col-sm-4">
+                    <input type="radio"  name="add" value="1"  datatype="*" nullmsg="请选择添加到线索还是公海!！" checked>添加到线索
+                    <input type="radio"  name="add" value="0"  datatype="*" nullmsg="请选择添加到线索还是公海!！">添加到公海
+                </div>
+                <div class="Validform_checktip"></div>
+            </div>
+            <div class="form-group">
+                <label  class="col-sm-2 control-label"></label>
+                <div class="col-sm-2">
+                    <input type="hidden" name="submit" value="1">
+                    <button type="submit" class="btn btn-info" id="explore-btn">确认添加</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    </form>
+</div>
+<script type="text/javascript">
+    $("#add-user-form").Validform(
+        {tiptype:2}
+    );
+    function rececive(){
+
+      var area = $("#select_area").val();
+      if(area == "-1"){
+          MessageBox.error('请选择点位地址!');
+          return false;
+      }else{
+          return true;
+      }
+
+
+    }
+    $('#scene_additional').on('change',function(){
+        var scene_additional = $(this).val();
+        if(scene_additional == 11){
+            $('#scene_additional').next().show();
+        }else{
+            $('#scene_additional').next().hide();
+        }
+
+    })
+
+</script>

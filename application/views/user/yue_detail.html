@@ -1,0 +1,219 @@
+<style type="text/css">
+    td.name {
+        max-width: 150px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+    table{
+        font-size: 12px;
+    }
+</style>
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <h3 class="panel-title">账户信息</h3>
+    </div>
+    <div class="panel-body">
+        <table class="table table-striped table-bordered">
+            <tr>
+                <td align="center">用户id:</td>
+                <td align="center">用户名:</td>
+                <td align="center">手机号:</td>
+                <td align="center">注册来源:</td>
+                <td align="center">集团:</td>
+            </tr>
+            <{foreach key=key item=item from=$user}>
+            <tr>
+                <td align="center">&nbsp;<{$item['id']}></td>
+                <td align="center">&nbsp;<{$item['user_name']}></td>
+                <td align="center">&nbsp;<{$item['mobile']}></td>
+                <td align="center">&nbsp;<{$item['source']}></td>
+                <td align="center">&nbsp;<{$item['group_code']}></td>
+            </tr>
+            <{/foreach}>
+        </table>
+    </div>
+    <div class="panel-body">
+        <table class="table table-striped table-bordered">
+            <tr>
+                <td align="center">账户余额:</td>
+                <td align="center"><{$acount['yue']|default:'0.00'}></td>
+                <td align="center">可提现金额(在线充值):</td>
+                <td align="center"><{$yue['withdraw']}></td>
+                <td align="center">提现需额外扣除金额(赠送):</td>
+                <td align="center"><{$yue['bonusMoney']}></td>
+                <td align="center">已冻结金额:</td>
+                <td align="center"><{$acount['frozen_yue']|default:'0.00'}></td>
+                <td align="center">可冻结金额(卡券充值):</td>
+                <td align="center"><{$yue['card_money']}></td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="panel-body">
+        <div class="form-group">
+            <div class="col-sm-2">
+                <input type="text" class="form-control" size='8' readonly="readonly" name="withdraw" value="<{$yue['withdraw']}>" >
+                <input type="hidden" name="bonusMoney" value="<{$yue['bonusMoney']}>">
+            </div>
+            <div class="col-sm-4">
+                <input type="text" class="form-control" maxlength="40" name="remarks" value="" placeholder="备注信息：填银行卡 or 支付宝账号 or 微信账号" >
+            </div>
+            <div class="col-sm-2">
+                <button type="button" class="btn btn-default" id="tixian-btn">手动提现</button>
+            </div>
+            <label  class="control-label" style="color: red;font-size: 10px;">需手动给用户打款</label>
+        </div>
+    </div>
+    <div class="panel-body">
+        <div class="form-group">
+            <div class="col-sm-2">
+                <input type="text" class="form-control" size='8' name="frozen_yue" value="<{$yue['card_money']}>" >
+            </div>
+            <div class="col-sm-4">
+                <input type="text" class="form-control" maxlength="40" name="remarks2" value="" placeholder="备注信息：冻结原因" >
+            </div>
+            <div class="col-sm-2">
+                <button type="button" class="btn btn-default" id="dongjie-btn">冻结</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="panel-heading">
+        <h3 class="panel-title">充值明细</h3>
+    </div>
+    <div class="panel-body">
+        <div id="config-body">
+            <table id="config-table" data-toggle="table" data-url="/user/yue_table?acount_id=<{$acount_id}>" data-pagination="true" data-side-pagination="server" data-page-list="[5,10,15,20]">
+                <thead>
+                <tr>
+                    <th data-field="order_name" data-align="center">充值订单/卡号</th>
+                    <th data-field="money" data-align="center">充值金额</th>
+                    <th data-field="bonus" data-align="center">赠送金额</th>
+                    <th data-field="type" data-align="center">充值方式</th>
+                    <th data-field="update_time" data-align="center">充值时间</th>
+                </tr>
+                </thead>
+            </table>
+        </div>
+    </div>
+
+    <div class="panel-heading">
+        <h3 class="panel-title">余额明细</h3>
+    </div>
+    <div class="panel-body">
+        <div id="config-body2">
+            <table id="config-table2" data-toggle="table" data-url="/user/yue_list?acount_id=<{$acount_id}>" data-pagination="true" data-side-pagination="server" data-limit="50" data-page-list="[5,10,15,20]">
+                <thead>
+                <tr>
+                    <th data-field="des" data-align="center">描述</th>
+                    <th data-field="yue" data-align="center">金额</th>
+                    <th data-field="add_time" data-align="center">时间</th>
+                    <th data-field="yue_type" data-align="center">余额类型</th>
+                    <th data-field="remarks" data-align="center">备注</th>
+
+                </tr>
+                </thead>
+            </table>
+        </div>
+    </div>
+
+</div>
+
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog" style="width: 800px">
+        <div class="modal-content">
+
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal -->
+</div>
+
+
+<script type="text/javascript">
+    var acount_id = '<{$acount_id}>';
+    var uid = '<{$uid}>';
+    $(function(){
+        $('#config-table').bootstrapTable({
+        }).on('click-row.bs.table', function (e, row, $element) {
+            $("#curr_id").val(row.id);
+        }).on('dbl-click-row.bs.table', function (e, row, $element) {
+            $element.find('td').eq(2).toggleClass('code');
+        });
+
+
+        $("#config-body").delegate(".show_img","click",function(){
+            MessageBox.alert($(this).attr('data-content'));
+        });
+        $('#time').datetimepicker({
+            language: 'zh', //汉化
+            autoclose: 1,
+            format: 'yyyy-mm-dd hh:00:00',
+            minView: 'day'
+        });
+        $('#time2').datetimepicker({
+            language: 'zh', //汉化
+            autoclose: 1,
+            format: 'yyyy-mm-dd hh:00:00',
+            minView: 'day'
+        });
+        $("#tixian-btn").on('click', function(){
+            var withdraw   = $('input[name="withdraw"]').val();
+            var bonusMoney = $('input[name="bonusMoney"]').val();
+            var remarks    = $('input[name="remarks"]').val();
+
+            var _this = $(this);
+            if(_this.attr('is_lock') == 1){
+                return false;
+            }
+            _this.attr('is_lock', 1);
+            $.post("/user/tixian", {withdraw: withdraw, bonusMoney:bonusMoney, acount_id:acount_id, uid:uid, remarks:remarks }, function (data) {
+                alert(data.msg);
+                if (data.status == 'success') {
+                    location.reload();
+                }
+                _this.attr('is_lock', 0);
+            }, 'json');
+        });
+
+        $("#dongjie-btn").on('click', function(){
+            var frozen_yue   = $('input[name="frozen_yue"]').val();
+            var remarks      = $('input[name="remarks2"]').val();
+            var _this = $(this);
+            if(_this.attr('is_lock') == 1){
+                return false;
+            }
+            _this.attr('is_lock', 1);
+            $.post("/user/frozen", {frozen_yue: frozen_yue, acount_id:acount_id,uid:uid,remarks:remarks }, function (data) {
+                alert(data.msg);
+                if (data.status == 'success') {
+                    location.reload();
+                }
+                _this.attr('is_lock', 0);
+            }, 'json');
+        });
+
+
+        $('#time').datetimepicker({
+            language: 'zh', //汉化
+            autoclose: 1,
+            format: 'yyyy-mm-dd hh:00:00',
+            minView: 'day'
+        });
+        $('#time2').datetimepicker({
+            language: 'zh', //汉化
+            autoclose: 1,
+            format: 'yyyy-mm-dd hh:00:00',
+            minView: 'day'
+        });
+
+    });
+
+    function ckRadio() {
+        var curr_id = $("input[type=radio]:checked").parent().next().text();
+        if (typeof (curr_id) == "undefined") {
+            $("#curr_id").val(0);
+        } else {
+            $("#curr_id").val(curr_id);
+        }
+    }
+</script>

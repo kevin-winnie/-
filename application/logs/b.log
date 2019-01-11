@@ -1,0 +1,1 @@
+select count(id) as c  from p_pault where is_del=0  and p.equipment_id = "sadasdq12131" and p.pault_code = "8" 

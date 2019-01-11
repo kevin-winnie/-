@@ -1,0 +1,148 @@
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <h3 class="panel-title"> 开门日志</h3>
+    </div>
+    <div class="panel-body">
+        <div class="form-horizontal" id="search">
+            <{include 'order/search_box.html'}>
+            <div class="form-group">
+                <div class="col-sm-2">
+                    <input type="text" class="form-control" size='8' name="search_mobile" placeholder="手机号或用户id或用户名">
+                </div>
+                <div class="col-sm-2">
+                    <select class="form-control" name="search_operation_id">
+                        <option value="0">操作类型</option>
+                        <option value="1">下单</option>
+                        <option value="2">上下架</option>
+                    </select>
+                </div>
+                <div class="col-sm-3">
+                    <div class="input-group date  col-md-10" data-link-field="dtp_input1" id="time" >
+                        <input class="form-control" type="text" name="time"  placeholder="开门时间"  readonly>
+                        <span class="input-group-addon"><span class="glyphicon glyphicon-remove"></span></span>
+                        <span class="input-group-addon"><span class="glyphicon glyphicon-th"></span></span>
+                    </div>
+                    <input type="hidden" name="search_open_time" class="check_text" id="dtp_input1" value="" data-attr="开始时间不能为空" />
+                </div>
+                <div class="col-sm-3">
+                    <div class="input-group date  col-md-10" data-link-field="dtp_input2" id="to_date" >
+                        <input class="form-control" type="text" name="to_date"  placeholder="关门时间"  readonly>
+                        <span class="input-group-addon"><span class="glyphicon glyphicon-remove"></span></span>
+                        <span class="input-group-addon"><span class="glyphicon glyphicon-th"></span></span>
+                    </div>
+                    <input type="hidden" name="search_close_time" class="check_text" id="dtp_input2" value="" data-attr="结束时间不能为空" />
+                </div>
+                <div class="col-sm-1">
+                    <button type="button" class="btn btn-default" id="search-btn">查找</button>
+                    <input type="hidden" id="origin_url" value="/showlog/open_log_table">
+                    <input type="hidden" id="list_total" value="0">
+                </div>
+                <div class="col-sm-1">
+                    <button type="button" class="btn btn-success" id="explore-btn">导出</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="panel-body">
+        <div id="config-body">
+            <table id="config-table" data-toggle="table" data-url="/showlog/open_log_table" data-click-to-select="true" data-select-item-name="radioName" data-pagination="true" data-side-pagination="server" data-page-list="[5,10,15,20]">
+                <thead>
+                <tr>
+                    <th data-field="state" data-radio="true"></th>
+                    <th data-field="id" data-align="center">ID</th>
+                    <th data-field="uid" data-align="center">用户</th>
+                    <th data-field="mobile" data-align="center">手机号</th>
+                    <th data-field="box_no" data-align="center">设备名称</th>
+                    <th data-field="open_time" data-align="center">开启时间</th>
+                    <th data-field="close_time" data-align="center">关闭时间</th>
+                    <th data-field="order_name" data-align="center">生成订单编号</th>
+                    <th data-field="refer" data-align="center">开门方式</th>
+                    <th data-field="operation" data-align="center">操作类型</th>
+                    <th data-field="platform" data-align="center">商户</th>
+                </tr>
+                </thead>
+            </table>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="download_label" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog" style="width: 50%">
+        <div class="modal-content">
+
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal -->
+</div>
+<script type="text/javascript">
+    $(function(){
+        $('#time').datetimepicker({
+            language: 'zh', //汉化
+            autoclose: 1,
+            format: 'yyyy-mm-dd hh:00:00',
+            minView: 'day'
+        });
+        $('#to_date').datetimepicker({
+            language: 'zh', //汉化
+            autoclose: 1,
+            format: 'yyyy-mm-dd hh:00:00',
+            minView: 'day'
+        });
+
+        $('#config-table').bootstrapTable({
+        }).on('click-row.bs.table', function (e, row, $element) {
+            $("#curr_id").val(row.id);
+        }).on('load-success.bs.table', function (e,data) {
+            $('#list_total').val(data.total);
+        });
+        $("#config-body").delegate(".show_img","click",function(){
+            MessageBox.alert($(this).attr('data-content'));
+        });
+
+        $("#search-btn").on('click', function(){
+            var serverUrl = $('#origin_url').val();
+            var filterData = "";
+            $.each($("[name^='search_']"), function() {
+                field = $(this).attr('name');
+                data = $(this).val();
+                if(data!=-1 && data!=""){
+                    filterData += field+"="+data+"&";
+                }
+            });
+            if(filterData==""){
+                var url = serverUrl;
+            }else{
+                var url = serverUrl +'?'+filterData;
+            }
+            $('#config-table').bootstrapTable('refresh', {url: url}).on('load-success.bs.table', function (e,data) {
+                $('#list_total').val(data.total);
+            });
+        });
+
+        $("#explore-btn").on('click', function(){
+            $.get("/showlog/download_html/"+$('#list_total').val(),{ },function(respData){
+                if(respData.status=='success'){
+                    $("#download_label").find('.modal-content').html(respData.html);
+                    $('#download_label').modal('show')
+                }
+            },'json');
+            return false;
+        });
+
+    });
+    function download_order(obj, serverUrl){
+        var filterData = "";
+        $.each($("[name^='search_']"), function() {
+            field = $(this).attr('name');
+            data = $(this).val();
+            if(data!=-1 && data!=""){
+                filterData += field+"="+data+"&";
+            }
+        });
+        if(filterData==""){
+            var url = serverUrl;
+        }else{
+            var url = serverUrl +'&'+filterData;
+        }
+        $(obj).css('color', '#aaa');
+        location.href=url;
+    }
+</script>

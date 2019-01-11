@@ -1,0 +1,113 @@
+<{if $tips eq ''}>
+<{else}>
+<div class="alert alert-danger" role="alert"><{$tips}></div>
+<{/if}>
+<div class="panel panel-default">
+	<div class="panel-heading">新增设备</div>
+	<table class="table">
+		<form action="/equipment/add_noclue_save" id="myform" name="myform" method="post" >
+		  <tr class="tr">
+		    <td width="22%" align="right" > 盒子方设备ID：</td>
+		    <td width="75%" ><input name="equipment_id" type="text" id="equipment_id" size="30" value="" placeholder="盒子ID，如68805328909" /></td>
+		  </tr>
+		  
+		  <tr class="tr">
+		    <td width="22%" align="right" > 盒子编码：</td>
+		    <td width="75%" ><input name="code" type="text" id="code" size="30" value="" placeholder="盒子编码，如A000001" /></td>
+		  </tr>
+		  
+		  <tr class="tr">
+		    <td width="22%" align="right" > 盒子类型：</td>
+		    <td width="75%" >
+		    	<select class="form-control" name="type" id="type"  style="width:200px;">
+                    <option value="rfid-1">rfid-1[蚂蚁盒子RFID]</option>
+                    <option value="rfid-2">rfid-2[自己生产RFID]</option>
+                    <option value="rfid-3">rfid-3[数字RFID]</option>
+                    <option value="rfid-4">rfid-4[无膜RFID]</option>
+                    <option value="rfid-5">rfid-5[无膜RFID-数烨]</option>
+					<option value="rfid-6">rfid-6[数字RFID-数烨]</option>
+                    <option value="scan-1">scan-1[扫码]</option>
+                    <option value="vision-1">vision-1[视觉]</option>
+                    <option value="vision-2">vision-2[视觉-数烨]</option>
+                    <option value="coffee-1">coffee-1[咖啡设备-沙丁鱼]</option>
+				 </select>
+		    </td>
+		  </tr>
+
+		  <tr class="tr">
+		    <td width="22%" align="right" > 所属商户：</td>
+		    <td width="75%" >
+		    	<select class="form-control" name="platform_id" id="platform_id" onchange="changePlatform($(this).val())"  style="width:200px;">
+					<option value="">===请选择商户===</option>
+					<{foreach $platform_list as $val}>
+                    <option value="<{$val.id}>"><{$val.name}></option>
+                    <{/foreach}>
+				 </select>
+		    </td>
+		  </tr>
+		  
+		  <tr class="tr">
+		    <td width="22%" align="right" > 选择管理员：</td>
+		    <td width="75%" >
+		    	<select class="form-control" name="admin_id" id="admin_id" style="width:200px;">
+					<option value="">===请选择管理员===</option>
+				 </select>
+		    </td>
+		  </tr>
+		  
+		  <tr class="tr">
+		    <td align="right" >&nbsp;</td>
+		    <td ><input type="button" onclick="submitForm()" name="Submit" class="lostfocus" onFocus='this.className="getfocus";' onMouseOver='this.className="getfocus";' onBlur='this.className="lostfocus";' onMouseOut='this.className="lostfocus";'
+			value="更新">
+			<input type="button" value="返回" onclick="history.back();" />
+		  </tr>
+		</form>
+	</table>
+</div>
+<script type="text/javascript">
+function changePlatform(val){
+	$('#admin_id').html('<option value="">===请选择管理员===</option>');
+	$.ajax({
+	    type: "post",
+	    url: "/equipment/getAdmins",
+	    dataType: 'json',
+	    data: {
+	        platform_id:val,
+	    },
+	    success: function (data, status) {
+	    	if (data.code == 200){
+	    		//填充管理员列表
+	    		$(data.admins).each(function(k,v){
+	    			var option_html = '<option value="'+v.id+'">'+v.name+'</option>';
+	    			$('#admin_id').append(option_html);
+	    		})
+	    	} else {
+	    		MessageBox.warning(data.msg);
+	    	}
+	        
+	    },
+	});
+}
+function submitForm(){
+	if ($('#equipment_id').val() == ''){
+		alert('请输入盒子id！');
+		return;
+	}
+	if ($('#code').val() == ''){
+		alert('请输入盒子编码！');
+		return;
+	}
+	if ($('#platform_id').val() == ''){
+		alert('请选择所属商户！');
+		return;
+	}
+	if ($('#admin_id').val() == ''){
+		alert('请选择管理员！');
+		return;
+	}
+	$('#myform').submit();
+}
+
+
+</script>
+

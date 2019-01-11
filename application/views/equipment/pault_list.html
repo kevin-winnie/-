@@ -1,0 +1,265 @@
+
+<style type="text/css">
+    .ui-autocomplete{
+        border: 1px solid #aaa;
+        -webkit-border-radius: 5px;
+        -moz-border-radius: 5px;
+        border-radius: 5px;
+        background-color: #FFFFFF;
+    }
+</style>
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <h3 class="panel-title">故障设备列表</h3>
+    </div>
+    <div class="panel-body">
+        <div class="form-horizontal" id="search">
+            <div class="form-group">
+
+                <div class="col-sm-2">
+                    <input type="text" class="form-control" name="search_equipment_id"  placeholder="设备id" >
+                </div>
+                <div class="col-sm-2">
+                    <input type="text" class="form-control" name="search_equipment_name"   placeholder="设备名称！">
+                </div>
+                <div class="col-sm-2">
+                    <select class="form-control" name="search_pault_code"  >
+                        <option value="">故障代码</option>
+                        <{foreach $pault_code as $key=>$val}>
+                        <option value="<{$key}>">code=<{$key}>(<{$val}>)</option>
+                        <{/foreach}>
+
+                    </select>
+                </div>
+                <div class="col-sm-2">
+                    <select class="form-control" name="search_pault_status"   >
+                        <option value="">状态</option>
+                        <{foreach $pault_status as $key=>$val}>
+                        <option value="<{$key}>"><{$val}></option>
+                        <{/foreach}>
+
+                    </select>
+                </div>
+                <div class="col-sm-2">
+                    <div class="input-group date  col-md-12" data-link-field="dtp_input1" id="time" >
+                        <input class="form-control" type="text" name="search_start_time" value="" placeholder="创建开始时间"  readonly>
+                        <span class="input-group-addon"><span class="glyphicon glyphicon-remove"></span></span>
+                        <span class="input-group-addon"><span class="glyphicon glyphicon-th"></span></span>
+                    </div>
+                </div>
+                <div class="col-sm-2">
+                    <div class="input-group date  col-md-12" data-link-field="dtp_input2" id="time2" >
+                        <input class="form-control" type="text" name="search_end_time" value="" placeholder="创建截止时间"  readonly>
+                        <span class="input-group-addon"><span class="glyphicon glyphicon-remove"></span></span>
+                        <span class="input-group-addon"><span class="glyphicon glyphicon-th"></span></span>
+                    </div>
+                </div>
+
+
+            </div>
+            <div class="form-group">
+
+                <div class="col-sm-2">
+                    <select class="form-control" name="search_pault_type"  >
+                        <option value="">故障类别</option>
+                        <{foreach $pault_type as $key=>$val}>
+                        <option value="<{$key}>"><{$val}></option>
+                        <{/foreach}>
+
+                    </select>
+                </div>
+                <div class="col-sm-2">
+                    <select class="form-control" name="search_scene"  >
+                        <option value="">来源</option>
+                        <{foreach $scene as $key=>$val}>
+                        <option value="<{$key}>"><{$val}></option>
+                        <{/foreach}>
+
+                    </select>
+                </div>
+                <div class="col-sm-2">
+                    <select class="form-control" name="search_commercial"  >
+                        <option value="">商户</option>
+                        <{foreach $commercial as $key=>$val}>
+                        <option value="<{$val['id']}>"><{$val['name']}></option>
+                        <{/foreach}>
+
+                    </select>
+                </div>
+                <div class="col-sm-4">
+                    <input type="hidden" id="origin_url" value="/equipment/pault_table">
+                    <button type="button" class="btn btn-info" id="search-btn">查找</button>
+                    <a href="/equipment/pault_add" target="_blank" class="btn btn-info">故障上报</a>
+                    <button type="button" class="btn btn-info" id="update-btn">编辑</button>
+                    <button type="button" class="btn btn-success" id="complete">已完成</button>
+                    <button type="button" class="btn btn-success" id="export-btn">导出</button>
+                    <button type="button" class="btn btn-danger" id="delete-btn">删除</button>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="panel-body">
+        <div id="config-body">
+            <table id="config-table" data-toggle="table" data-url="/equipment/pault_table" data-click-to-select="true" data-select-item-name="radioName" data-pagination="true" data-page-size="20" data-side-pagination="server" data-page-list="[50,100]" >
+                <thead>
+                <tr>
+                    <th data-field="state" data-checkbox="true"></th>
+                    <th data-field="id" data-align="center">ID</th>
+
+
+                    <th data-field="equipment_id" data-align="center">设备id</th>
+                    <th data-field="equipment_name" data-align="center">设备名称</th>
+                    <th data-field="equipment_address" data-align="center">设备地址</th>
+                    <th data-field="equipment_admin" data-align="center">运营人员</th>
+                    <th data-field="pault_type" data-align="center">故障类别</th>
+                    <th data-field="pault_code" data-align="center">故障代码</th>
+
+                    <th data-field="pault_info" data-align="center">故障详情</th>
+                    <th data-field="scene" data-align="center">信息来源</th>
+                    <th data-field="contacts_phone" data-align="center">点位联系人+电话</th>
+                    <th data-field="create_time" data-align="center">上报时间</th>
+                    <th data-field="complete_time" data-align="center">完成时间</th>
+                    <!--<th data-field="phone" data-align="center">点位联系人电话</th>-->
+                    <!--<th data-field="make_time" data-align="center">预约开始时间</th>-->
+                    <!--<th data-field="make_time_end" data-align="center">预约结束时间</th>-->
+                    <th data-field="user_name_user_phone" data-align="center">上报人+电话</th>
+                    <!--<th data-field="user_phone" data-align="center">上报人电话</th>-->
+                    <th data-field="urgent_status" data-align="center">故障状态</th>
+                    <th data-field="pault_status" data-align="center" >维修状态</th>
+                    <!--<th data-field="create_admin" data-align="center">创建人</th>-->
+                    <th data-field="update_time" data-align="center">更新时间</th>
+                    <th data-field="update_admin" data-align="center">更新人</th>
+
+
+                </tr>
+                </thead>
+
+            </table>
+        </div>
+    </div>
+</div>
+
+
+
+
+<script type="text/javascript">
+    $('#time').datetimepicker({
+        language: 'zh', //汉化
+        autoclose: 1,
+        format: 'yyyy-mm-dd hh:00:00',
+        minView: 'day'
+    });
+    $('#time2').datetimepicker({
+        language: 'zh', //汉化
+        autoclose: 1,
+        format: 'yyyy-mm-dd hh:00:00',
+        minView: 'day'
+    });
+    $("#search-btn").on('click', function(){
+        var serverUrl = $('#origin_url').val();
+        var filterData = "";
+        $.each($("[name^='search_']"), function() {
+            field = $(this).attr('name');
+            data = $(this).val();
+            if(data!=-1 && data!=""){
+                filterData += field+"="+data+"&";
+            }
+        });
+        if(filterData==""){
+            var url = serverUrl;
+        }else{
+            var url = serverUrl +'?'+filterData;
+            console.log(url)
+        }
+        $('#config-table').bootstrapTable('refresh', {url: url});
+    });
+    function search(serverUrl){
+        var filterData = "";
+        $.each($("[name^='search_']"), function() {
+            field = $(this).attr('name');
+            data = $(this).val();
+            if(data!=-1 && data!=""){
+                filterData += "&"+field+"="+data;
+            }
+        });
+        filterData = filterData.substr(1);
+        if(filterData==""){
+            return   url = serverUrl;
+        }else{
+            return   url = serverUrl +'?'+filterData;
+        }
+    }
+    $('#update-btn').on('click',function(){
+        var obj = $("input[name=radioName]:checked");
+        if( obj.length != 1){
+            MessageBox.error('请选择一条进行编辑');
+            return;
+        }
+        var id = [];
+        obj.each(function(){
+            if($(this).parent().next().html() != ""){
+                id.push($(this).parent().next().html());
+            }
+
+        })
+
+
+        window.open('/equipment/pault_update?id='+id[0]+'&status=update');
+
+    })
+    //批量完成
+    $('#complete').on('click',function(){
+        var obj = $("input[name=radioName]:checked");
+        var id = "";
+        obj.each(function(){
+            id += ','+$(this).parent().next().html();
+
+
+        })
+        ids = id.substr(1);
+        $.post('/equipment/pault_status',{ids:ids},function(respData){
+               if(respData.status == "success"){
+                   obj.each(function(){
+                       $(this).parent().next().next().next().next().next().next().next().next().next().next().next().next().next().next().next().html('已维修');
+                   })
+                   MessageBox.success('更新成功');
+               }else{
+                   MessageBox.error('更新失败');
+               }
+        },'json');
+
+
+    })
+    //批量删除
+    $('#delete-btn').on('click',function(){
+        var obj = $("input[name=radioName]:checked");
+        var id = "";
+        obj.each(function(){
+            id += ','+$(this).parent().next().html();
+
+
+        })
+        ids = id.substr(1);
+
+        $.post('/equipment/pault_delete',{ids:ids},function(respData){
+            if(respData.status == "success"){
+                MessageBox.success('更新成功');
+                window.location.reload();
+            }else{
+                MessageBox.error('更新失败');
+            }
+        },'json');
+
+
+    })
+    $("#export-btn").on("click",function(){
+        var serverUrl  = "/equipment/pault_excel";
+        var url = search(serverUrl);
+        //alert(url)
+        window.location = url;
+
+    })
+</script>

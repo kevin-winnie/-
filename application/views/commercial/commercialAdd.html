@@ -1,0 +1,290 @@
+<{if $tips eq ''}>
+<{elseif $tips eq '新增成功'}>
+<div class="alert alert-success" role="alert"><{$tips}></div>
+<{else}>
+<div class="alert alert-danger" role="alert"><{$tips}></div>
+<{/if}>
+<div class="panel panel-default">
+    <div class="panel-heading">添加商户</div>
+    <div class="panel-body">
+        <form id="add-user-form" class="form-horizontal" role="form" method="post" action="/commercial/commercialAdd">
+            基本信息：
+            <div class="form-group">
+                <label for="name" class="col-sm-2 control-label">商户名称：</label>
+                <div class="col-sm-3">
+                    <input type="text" class="form-control" id="name" name="name" datatype="*" nullmsg="请输入商户名称！"  placeholder="请输入商户名称">
+                </div>
+                <div class="Validform_checktip"></div>
+            </div>
+            <div class="form-group">
+                <label for="name" class="col-sm-2 control-label">商户简称：</label>
+                <div class="col-sm-3">
+                    <input type="text" class="form-control" id="short_name" name="short_name" placeholder="请输入商户简称">
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="contacts" class="col-sm-2 control-label">联系人：</label>
+                <div class="col-sm-3">
+                    <input type="text" class="form-control" id="contacts" name="contacts" datatype="*" nullmsg="请输入联系人！" placeholder="请输入联系人">
+                </div>
+                <div class="Validform_checktip"></div>
+            </div>
+            <div class="form-group">
+                <label for="phone" class="col-sm-2 control-label">联系电话：</label>
+                <div class="col-sm-3">
+                    <input type="text" class="form-control" id="phone" name="phone" datatype="*" nullmsg="请输入联系电话！" placeholder="请输入联系电话">
+                </div>
+                <div class="Validform_checktip"></div>
+            </div>
+            <div class="form-group">
+                <label for="address" class="col-sm-2 control-label">联系地址：</label>
+                <div class="col-sm-3">
+                    <input type="text" class="form-control" id="address" name="address"  placeholder="请输入联系地址">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-2 control-label">客服电话：</label>
+                <div class="col-sm-3">
+                    <input type="text" value="" class="form-control" id="kf_tel" name="kf_tel"  datatype="*" nullmsg="请输入客服电话！"  placeholder="客服电话">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-2 control-label">消息title：</label>
+                <div class="col-sm-3">
+                    <input type="text" value="" class="form-control" id="msg_title" name="msg_title"  datatype="*" nullmsg="请输入消息title！"  placeholder="消息title">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-2 control-label">默认banner图：</label>
+                <div class="col-sm-5">
+                    <input type="file" name="img_banner_file" id="img_banner_file" class="pull-left" data-attr="活动banner图不能为空" onchange="ajaxFileUpload(this.id);">
+                    <input type="hidden" name="img_banner" value="">
+                    <a class="show_img hide" href="javascript:void(0)" data-content="" data-original-title="" title="">查看</a>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-2 control-label">二维码logo：</label>
+                <div class="col-sm-5">
+                    <input type="file" name="qr_logo_file" id="qr_logo_file" class="pull-left" data-attr="二维码logo不能为空" onchange="ajaxFileUpload(this.id);">
+                    <input type="hidden" name="qr_logo" value="">
+                    <a class="show_img hide" href="javascript:void(0)" data-content="" data-original-title="" title="">查看</a>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-2 control-label">自定义icon：</label>
+                <div class="col-sm-3">
+                    <input type="text" value="<{$iconinfo['icon1_name']}>" class="form-control" id="msg_title" name="icon_name_1"  nullmsg="请输入icon名称！最多4个字符"  placeholder="请输入icon名称！最多4个字符">
+                </div>
+                <div class="col-sm-5" style="width: 200px;">
+                    <input type="file" name="icon_img_1" id="icon1_logo_file" class="pull-left" d onchange="ajaxFileUpload(this.id);">
+                    <input type="hidden" name="icon1_path" value="<{$iconinfo['icon1_path']}>">
+                    <a class="show_img <{if $iconinfo['icon1_path'] eq ''}>hide<{/if}>" href="javascript:void(0)" data-content="<img src='<{$img_http}><{$iconinfo['icon1_path']}>' width='200px'>" data-original-title="" title="">查看</a>
+                </div>
+                <div class="col-sm-3" >
+                    <input type="text" value="<{$iconinfo['icon1_url']}>" class="form-control" id="msg_title" name="icon_url_1"  nullmsg="请输入icon跳转链接"  placeholder="请输入icon跳转链接">
+                </div><span style="font-size: 25px;color: red;cursor: pointer;" class="delete_icon" value="1">×</span>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-2 control-label"></label>
+                <div class="col-sm-3">
+                    <input type="text" value="<{$iconinfo['icon2_name']}>" class="form-control" id="msg_title" name="icon_name_2"   nullmsg="请输入icon名称！最多4个字符"  placeholder="请输入icon名称！最多4个字符">
+                </div>
+                <div class="col-sm-5" style="width: 200px;">
+                    <input type="file" name="icon_img_2" id="icon2_logo_file" class="pull-left"  onchange="ajaxFileUpload(this.id);">
+                    <input type="hidden" name="icon2_path" value="<{$iconinfo['icon2_path']}>">
+                    <a class="show_img <{if $iconinfo['icon2_path'] eq ''}>hide<{/if}>" href="javascript:void(0)" data-content="<img src='<{$img_http}><{$iconinfo['icon2_path']}>' width='200px'>" data-original-title="" title="">查看</a>
+                </div>
+                <div class="col-sm-3" >
+                    <input type="text" value="<{$iconinfo['icon2_url']}>" class="form-control" id="msg_title" name="icon_url_2"   nullmsg="请输入icon跳转链接"  placeholder="请输入icon跳转链接">
+                </div><span style="font-size: 25px;color: red;cursor: pointer;" class="delete_icon" value="2">×</span>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-2 control-label">公众号名称：</label>
+                <div class="col-sm-3">
+                    <input type="text" value="<{$info['wechat_name']}>" class="form-control" id="wechat_name" name="wechat_name"   placeholder="公众号名称">
+                </div>
+                <label class="col-sm-2 control-label">生活号名称：</label>
+                <div class="col-sm-3">
+                    <input type="text" value="<{$info['alipay_name']}>" class="form-control" id="alipay_name" name="alipay_name"   placeholder="生活号名称">
+                </div>
+            </div>
+            商户服务:
+            <div class="form-group">
+                <div for="need_deliver" class="form-group">
+                    <label class="col-sm-2 control-label">是否自配送：</label>
+                    <div class="col-sm-3">
+                        <select class="form-control" name="need_deliver" id="need_deliver" datatype="*" nullmsg="请至少选择一个！">
+                            <option value="1">是</option>
+                            <option value="2">否</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <div for="need_product" class="form-group">
+                    <label class="col-sm-2 control-label">是否供应商品：</label>
+                    <div class="col-sm-3">
+                        <select class="form-control" name="need_product" id="need_product" datatype="*" nullmsg="请至少选择一个！">
+                            <option value="1">是</option>
+                            <option value="2">否</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-2 control-label">通用二维码前缀：</label>
+                <div class="col-sm-3">
+                    <select class="form-control" name="common_pr" id="common_pr" datatype="*" nullmsg="请输入通用二维码前缀！">
+                        <option value="">请选择</option>
+                        <{foreach $qr_common_url as $url}>
+                        <option value="<{$url.value}>"><{$url.name}></option>
+                        <{/foreach}>
+                    </select>
+                </div>
+                <!--<span style="color: red">URL中必须有DEVICEID字符，用于替换设备id，正常情况请勿修改！</span>-->
+            </div>
+            <div class="form-group">
+                <label  class="col-sm-2 control-label">允许开门来源：
+                    <br><br><br><br>
+                    <input type="checkbox" value="" id="box_check_all"> 全选
+
+                </label>
+                <div class="col-sm-10">
+                    <div class="store-box" style="min-height:250px;overflow-y:auto;max-height:100px;border-radius:5px;border:1px solid #aaa;padding:10px;">
+                        <{foreach key=key item=item from=$open_refer}>
+                        <label style="margin-right:10px;font-weight: normal">
+                            <input type="checkbox" name="refer[]"  value="<{$key}>"> <{$item}>
+                        </label>
+                        <{/foreach}>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="col-sm-2 control-label">如果非允许来源扫码，提示语：</label>
+                <div class="col-sm-4">
+                    <input type="text" value="请使用xxxx扫码开门" class="form-control" id="error_msg" name="error_msg"  datatype="*" nullmsg="请输入提示语！"  placeholder="提示语">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-2 control-label">如果非允许来源扫码，重定向URL：</label>
+                <div class="col-sm-4">
+                    <select class="form-control" name="error_url" id="error_url" datatype="*" nullmsg="请输入重定向URL！">
+                        <option value="">请选择</option>
+                        <{foreach $qr_common_url as $url}>
+                        <option value="<{$url.error}>"><{$url.name}></option>
+                        <{/foreach}>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <div for="need_product" class="form-group">
+                    <label class="col-sm-2 control-label">是否能使用魔盒余额支付：</label>
+                    <div class="col-sm-2">
+                        <select class="form-control" name="use_yue" id="use_yue" datatype="*" nullmsg="请至少选择一个！">
+                            <option value="1">是</option>
+                            <option value="0">否</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <div for="need_product" class="form-group">
+                    <label class="col-sm-2 control-label">所属集团：</label>
+                    <div class="col-sm-2">
+                        <select class="form-control" name="group_code" id="group_code" datatype="*" nullmsg="请至少选择一个！">
+                            <{foreach key=key1 item=item1 from=$groups}>
+                            <option value="<{$item1.code}>"> <{$item1.name}> </option>
+                            <{/foreach}>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <{foreach key=key item=item from=$configs}>
+            <div class="form-group">
+                <div for="need_product" class="form-group">
+                    <label class="col-sm-2 control-label">选择<{$key}>配置：</label>
+                    <div class="col-sm-2">
+                    <select class="form-control" name="config['<{$key}>']">
+                        <{foreach key=key1 item=item1 from=$configs[$key]}>
+                        <option value="<{$item1.id}> " <{if $key eq $config.platform_id}>selected<{/if}>> <{$item1.name}> </option>
+                        <{/foreach}>
+                    </select>
+                    </div>
+
+                    <label class="col-sm-2 control-label"><{$key}>费率：</label>
+                    <div class="col-sm-3">
+                        <input type="text" value="" class="form-control" id="<{$key}>_rate" name="<{$key}>_rate"  nullmsg="请输入<{$key}>费率"  placeholder="请输入<{$key}>费率">
+                    </div>
+                </div>
+            </div>
+            <{/foreach}>
+            <div class="form-group">
+                <label class="col-sm-2 control-label">分账账号：</label>
+                <div class="col-sm-4">
+                    <input type="text" value="" class="form-control" id="error_msg" name="seprate_account"  datatype="*" nullmsg="请输入分账账号！"  placeholder="请输入分账账号">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-2 control-label">分账比例：</label>
+                <div class="col-sm-4">
+                    <input type="text" value="" class="form-control" id="error_msg" name="seprate_rate"  datatype="*" nullmsg="请输入分账比例！"  placeholder="请输入分账比例">
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-sm-offset-2 col-sm-10">
+                    <input type="hidden" name="submit" value="1">
+                    <button type="submit" class="btn btn-default">确定</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+<script type="application/javascript" src="/assets/js/ajaxfileupload.js"></script>
+
+<script type="text/javascript">
+    $("#add-user-form").Validform(
+        {tiptype:2}
+    );
+</script>
+
+<script type="text/javascript">
+    $('#box_check_all').click(function(){
+        var flag = $(this).prop('checked');
+        $('.store-box').find('input[type="checkbox"]').prop('checked', flag)
+    });
+
+    $(".show_img").popover({
+        placement: 'right',
+        trigger: 'hover',
+        html: true
+    });
+
+    function ajaxFileUpload(elementId) {
+        $.ajaxFileUpload({
+            url: '/image/ajax_upload_img', //用于文件上传的服务器端请求地址
+            secureuri: false, //是否需要安全协议，一般设置为false
+            fileElementId: elementId, //文件上传域的ID
+            dataType: 'json', //返回值类型 一般设置为json
+            success: function (data, status)  //服务器成功响应处理函数
+            {
+                if(data.status=='error'){
+                    alert(data.msg);
+                    return false;
+                }
+                if (typeof (data.status) != 'undefined') {
+                    $("#"+elementId).next().val(data.url);
+                    var html = "<img src='"+data.img_http+data.url+"' width='200px'>";
+                    $("#"+elementId).next().next().removeClass('hide').attr('data-content', html);
+                }
+            },
+            error: function (data, status, e)//服务器响应失败处理函数
+            {
+                alert(e);
+            }
+        });
+        return false;
+    }
+</script>

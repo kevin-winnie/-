@@ -1,0 +1,168 @@
+
+<style type="text/css">
+    .ui-autocomplete{
+        border: 1px solid #aaa;
+        -webkit-border-radius: 5px;
+        -moz-border-radius: 5px;
+        border-radius: 5px;
+        background-color: #FFFFFF;
+    }
+</style>
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <h3 class="panel-title">组装设备列表</h3>
+    </div>
+    <div class="panel-body">
+        <div class="form-horizontal" id="search">
+            <div class="form-group">
+                <div class="col-sm-2">
+                    <select class="form-control" name="search_type" id="type"  >
+                        <option value="">设备类型</option>
+                        <option value="rfid-1">rfid-1[蚂蚁盒子RFID]</option>
+                        <option value="rfid-2">rfid-2[自己生产RFID]</option>
+                        <option value="rfid-3">rfid-3[数字RFID]</option>
+                        <option value="rfid-4">rfid-4[无膜RFID]</option>
+                        <option value="rfid-5">rfid-5[无膜RFID-数烨]</option>
+                        <option value="rfid-6">rfid-6[数字RFID-数烨]</option>
+                        <option value="scan-1">scan-1[扫码]</option>
+                        <option value="vision-1">vision-1[视觉]</option>
+                        <option value="vision-2">vision-2[视觉-数烨]</option>
+                        <option value="coffee-1">coffee-1[咖啡设备-沙丁鱼]</option>
+                    </select>
+                </div>
+                <div class="col-sm-2">
+                    <input type="text" class="form-control" name="search_equipment_id"  placeholder="设备id" >
+                </div>
+                <div class="col-sm-2">
+                    <input type="text" class="form-control" name="search_box"   placeholder="箱体！">
+                </div>
+                <div class="col-sm-2">
+                    <input type="text" class="form-control" name="search_router"  d placeholder="路由器！">
+                </div>
+                <div class="col-sm-2">
+                    <input type="text" class="form-control" name="search_monitor"   placeholder="显示器！">
+                </div>
+                <div class="col-sm-2">
+                    <input type="text" class="form-control" name="search_writer"  placeholder="读写器！">
+                </div>
+
+
+            </div>
+            <div class="form-group">
+
+                <div class="col-sm-2">
+                    <input type="text" class="form-control" name="search_camera"  placeholder="摄像头！">
+                </div>
+                <div class="col-sm-2">
+                    <input type="text" class="form-control" name="search_sm_number" datatype="*" placeholder="SIM卡号！">
+                </div>
+                <div class="col-sm-3">
+                    <div class="input-group date  col-md-12" data-link-field="dtp_input1" id="time" >
+                        <input class="form-control" type="text" name="search_start_time" value="" placeholder="创建开始时间"  readonly>
+                        <span class="input-group-addon"><span class="glyphicon glyphicon-remove"></span></span>
+                        <span class="input-group-addon"><span class="glyphicon glyphicon-th"></span></span>
+                    </div>
+                </div>
+                <div class="col-sm-3">
+                    <div class="input-group date  col-md-12" data-link-field="dtp_input2" id="time2" >
+                        <input class="form-control" type="text" name="search_end_time" value="" placeholder="创建截止时间"  readonly>
+                        <span class="input-group-addon"><span class="glyphicon glyphicon-remove"></span></span>
+                        <span class="input-group-addon"><span class="glyphicon glyphicon-th"></span></span>
+                    </div>
+                </div>
+                <div class="col-sm-2">
+                    <input type="hidden" id="origin_url" value="/equipment/assemble_table">
+                    <button type="button" class="btn btn-success" id="search-btn">查找</button>
+                    <a href="/equipment/add_assemble" target="_blank" class="btn btn-info">组装设备</a>
+                    <button type="button" class="btn btn-success" id="update-btn">编辑</button>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="panel-body">
+        <div id="config-body">
+            <table id="config-table" data-toggle="table" data-url="/equipment/assemble_table" data-click-to-select="true" data-select-item-name="radioName" data-pagination="true" data-page-size="20" data-side-pagination="server" data-page-list="[50,100]" >
+                <thead>
+                <tr>
+                    <th data-field="state" data-checkbox="true"></th>
+                    <th data-field="id" data-align="center">ID</th>
+                    <th data-field="type" data-align="center">设备类型</th>
+
+                    <th data-field="equipment_id" data-align="center">设备id</th>
+                    <th data-field="box" data-align="center">箱体</th>
+                    <th data-field="router" data-align="center">路由器</th>
+                    <th data-field="monitor" data-align="center">显示器</th>
+                    <th data-field="writer" data-align="center">读写器</th>
+
+                    <th data-field="camera" data-align="center">摄像头</th>
+                    <th data-field="sm_number" data-align="center">SIM卡号</th>
+                    <th data-field="create_time" data-align="center">创建时间</th>
+                    <th data-field="admin_name" data-align="center">创建者</th>
+
+
+                </tr>
+                </thead>
+
+            </table>
+        </div>
+    </div>
+</div>
+
+
+
+
+<script type="text/javascript">
+    $('#time').datetimepicker({
+        language: 'zh', //汉化
+        autoclose: 1,
+        format: 'yyyy-mm-dd hh:00:00',
+        minView: 'day'
+    });
+    $('#time2').datetimepicker({
+        language: 'zh', //汉化
+        autoclose: 1,
+        format: 'yyyy-mm-dd hh:00:00',
+        minView: 'day'
+    });
+    $("#search-btn").on('click', function(){
+        var serverUrl = $('#origin_url').val();
+        var filterData = "";
+        $.each($("[name^='search_']"), function() {
+            field = $(this).attr('name');
+            data = $(this).val();
+            if(data!=-1 && data!=""){
+                filterData += field+"="+data+"&";
+            }
+        });
+        if(filterData==""){
+            var url = serverUrl;
+        }else{
+            var url = serverUrl +'?'+filterData;
+        }
+        $('#config-table').bootstrapTable('refresh', {url: url});
+    });
+    $('#update-btn').on('click',function(){
+
+
+        var obj = $("input[name=radioName]:checked");
+        if( obj.length != 1){
+            MessageBox.error('请选择一条进行编辑');
+            return;
+        }
+        var id = [];
+        obj.each(function(){
+            if($(this).parent().next().html() != ""){
+                id.push($(this).parent().next().html());
+            }
+
+        })
+
+
+      window.open('/equipment/add_assemble?id='+id[0]+'&status=update');
+
+    })
+
+</script>

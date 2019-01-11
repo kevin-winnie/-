@@ -1,0 +1,63 @@
+<query>
+	<form id="query" class="form-inline" onsubmit="{ query }">
+		<div class="form-group">
+			<label>目标用户：</label>
+			<input type="text" class="form-control" name="target" placeholder="手机号码/邮箱地址/用户id/微信id">
+		</div>
+		<div class="form-group">
+			<label>消息类型：</label>
+			<select name="type" class="form-control">
+				<option  value="">所有</option>
+				<option value="sms">短信</option>
+				<option value="email">邮件</option>
+				<option value="app">app</option>
+				<option value="weixin">微信</option>
+			</select>
+		</div>
+		<div class="form-group">
+			<label class="radio-inline">
+				<input type="radio" name="active" value="" checked>所有
+			</label>		
+			<label class="radio-inline">
+				<input type="radio" name="active" value="1">启用
+			</label>	
+			<label class="radio-inline">
+				<input type="radio" name="active" value="0">不起用
+			</label>				
+		</div>
+		<div class="form-group">
+			<button type="submit" class="btn btn-primary">查询</button>
+			<button type="button" class="btn btn-default" onclick="{ reset }">重置</button>
+		</div>
+	</form>
+
+	<style scoped>
+		#query .form-group input[name='target'].form-control {
+			width:230px
+		}
+		#query .form-group input[name='source'].form-control {
+			width:60px
+		}
+		#query .form-group {
+			padding-left: 15px
+		}
+	</style>
+
+	<script>
+		var self = this;
+
+		query() {
+			var params = {conditions: {}};
+			$("form#query").serializeArray().forEach(function(item) {
+				if(item.value !== "")
+					params.conditions[item.name] = item.value;
+			});
+			opts.get(params);
+		}
+
+		reset() {
+			$("form#query")[0].reset();
+		}
+	</script>
+
+</query>

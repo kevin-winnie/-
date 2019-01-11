@@ -1,0 +1,17 @@
+RewriteEngine On
+#RewriteBase /
+
+#RewriteRule ^tuan(.*)$ http://dev/index.php/xianguo$1
+#RewriteCond %{HTTP_HOST} !^www.fruitday.com$ [NC]
+#RewriteRule ^(.*)$ http://www.fruitday.com/$1 [L,R=301]
+
+RewriteCond $1 !^(maintain\.html|index\.php|vcastr22.swf|xiangli.flv|favicon.ico|e-manage|wxapi|mysqlManage|css|js|img|images|paycenter|lott|user_upload_images|user_guide|up_images|product_pic|static|sinaweibo|zfbdl|alipay|ble|huanxun|fckeditor|sale|assets|xml|robots\.txt|deadlinks_20140820\.txt|feed)
+RewriteRule ^(.*)$ /index.php?/$1 [L]
+
+# direct one-word access
+#RewriteRule ^ms$    index\.php/ms [L]
+#RewriteRule ^ms/$    index\.php/ms [L]
+# RewriteRule ^sn($|/(.*)?$) index\.php/sn/index$1 [L]
+#RewriteRule ^sn($|/(.*)?$) index\.php/web/event/donghao$1 [L]
+#RewriteRule ^event/donghao($|/(.*)?$) index\.php/event/donghao$1 [L]
+

@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Menu>
+    <ModulesList>
+        <name value="1" menu = "1" workgroup="admin">账号管理</name>
+        <name value="2" menu = "2" workgroup="commercial">代理商商户管理</name>
+        <name value="3" menu = "3" workgroup="equipment">设备管理</name>
+        <name value="6" menu = "6" workgroup="order">交易管理</name>
+        <name value="7" menu = "7" workgroup="user">用户管理</name>
+        <name value="8" menu = "8" workgroup="report">数据报表</name>
+        <name value="10" menu = "20" workgroup="wechat">对账管理</name>
+        <name value="9" menu = "9" workgroup="report">商务市场</name>
+    </ModulesList>
+
+    <OptionList>
+        <name type ="1" value ="10" url="/admin/adduser">添加账号</name>
+        <name type ="1" value ="11" url="/admin/getuserlist">账号列表</name>
+        <name type ="1" value ="12" url="/admin/getgrouplist">角色列表</name>
+
+        <name type ="2" value ="20" url="/commercial/commercialAdd">添加商户</name>
+        <name type ="2" value ="20" url="/agent/agentAdd">添加代理商</name>
+        <name type ="2" value ="21" url="/commercial/commercialList">商户列表</name>
+        <name type ="2" value ="21" url="/agent/agentList">代理商列表</name>
+
+        <name type ="3" value ="30" url="/equipment/add">添加设备</name>
+        <name type ="3" value ="36" url="/equipment/banner_batch">生成banner</name>
+        <name type ="3" value ="31" url="/equipment/index">设备列表</name>
+        <name type ="3" value ="33" url="/equipment/pault_list">故障设备列表</name>
+        <name type ="3" value ="34" url="/equipment/assemble_list">组装设备列表</name>
+        <name type ="3" value ="35" url="/equipment/replace_equipment_add">中控替换</name>
+
+
+        <name type="6" value="61" url="/order/index">交易信息管理</name>
+
+        <name type="7" value="71" url="/user/user_list">用户管理</name>
+
+        <name type ="8" value ="81" url="/report/current">实时看板</name>
+        <name type ="8" value ="82" url="/report/overall">整体看板</name>
+
+        <name type ="10" value ="91" url="/business/clue_index">对账管理</name>
+
+        <name type ="9" value ="91" url="/business/clue_index">点位线索</name>
+        <name type ="9" value ="93" url="/workorder/work_index">装机工单</name>
+
+    </OptionList>
+</Menu>

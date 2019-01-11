@@ -1,0 +1,27 @@
+<div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+    <h4 class="modal-title" id="myModalLabel">标签日志</h4>
+</div>
+<div class="modal-body">
+    <table class="table">
+        <thead>
+        <tr>
+            <th data-align="center" width="20%">原来库存标签</th>
+            <th data-align="center" width="20%">盘点后标签</th>
+            <th data-align="center" width="20%">新增标签</th>
+            <th data-align="center" width="20%">减少标签</th>
+            <th data-align="center" width="20%">未变化标签</th>
+        </tr>
+        <tr>
+            <td data-align="center"><{$detail['old']}></td>
+            <td data-align="center"><{$detail['stock']}></td>
+            <td data-align="center"><{$detail['add']}></td>
+            <td data-align="center"><{$detail['del']}></td>
+            <td data-align="center"><{$detail['same']}></td>
+        </tr>
+        </thead>
+    </table>
+</div>
+<div class="modal-footer">
+    <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+</div>

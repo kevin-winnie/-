@@ -1,0 +1,9 @@
+.DS_Store
+dump.rdb
+application/.DS_Store
+application/templates_c/*
+application/config/database.php
+application/config/redis.php
+application/config/memcached.php
+application/config/constants.php
+.idea/

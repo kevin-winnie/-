@@ -1,0 +1,91 @@
+<style type="text/css">
+	.ui-autocomplete{
+		border: 1px solid #aaa;
+		-webkit-border-radius: 5px;
+		-moz-border-radius: 5px;
+		border-radius: 5px;
+		background-color: #FFFFFF;
+	}
+	table{
+		font-size: 13px;
+	}
+</style>
+<div class="panel panel-default">
+	<div class="panel-heading">
+		<h3 class="panel-title">平台和设备的配置</h3>
+	</div>
+	<div class="panel-body">
+		<div class="table-toolbar">
+			<!--<button type="button" class="btn btn-info btn-sm" id="warn_system_add">添加</button>-->
+			<button type="button" class="btn btn-info btn-sm" id="warn_system_edit">编辑</button>
+			<button type="button" class="btn btn-danger btn-sm" id="del_config">删除配置</button>
+			<button type="button" class="btn btn-info btn-sm" id="refresh_cache">刷新缓存</button>
+			<input type="hidden" id="curr_id" value="0">
+		</div>
+		<div id="config-body">
+			<table id="config-table" data-toggle="table" data-url="/sys_config/platform_table" data-pagination="true" data-side-pagination="server"  data-page-size="50" >
+				<thead>
+				<tr>
+					<th data-field="state" data-radio="true"></th>
+					<th data-field="id" data-align="left">id</th>
+					<th data-field="platform_id" data-align="left">平台</th>
+					<th data-field="device_id" data-align="left">设备id</th>
+					<th data-field="config_text" data-align="left">配置内容</th>
+					<th data-field="group_code" data-align="left">集团</th>
+					<th data-field="create_time" data-align="left">创建时间</th>
+					<th data-field="last_update" data-align="left">最后更新时间</th>
+				</tr>
+				</thead>
+			</table>
+		</div>
+	</div>
+</div>
+
+<script type="text/javascript">
+    function ckRadio(){
+        var curr_id = $("input[type=radio]:checked").parent().next().html();
+        if(typeof(curr_id) == "undefined"){
+            $("#curr_id").val(0);
+        }else{
+            $("#curr_id").val(curr_id);
+        }
+    }
+    //添加
+    $("#warn_system_add").on('click', function () {
+        window.location.href = "/sys_config/add_platform_device";
+    });
+
+    //编辑
+    $("#warn_system_edit").on('click', function () {
+        ckRadio();
+        var curr_id = $("#curr_id").val();
+        if (curr_id == 0) {
+            MessageBox.error('请选择编辑项');
+            return;
+        }
+        window.location.href = "/sys_config/add_platform_device/"+curr_id;
+    });
+
+    //编辑
+    $("#del_config").on('click', function () {
+        ckRadio();
+        var curr_id = $("#curr_id").val();
+        if (curr_id == 0) {
+            MessageBox.error('请选择编辑项');
+            return;
+        }
+        if(confirm('是否确认删除配置？？？')){
+            $.post("/sys_config/del_pd_config/"+curr_id,{ },function(respData){
+                window.location.reload();
+            });
+        }
+    });
+
+    $("#refresh_cache").on('click', function () {
+        $.post("/sys_config/refresh_config",{ },function(respData){
+            alert("刷新缓存成功");
+        });
+    });
+
+
+</script>

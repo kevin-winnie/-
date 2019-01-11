@@ -1,0 +1,89 @@
+<style>.checkbox-inline{margin-left: 0 !important; margin-right: 10px}</style>
+<form class="form-horizontal form-admin-setting">
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <h3 class="panel-title">导航设置</h3>
+    </div>
+    <div class="panel-body">
+        <{foreach $opts['menu'] as $item}>
+        <{if $item.child}>
+        <div class="form-group">
+            <label class="col-sm-2 control-label sel-row"><{$item.value}></label>
+            <div class="col-sm-10">
+                <{foreach $item.child as $c}>
+                <label class="checkbox-inline">
+                    <input type="checkbox" <{if $c.key|in_array:$opts['setting']['menu']}>checked<{/if}> name="menu[]" value="<{$c.key}>"><{$c.value}>
+                </label>
+                <{/foreach}>
+            </div>
+        </div>
+        <{/if}>
+        <{/foreach}>
+    </div>
+</div>
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <h3 class="panel-title">功能设置</h3>
+    </div>
+    <div class="panel-body">
+        <{if $opts['func']['whitelist']}>
+        <div class="form-group">
+            <label class="col-sm-2 control-label sel-row">默认无该功能</label>
+            <{foreach $opts['func']['whitelist'] as $key => $item}>
+            <label class="checkbox-inline">
+                <input type="checkbox" <{if $key|in_array:$opts['setting']['whitelist']}>checked<{/if}> name="whitelist[]" value="<{$key}>"><{$item}>
+            </label>
+            <{/foreach}>
+        </div>
+        <{/if}>
+        <{if $opts['func']['blacklist']}>
+        <div class="form-group">
+            <label class="col-sm-2 control-label sel-row">默认有该功能</label>
+            <{foreach $opts['func']['blacklist'] as $key => $item}>
+            <label class="checkbox-inline">
+                <input type="checkbox" <{if $key|in_array:$opts['setting']['blacklist']}>checked<{/if}> name="blacklist[]" value="<{$key}>"><{$item}>
+            </label>
+            <{/foreach}>
+        </div>
+        <{/if}>
+    </div>
+</div>
+</form>
+<br />
+<br />
+<br />
+<nav class="navbar navbar-default navbar-fixed-bottom">
+    <div class="form-inline">
+        <div class="col-md-12 form-control-static tool-bottom text-center">
+            <span class="btn btn-success btn-save">提交</span>
+        </div>
+    </div>
+</nav>
+<script type="text/javascript">
+    $('.sel-row').on('click', function(){
+        var _this = $(this), _next = _this.next(), is_sel = false, cbox = _next.find(':checkbox');
+        if(_next.find(':checked').length !== cbox.length){
+            is_sel = true;
+        }
+        cbox.each(function () {
+            $(this).prop('checked', is_sel);
+        })
+    });
+    $('.btn-save').on('click', function(){
+        var _this = $(this);
+        _this.attr("disabled", true);
+        $.ajax({
+            url: '/admin_setting/save/<{$platform_id}>',
+            type: 'POST',
+            dataType: 'json',
+            data: $('.form-admin-setting').serialize(),
+            error: function(jqXHR, textStatus, errorThrown){
+                _this.attr("disabled", false);
+            },
+            success: function (resp) {
+                alert(resp.msg);
+                _this.attr("disabled", false);
+            }
+        });
+    });
+</script>

@@ -1,0 +1,81 @@
+
+<style type="text/css">
+    .ui-autocomplete{
+        border: 1px solid #aaa;
+        -webkit-border-radius: 5px;
+        -moz-border-radius: 5px;
+        border-radius: 5px;
+        background-color: #FFFFFF;
+    }
+    table{
+        font-size: 13px;
+    }
+</style>
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <h3 class="panel-title">ka配置管理</h3>
+    </div>
+    <div class="panel-body">
+        <div class="table-toolbar">
+            <button type="button" class="btn btn-info btn-sm" id="warn_system_add">添加</button>
+            <button type="button" class="btn btn-info btn-sm" id="warn_system_edit">编辑</button>
+            <button type="button" class="btn btn-info btn-sm" id="config_cache">刷新缓存</button>
+            <!--<button type="button" class="btn btn-info btn-sm" id="platform_device">商户-设备配置</button>-->
+            <input type="hidden" id="curr_id" value="0">
+        </div>
+        <div id="config-body">
+            <table id="config-table" data-toggle="table" data-url="/openapi/table" data-pagination="true" data-side-pagination="server"  data-page-size="50" >
+                <thead>
+                <tr>
+                    <th data-field="state" data-radio="true"></th>
+                    <th data-field="id" data-align="left">id</th>
+                    <th data-field="short_name" data-align="left">商户简称</th>
+                    <th data-field="app_id" data-align="left">app_id</th>
+                    <th data-field="secret" data-align="left">秘钥</th>
+                    <th data-field="platform_id" data-align="left">商户id</th>
+                    <th data-field="refer" data-align="left">开门来源</th>
+                    <th data-field="group_code" data-align="left">集团</th>
+                    <th data-field="is_push" data-align="left">是否推送</th>
+                    <th data-field="api_url" data-align="left">推送地址</th>
+                    <th data-field="push_params" data-align="left">推送配置</th>
+                </tr>
+                </thead>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    function ckRadio(){
+        var curr_id = $("input[type=radio]:checked").parent().next().html();
+        if(typeof(curr_id) == "undefined"){
+            $("#curr_id").val(0);
+        }else{
+            $("#curr_id").val(curr_id);
+        }
+    }
+    //添加
+    $("#warn_system_add").on('click', function () {
+        window.location.href = "/openapi/get_open_api";
+    });
+
+
+
+    //编辑
+    $("#warn_system_edit").on('click', function () {
+        ckRadio();
+        var curr_id = $("#curr_id").val();
+        if (curr_id == 0) {
+            MessageBox.error('请选择编辑项');
+            return;
+        }
+        window.location.href = "/openapi/get_openapi_update/"+curr_id;
+    });
+    $("#config_cache").on('click', function () {
+        $.post("/openapi/config_cache",{ },function(respData){
+            alert("刷新缓存成功");
+        });
+    });
+
+
+</script>

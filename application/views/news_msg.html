@@ -1,0 +1,17 @@
+<!-- 群发消息的图文消息组件 -->
+
+<div class="row">
+    <div id="news_chosen" class="form-group col-sm-4">
+      <div class="col-sm-12">
+        <div class="thumbnail">
+          <img src="/weixin/broadcast/img?img=<{$news.thumb_real_url}>" alt="...">
+            <input type="hidden" name="media_id" value="<{$news.media_id}>" >
+            <div class="caption">
+            <h6 style="width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;"><{$news.content[0].title}></h6>
+            <p style="width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;"><{$news.digest}></p>
+            <p>更新时间：<{$news.update_time_show}></p>
+            </div>
+        </div>
+      </div>
+    </div>
+</div>

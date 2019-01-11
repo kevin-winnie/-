@@ -1,0 +1,85 @@
+<logs>
+	<b>总条数:{ count }</b>
+	<div class="row">
+		<table class="table table-striped">
+			<thead>
+				<tr>
+					<th>类型</th>
+					<th>来源</th>
+					<th>发送通道</th>
+					<th>目标用户</th>
+					<th>消息标题</th>
+					<th>消息内容</th>
+					<th>报错</th>
+					<th>发送日期</th>
+					<th>v</th>
+					<th>IP</th>
+				</tr>
+			</thead>			
+			<tbody>
+				<tr each={ logs } class={ is_succ == "1"? "success" : "danger"}>
+					<td class="type">{ type }</td>
+					<td class="source">{ source }</td>
+					<td class="channel">{ channel }</td>
+					<td class="target">
+						<span title="{ target }">{ target }</span>
+					</td>
+					<td class="title">
+						<span title="{ title }">{ title }</span>
+					</td>
+					<td class="body">
+						<span title="{ body }">{ body }</span>
+					</td>
+					<td class="error">
+						<span title="{ error }">{ error }</span>
+					</td>
+					<td class="send_date">
+						{ send_date }
+					</td>
+					<td class="version">
+						{ version }
+					</td>
+					<td class="ip">
+						{ ip }
+					</td>
+				</tr>
+			</tbody>	
+		</table>
+	</div>
+
+	<style scoped>
+    	td.target, td.error, td.title, td.body { 
+		    max-width: 140px;
+		    overflow: hidden;
+		    text-overflow: ellipsis;
+		    white-space: nowrap;			 		
+    	}
+    	td.type { 
+		    max-width: 50px;
+		    overflow: hidden;
+		    text-overflow: ellipsis;
+		    white-space: nowrap;			 		
+    	}
+    	td.version { 
+		    max-width: 20px;
+		    overflow: hidden;
+		    text-overflow: ellipsis;
+		    white-space: nowrap;			 		
+    	}
+	</style>
+
+	<script>
+		var self   = this;
+		var params = {
+			fields:'*',
+			conditions:{}
+		};		
+		opts.getLogs(params);
+		opts.on('search_done', function(data) {
+			self.update({logs: data});
+		})
+		opts.on('count_done', function(data) {
+			self.update({count: data});
+		})
+	</script>
+</logs>

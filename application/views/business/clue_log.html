@@ -1,0 +1,65 @@
+<style type="text/css">
+    .ui-autocomplete{
+        border: 1px solid #aaa;
+        -webkit-border-radius: 5px;
+        -moz-border-radius: 5px;
+        border-radius: 5px;
+        background-color: #FFFFFF;
+    }
+</style>
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <h3 class="panel-title">线索备注</h3>
+    </div>
+    <div class="panel-body">
+         <button class="btn btn-primary " data-toggle="modal" data-target="#myModal">添加备注</button>
+        <div class="modal fade" id="myModal"  role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+            <div class="modal-dialog" >
+                <div class="modal-content" style="height:250px">
+                       <div class="modal-header">
+                             <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                             <h4 class="modal-title" id="myModalLabel">
+                               备注内容
+                             </h4>
+                       </div>
+                      <form role="form" method="post" action="/business/clueLog_add" id="add-user-form">
+                          <div class="form-group">
+                              <textarea class="form-control" rows="6" name="log_text" placeholder="如 您好！"
+                                        datatype="*" nullmsg="请输入内容！"></textarea>
+                          </div>
+                          <input type="hidden" name="clue_id" value="<{$clue_id}>">
+                          <div class="form-group pull-right" >
+                              <button type="submit" class="btn btn-primary ">提交</button>
+                          </div>
+                      </form>
+                  </div><!-- /.modal-content -->
+              </div><!-- /.modal-dialog -->
+         </div><!-- /.modal -->
+
+    </div>
+
+    <div class="panel-body">
+        <div id="config-body">
+            <table id="config-table" data-toggle="table" data-url="/business/log_table?clue_id=<{$clue_id}>" data-click-to-select="true" data-select-item-name="radioName" data-pagination="true"  data-page-size="50" data-side-pagination="server" data-page-list="[20,50,100]" >
+                <thead>
+                <tr>
+                    <th data-field="log_id" data-align="center">ID</th>
+                    <th data-field="admin_name" data-align="center" >备注人</th>
+                    <th data-field="log_text" data-align="left" class=" col-sm-offset-2 col-sm-8">备注</th>
+                    <th data-field="create_time" data-align="center">添加时间</th>
+                </tr>
+                </thead>
+
+            </table>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    $("#add-user-form").Validform(
+        {tiptype:2}
+    );
+
+
+</script>
+
+

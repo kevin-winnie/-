@@ -1,0 +1,53 @@
+<{if $tips eq ''}>
+<{elseif $tips eq '更新成功'}>
+<div class="alert alert-success" role="alert"><{$tips}></div>
+<{else}>
+<div class="alert alert-danger" role="alert"><{$tips}></div>
+<{/if}>
+
+<div class="panel panel-default">
+	<div class="panel-heading">
+		分组权限
+		<a href='/admin/getgrouplist' role="button" class="btn btn-info btn-sm">返回上一级</a>
+	</div>
+	<div class="panel-body">
+		<form class="form-horizontal" role="form" method="post" action="/admin/getpermission?gid=<{$gid}>">
+			<{foreach $modulesArr as $module}>
+			<div class="form-group">
+			  <label for="old" class="col-sm-2 control-label"><{$module.nodeName}>：</label>
+			  <div class="col-xs-10">
+				<div class="checkbox">
+					<{foreach $module['nodeValue'] as $node}>
+					<label>
+					  <input type="checkbox" name="check[]" value="<{$node.value}>"><{$node.name}>
+					</label>
+					<{/foreach}>
+				 </div>
+			  </div>
+		   	</div>
+			<{/foreach}>
+			<div class="form-group">
+				<div class="col-sm-offset-2 col-sm-10">
+					 <input type="hidden" name="submit" value="1">
+					 <input type="hidden" name="config" value="<{$config}>">
+					 <input type="hidden" name="admin_id" value="<{$admin_id}>">
+					 <input type="hidden" name="platform_id" value="<{$platform_id}>">
+					 <button type="submit" class="btn btn-default">确定</button>
+				</div>
+			</div>
+		</form>
+	</div>
+</div>
+
+<script>
+var flags =  '<{$flag}>'.split(",");
+$(":checkbox").each(function(){	
+	for(var i = 0;i<flags.length;i++)
+	{
+		if($(this).attr("value")===flags[i])
+		{
+			$(this).attr("checked",true);
+		}
+	}
+});
+</script>

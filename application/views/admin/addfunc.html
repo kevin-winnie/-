@@ -1,0 +1,48 @@
+<div class="panel panel-default">
+	<div class="modal-header">
+		<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+		<h4 class="modal-title">添加门店</h4>
+	</div>
+	<div class="panel-body">
+		<form id="add-func-form" class="form-horizontal" role="form" method="post" action="/admin/addfunc">
+		   <div class="form-group">
+			  <label for="name" class="col-sm-2 control-label">功能名:</label>
+			  <div class="col-sm-4">
+				 <input type="text" class="form-control" id="name" name="name" datatype="*" nullmsg="请输入分组名！" placeholder="分组名">
+			  </div>
+			  <div class="Validform_checktip"></div>
+		   </div>
+		  <div class="form-group">
+			  <div class="col-sm-offset-2 col-sm-10">
+				 <input type="hidden" name="submit" value="1" id="sub">
+				 <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+				 <button type="button" class="btn btn-primary" id="add-func-btn">提交</button>
+			  </div>
+		   </div>
+		</form>
+	</div>
+</div>
+
+<script type="text/javascript"> 
+	$("#add-func-form").Validform(
+		{tiptype:2}
+	);
+	$(function(){
+		$("#add-func-btn").on('click', function(){
+			var name = $("#name").val(),
+				sub = $("#sub").val();
+			$.ajax('/admin/addfunc',{
+				type:'POST',
+				dataType:'json',
+				data:{name:name,submit:sub},
+				success:function(resp){
+					if (resp.status == 'fail') {
+						MessageBox.error(resp.msg);return ;
+					}
+					MessageBox.success(resp.msg);
+					window.location.href = "/admin/getfunclist";
+				}
+			});
+		});
+	})
+</script>

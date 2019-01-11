@@ -1,0 +1,142 @@
+<strategies>
+	<table class="table table-striped">
+		<thead>
+			<tr>
+				<th>#</th>
+				<th>名称</th>
+				<th>平台</th>
+				<th>类型</th>
+				<th>方式</th>
+				<th>开始</th>
+				<th>结束</th>
+				<th>启用</th>
+				<th>商品</th>
+				<th>省市</th>
+				<th>操作</th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr each={ strategies } class={ is_succ }>
+				<th class="id">
+					{ id }
+				</th>
+				<td class="remarks">
+					<span title="{ remarks }">{ remarks }</span>
+				</td>				
+				<td>
+					{ platform }
+				</td>
+				<td class="type">
+					<span show="{ type == 'amount' }">满额</span>
+					<span show="{ type == 'quantity' }">满件</span>
+				</td>
+				<td>
+					<span show="{ solution.type == 'gift' }">赠</span>
+					<span show="{ solution.type == 'discount' }">减</span>
+					<span show="{ solution.type == 'exchange' }">换</span>
+				</td>
+				<td>
+					<span show="{ Date.now() >= start*1000  }" class="label label-success">{ starttime }</span>
+					<span show="{ Date.now() < start*1000  }" class="label label-warning" title="{ starttime }">未开始</span>
+				</td>
+				<td>
+					<span show="{ Date.now() <= end*1000  }" class="label label-success" >{ endtime }</span>
+					<span show="{ Date.now() > end*1000  }" class="label label-warning" title="{ endtime }">已结束</span>
+				</td>		
+				<td>
+					<span show="{ active == 'true' }" class="label label-success">是</span>
+					<span show="{ active == 'false' }" class="label label-danger">否</span>
+				</td>		
+				<td class="product">
+					<span show="{ product.all == 'true'}">全场</span>
+					<span title="{ product.white.join(',') }">{ product.white }</span>
+					<span title="{ product.black.join(',') }"><s>{ product.black }</s></span>
+				</td>	
+				<td class="province">
+					<span show="{ !province || province == '' }">不限</span>
+					<span title="{ province.join(',') }">{ province }</span>
+				</td>	
+				<td>
+					<a href="/promotion/{ type }?id={ id }" target="_blank">
+						<button type="button" class="btn btn-default btn-xs">修改</button>
+					</a>
+					<button type="button" class="btn btn-default btn-xs" onclick="{ delete }">删除</button>
+				</td>												
+			</tr>
+		</tbody>
+	</table>
+
+	<style type="text/css">
+    	td.remarks { 
+		    max-width: 150px;
+		    overflow: hidden;
+		    text-overflow: ellipsis;
+		    white-space: nowrap;			 		
+    	}
+    	td.product { 
+		    max-width: 92px;
+		    overflow: hidden;
+		    text-overflow: ellipsis;
+		    white-space: nowrap;			 		
+    	}    	
+    	td.province { 
+		    max-width: 92px;
+		    overflow: hidden;
+		    text-overflow: ellipsis;
+		    white-space: nowrap;			 		
+    	}    	
+	</style>
+
+	<script>
+		var tag        = this;
+		var promotion  = opts;
+
+		promotion.getAll({platform: promotion.getPlatform()});
+
+		promotion.on('get_done', function(data) {
+			data.forEach(function(item) {
+				item.starttime = time2str(item.start);
+				item.endtime   = time2str(item.end);
+			});
+			tag.update({strategies: data});
+		})
+
+		delete(e) {
+			$.post("/promotion/all/del", {id:e.item.id})
+			.done(function(result) {
+				$(e.path[2]).fadeOut(1000, function(e) {
+					this.remove();
+				});
+			})
+			.fail(function(err) {
+				console.error(err.responseText);
+			});
+		}
+
+		// time to str
+		function time2str(unix_timestamp) {
+			if(!unix_timestamp) {
+				return;
+			}
+
+			// Create a new JavaScript Date object based on the timestamp
+			// multiplied by 1000 so that the argument is in milliseconds, not seconds.
+			var date = new Date(unix_timestamp*1000);
+			
+			var year  = date.getFullYear();
+			var month = "0" + (date.getMonth()+1);
+			var day   = "0" + date.getDate();
+
+			// Hours part from the timestamp
+			var hours = "0" + date.getHours();
+			// Minutes part from the timestamp
+			var minutes = "0" + date.getMinutes();
+			// Seconds part from the timestamp
+			var seconds = "0" + date.getSeconds();
+
+			// Will display time in 10:30:23 format
+			var formattedTime = year+'-'+month.substr(-2)+'-'+day.substr(-2)+' '+hours.substr(-2)+':'+minutes.substr(-2)+':'+seconds.substr(-2);
+			return formattedTime;
+		}			
+	</script>
+</strategies>

@@ -1,0 +1,213 @@
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <h3 class="panel-title"> 用户信息管理</h3>
+    </div>
+    <div class="panel-body">
+        <div class="form-horizontal" id="search">
+            <div class="form-group">
+                <div class="col-sm-2">
+                    <input type="text" class="form-control" size='8' name="search_mobile" placeholder="用户手机号">
+                </div>
+                <div class="col-sm-2">
+                    <input type="text" class="form-control" size='8' name="search_nick" placeholder="用户昵称">
+                </div>
+                <div class="col-sm-2">
+                    <input type="text" class="form-control" size='8' name="search_device" placeholder="注册设备">
+                </div>
+                <div class="col-sm-2">
+                    <select class="form-control" name="search_type">
+                        <option value="">类型</option>
+                        <option value="alipay">支付宝</option>
+                        <option value="fruitday">天天果园</option>
+                        <option value="wechat">微信</option>
+                        <option value="gat">关爱通</option>
+                    </select>
+                </div>
+                <div class="col-sm-2" >
+                    <select class="form-control" name="search_platform_id">
+                        <option value="-1">选择商户</option>
+                        <{foreach key=key item=item from=$platform_list}>
+                        <option value="<{$item['id']}>"><{$item['name']}></option>
+                        <{/foreach}>
+                    </select>
+                </div>
+            </div>
+            <!--<{include 'bi/search_box.html'}>-->
+            <div class="form-group">
+                <div class="col-sm-3">
+                    <div class="input-group date  col-md-10" data-link-field="dtp_input1" id="begin_time" >
+                        <input class="form-control" type="text" name="search_start_time"  placeholder="开始时间"  readonly>
+                        <span class="input-group-addon"><span class="glyphicon glyphicon-remove"></span></span>
+                        <span class="input-group-addon"><span class="glyphicon glyphicon-th"></span></span>
+                    </div>
+                </div>
+                <div class="col-sm-3">
+                    <div class="input-group date  col-md-10" data-link-field="dtp_input1" id="to_time" >
+                        <input class="form-control" type="text" name="search_end_time"  placeholder="结束时间"  readonly>
+                        <span class="input-group-addon"><span class="glyphicon glyphicon-remove"></span></span>
+                        <span class="input-group-addon"><span class="glyphicon glyphicon-th"></span></span>
+                    </div>
+                </div>
+
+                <div class="col-sm-1">
+                    <button type="button" class="btn btn-default" id="search-btn">搜索</button>
+                    <input type="hidden" id="origin_url" value="/user/user_list_table?acount_id=<{$acount_id}>">
+                </div>
+                <div class="col-sm-1">
+                    <button type="button" class="btn btn-danger btn-sm" id="export" style="float: right;margin-right: 20px;">导出</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="table-toolbar">
+            <button type="button" class="btn btn-info btn-sm" id="user_show">查看用户订单</button>
+            <!--<button type="button" class="btn btn-warning btn-sm" id="user_bind">绑定后台用户</button>-->
+            <input type="hidden" id="curr_id" value="0">
+        </div>
+    </div>
+    <div class="panel-heading">
+        <h3 class="panel-title" style="color: #666;font-size: 12px; font-weight: normal ">
+            用户总数:<span class="user_total" style="color: red;">0</span>
+            当日新增用户:<span class="today" style="color: red;">0</span>
+            昨日新增用户:<span class="yesterday" style="color: red;">0</span>
+            未扫码用户:<span class="noscan" style="color: red;">0</span>
+        </h3>
+    </div>
+    <div class="panel-body">
+        <div id="config-body">
+            <table id="config-table" data-sort-order="asc" data-toggle="table" data-url="/user/user_list_table?acount_id=<{$acount_id}>" data-click-to-select="true" data-select-item-name="radioName" data-pagination="true" data-side-pagination="server" data-page-list="[5,10,15,20]" data-sortable="true" data-silent-sort="ture">
+                <thead>
+                <tr>
+                    <th data-field="state" data-radio="true"></th>
+                    <th data-field="id" data-align="center">ID</th>
+                    <th data-field="mobile" data-align="center">用户手机号</th>
+                    <th data-field="user_name" data-align="center">昵称</th>
+                    <th data-field="source" data-align="center">来源</th>
+                    <th data-field="name" data-align="center">注册设备</th>
+                    <th data-field="reg_time" data-align="center">注册时间</th>
+                    <th data-field="user_rank" data-align="center">会员等级</th>
+                    <th data-field="yue" data-align="center">账户余额</th>
+                    <th data-field="buy_times" data-align="center" data-sortable="true">购买次数</th>
+                    <th data-field="total_money" data-align="center" data-sortable="true">消费金额</th>
+                    <th data-field="open_times" data-align="center">开门次数</th>
+                    <th data-field="open_id" data-align="center">openId</th>
+                </tr>
+                </thead>
+            </table>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="download_label" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog" style="width: 50%">
+        <div class="modal-content">
+
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal -->
+</div>
+<script type="text/javascript">
+    function download_user(obj, serverUrl){
+        var filterData = "";
+        $.each($("[name^='search_']"), function() {
+            field = $(this).attr('name');
+            data = $(this).val();
+            if(data!=-1 && data!=""){
+                filterData += field+"="+data+"&";
+            }
+        });
+        if(filterData==""){
+            var url = serverUrl;
+        }else{
+            var url = serverUrl +'&'+filterData;
+        }
+        $(obj).css('color', '#aaa');
+        location.href=url;
+    }
+
+    $(function(){
+        $('#begin_time').datetimepicker({
+            language: 'zh', //汉化
+            autoclose: 1,
+            format: 'yyyy-mm-dd hh:00:00',
+            minView: 'day',
+            minuteStep:1
+        });
+        $('#to_time').datetimepicker({
+            language: 'zh', //汉化
+            autoclose: 1,
+            format: 'yyyy-mm-dd hh:00:00',
+            minView: 'day',
+            minuteStep:1
+        });
+
+        $('#config-table').bootstrapTable({
+        }).on('check.bs.table', function (e, row, $element) {
+            $("#curr_id").val(row.id);
+        }).on('load-success.bs.table', function (e,data) {
+            $('.user_total').text(data.total);
+            $('.today').text(data.a);
+            $('.yesterday').text(data.b);
+            $('.noscan').text(data.c);
+        });;
+        $("#config-body").delegate(".show_img","click",function(){
+            MessageBox.alert($(this).attr('data-content'));
+        });
+        $("#search-btn").on('click', function(){
+            var serverUrl = $('#origin_url').val();
+            var filterData = "";
+            $.each($("[name^='search_']"), function() {
+                field = $(this).attr('name');
+                data = $(this).val();
+                if(data!=-1 && data!=""){
+                    filterData += field+"="+data+"&";
+                }
+            });
+            if(filterData==""){
+                var url = serverUrl;
+            }else{
+                var url = serverUrl +'&'+filterData;
+            }
+            $('#config-table').bootstrapTable('refresh', {url: url});
+        });
+
+        $("#user_show").click(function(){
+            var cur_id = $("#curr_id").val();
+            if (cur_id == 0) {
+                MessageBox.error('请选择查看项');
+                return;
+            }
+            window.location.href = "/order/index?uid=" + cur_id;
+        });
+
+        $("#user_card_show").click(function(){
+            var cur_id = $("#curr_id").val();
+            if (cur_id == 0) {
+                MessageBox.error('请选择查看项');
+                return;
+            }
+            window.location.href = "/card/index?uid=" + cur_id;
+        });
+
+        $("#user_bind").click(function(){
+            var cur_id = $("#curr_id").val();
+            if (cur_id == 0) {
+                MessageBox.error('请选择查看项');
+                return;
+            }
+            window.location.href = "/user/user_bind/" + cur_id;
+        });
+
+//        $("#export").click(function(){
+//            window.open('/user/user_export');
+//        });
+
+        $("#export").on('click', function(){
+            $.get("/user/download_html/"+$('.user_total').text(),{ },function(respData){
+                if(respData.status=='success'){
+                    $("#download_label").find('.modal-content').html(respData.html);
+                    $('#download_label').modal('show')
+                }
+            },'json');
+            return false;
+        });
+    });
+</script>

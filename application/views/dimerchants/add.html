@@ -1,0 +1,88 @@
+
+<div class="panel panel-default">
+    <div class="panel-heading">添加异业商户</div>
+    <div class="panel-body">
+        <form id="add-user-form" class="form-horizontal" role="form" method="post" action="/dimerchants/merchantSave">
+            <div class="form-group">
+                <label for="name" class="col-sm-2 control-label">* 商户名称：</label>
+                <div class="col-sm-3">
+                    <input type="text" class="form-control" value="<{$info.merchant_name}>" id="merchant_name" name="merchant_name" datatype="*" nullmsg="请输入商户名称！"  placeholder="请输入商户名称">
+                </div>
+                <div class="Validform_checktip"></div>
+            </div>
+            <div class="form-group">
+                <label for="name" class="col-sm-2 control-label">联系人：</label>
+                <div class="col-sm-3">
+                    <input type="text" class="form-control" value="<{$info.contact_name}>" id="contact_name" name="contact_name"  placeholder="请输入联系人">
+                </div>
+                <div class="Validform_checktip"></div>
+            </div>
+            <div class="form-group">
+                <label for="name" class="col-sm-2 control-label">职位：</label>
+                <div class="col-sm-3">
+                    <input type="text" class="form-control" value="<{$info.contact_job}>" id="contact_job" name="contact_job"  placeholder="请输入职位">
+                </div>
+                <div class="Validform_checktip"></div>
+            </div>
+            <div class="form-group">
+                <label for="name" class="col-sm-2 control-label">联系方式：</label>
+                <div class="col-sm-3">
+                    <input type="text" class="form-control" value="<{$info.contact_tel}>" id="contact_tel" name="contact_tel"  placeholder="请输入联系方式">
+                </div>
+                <div class="Validform_checktip"></div>
+            </div>
+            <{if !$info.id}>
+            <div class="form-group">
+                <label for="name" class="col-sm-2 control-label">* 登陆帐号：</label>
+                <div class="col-sm-3">
+                    <input type="text" class="form-control" value="<{$info.admin_name}>" id="admin_name" name="admin_name" datatype="*" nullmsg="请输入登陆帐号！"  placeholder="请输入登陆账号">
+                </div>
+                <div class="Validform_checktip"></div>
+            </div>
+            <div class="form-group">
+                <label for="name" class="col-sm-2 control-label">* 密码：</label>
+                <div class="col-sm-3">
+                    <input type="password" class="form-control" value="" id="password1" name="password1" datatype="*" nullmsg="请输入密码！"  placeholder="请输入密码">
+                </div>
+                <div class="Validform_checktip"></div>
+            </div>
+            <div class="form-group">
+                <label for="name" class="col-sm-2 control-label">* 确认密码：</label>
+                <div class="col-sm-3">
+                    <input type="password" class="form-control" value="" id="password2" name="password2" datatype="*" nullmsg="请确认密码！"  placeholder="请确认密码">
+                </div>
+                <div class="Validform_checktip"></div>
+            </div>
+			<{/if}>
+            <div class="form-group">
+                <div class="col-sm-offset-2 col-sm-10">
+                    <input type="hidden" name="id" value="<{$info.id}>"/>
+                    <button type="button" onclick="submitForm();" class="btn btn-default">确定</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script type="text/javascript">
+    $("#add-user-form").Validform(
+        {tiptype:2}
+    );
+    
+    function submitForm(){
+    	<{if !$info.id}>
+    	var password1 = $('#password1').val();
+    	var password2 = $('#password2').val();
+    	if (password1.length < 6){
+    		alert('密码最少为6位！');
+    		return false;
+    	}
+    	if (password1 != password2){
+    		alert('两次输入的密码不一致！');
+    		return false;
+    	}
+    	<{/if}>
+    	$('#add-user-form').submit();
+    }
+</script>
+

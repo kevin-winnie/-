@@ -1,0 +1,85 @@
+<!-- 图文消息搜索组件 -->
+
+<script src="/assets/vendors/jquery.reveal.js"></script>
+<link href="/assets/vendors/reveal.css" rel="stylesheet" media="screen">
+
+<style>
+img {
+    max-height: 125px;
+}
+</style>
+
+<div class="row">
+    <div id="news_chosen" class="form-group col-sm-4" style="height: 150px;width:240px;background-color:#eee;margin:0 0 15px 15px;padding:40px 0 40px 50px">
+        <h3>
+            <a href="#" class="big-link" data-reveal-id="myModal" data-animation="none">
+                选择图文消息
+            </a>
+        </h3>
+    </div>
+</div>
+
+<!-- 弹出框 start -->
+<div id="myModal" class="reveal-modal" style="min-height: 100px;max-height: 450px;width:60%;overflow: scroll">
+    <div class="row">
+      <div class="col-lg-6">
+        <div class="input-group">
+          <input type="text" class="form-control" placeholder="标题/概要/描述" id="search_keyword">
+          <span class="input-group-btn">
+            <button class="btn btn-default" type="button" id="search_btn">搜索</button>
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <div id="news_board" style="margin: 20px 0px">搜索结果</div>
+    <a class="close-reveal-modal" id="close">&#215;</a>
+</div>
+<!-- 弹出框 end -->
+
+<script>
+$('#search_btn').on('click', function(e){
+    var keyword = $('#search_keyword').val();
+
+    $.ajax({
+        url: '/weixin/broadcast/searchNews?keyword=' + keyword,
+        type: 'GET',
+        data : JSON.stringify({keyword : keyword}),
+        success : function(data){
+            var board = $('#news_board');
+            board.empty();
+
+            if (data.length === 0) {
+              board.text('没有相关结果');
+              return false;
+            }
+
+            var list = '';
+
+            for (var i in data) {
+                var digest = data[i].content[0].digest || '暂无概要信息';
+
+                var div = '<div class="col-sm-12 col-md-6 news">' +
+                            '<div class="thumbnail">' +
+                              '<img src="' + data[i].content[0].thumb_real_url + '" alt="...">' + 
+                              '<input type="hidden" name="media_id" value="' + data[i].media_id + '" >' +
+                              '<div class="caption">' +
+                                '<h6 style="width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">' + data[i].content[0].title + '</h6>' +
+                                '<p style="width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">' + digest +'</p>' +
+                                '<p>更新时间：' + data[i].update_time_show + '</p>' + 
+                              '</div>' +
+                            '</div>' +
+                          '</div>';
+                list += div;
+            }
+
+            $(list).appendTo(board);
+
+            $('.news').bind('click', function(e){
+                $('#news_chosen').removeAttr('style').html($(this).html());
+                $('#close').click();
+            });
+        }
+    });
+});
+</script>

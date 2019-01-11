@@ -1,0 +1,244 @@
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <h3 class="panel-title"> 异常日志 </h3>
+    </div>
+    <div class="panel-body">
+        <div class="form-horizontal" id="search">
+            <{include 'order/search_box.html'}>
+            <div class="form-group">
+                <div class="col-sm-2">
+                    <input type="text" class="form-control" size='8' name="search_name" placeholder="设备名称">
+                </div>
+                <div class="col-sm-2">
+                    <input type="text" class="form-control" size='8' name="search_equipment_id" placeholder="设备id">
+                </div>
+                <div class="col-sm-3">
+                    <div class="input-group date  col-md-10" data-link-field="dtp_input1" id="time" >
+                        <input class="form-control" type="text" name="search_start_time"  placeholder="开始时间"  readonly>
+                        <span class="input-group-addon"><span class="glyphicon glyphicon-remove"></span></span>
+                        <span class="input-group-addon"><span class="glyphicon glyphicon-th"></span></span>
+                    </div>
+                </div>
+                <div class="col-sm-3">
+                    <div class="input-group date  col-md-10" data-link-field="dtp_input2" id="to_date" >
+                        <input class="form-control" type="text" name="search_end_time"  placeholder="结束时间"  readonly>
+                        <span class="input-group-addon"><span class="glyphicon glyphicon-remove"></span></span>
+                        <span class="input-group-addon"><span class="glyphicon glyphicon-th"></span></span>
+                    </div>
+                </div>
+                <div class="col-sm-2">
+                    <select class="form-control" name="search_log_type">
+                        <option value="0">异常类型</option>
+                        <option value="1">商品增多</option>
+                        <option value="2">开关门状态异常</option>
+                        <option value="3">支付不成功</option>
+                        <option value="4">商品绑定异常</option>
+                        <option value="5">零售机心跳异常</option>
+                        <option value="6">盘点差异超过10件</option>
+                        <option value="7">消息重复发送</option>
+                        <option value="8">硬件设备告警</option>
+                        <option value="9">不稳定标签</option>
+                    </select>
+                </div>
+                <div class="col-sm-2" style="margin-top: 10px">
+                    <select class="form-control" name="search_platform_id" id="search_platform_id" >
+                        <option value="-1">选择商户</option>
+                        <{foreach $platform_list as $val}>
+                            <option value="<{$val.id}>" <{if $val.id eq $id}>selected<{/if}>><{$val.name}></option>
+                        <{/foreach}>
+                    </select>
+                </div>
+                <div class="col-sm-2" style="margin-top: 10px">
+                    <select class="form-control" name="search_type" id="search_type" >
+                        <option value="-1">请选择设备类型</option>
+                        <option value="rfid-1">rfid-1[蚂蚁盒子RFID]</option>
+                        <option value="rfid-2">rfid-2[自己生产RFID]</option>
+                        <option value="rfid-3">rfid-3[数字RFID]</option>
+                        <option value="rfid-4">rfid-4[无膜RFID]</option>
+                        <option value="rfid-5">rfid-5[无膜RFID-数烨]</option>
+                        <option value="rfid-6">rfid-6[数字RFID-数烨]</option>
+                        <option value="scan-1">scan-1[扫码]</option>
+                        <option value="vision-1">vision-1[视觉]</option>
+                        <option value="coffee-1">coffee-1[咖啡设备-沙丁鱼]</option>
+                    </select>
+                </div>
+                <div class="col-sm-3" style="margin-top: 10px">
+                    <button type="button" class="btn btn-default" id="search-btn">查找</button>
+                    <button type="button" class="btn btn-warning" id="export-btn">导出</button>
+                </div>
+                <input type="hidden" id="origin_url" value="/showlog/abnormal_log_table">
+            </div>
+
+        </div>
+
+    </div>
+    <div class="panel-body">
+        <div id="config-body">
+            <div id="total_eq"></div>
+            <table id="config-table" data-toggle="table" data-url="/showlog/abnormal_log_table" data-click-to-select="true" data-select-item-name="radioName" data-pagination="true" data-page-size="20" data-side-pagination="server" data-page-list="[20,50,100]">
+                <thead>
+                <tr>
+                    <th data-field="state" data-radio="true"></th>
+                    <th data-field="id" data-align="center">ID</th>
+                    <th data-field="name" data-align="center">设备名称</th>
+                    <th data-field="addTime" data-align="center">异常发生时间</th>
+                    <th data-field="uid" data-align="center">用户id</th>
+                    <th data-field="log_type" data-align="center">日志类型</th>
+                    <th data-field="content_n" data-align="center">异常详情</th>
+                    <th data-field="is_send_warn" data-align="center">是否发送告警</th>
+                    <th data-field="platform" data-align="center">商户</th>
+                </tr>
+                </thead>
+            </table>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="modalMain">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">请分段导出</h4>
+            </div>
+            <div class="modal-body">
+                <table class="table table-striped"></table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    function ckRadio(){
+        var curr_id = $("input[type=radio]:checked").parent().next().html();
+        if(typeof(curr_id) == "undefined"){
+            $("#curr_id").val(0);
+        }else{
+            $("#curr_id").val(curr_id);
+        }
+    }
+
+    $(function(){
+        var modalMain = $('#modalMain');
+        $('#time').datetimepicker({
+            language: 'zh', //汉化
+            autoclose: 1,
+            format: 'yyyy-mm-dd',
+            minView: 'month'
+        });
+        $('#to_date').datetimepicker({
+            language: 'zh', //汉化
+            autoclose: 1,
+            format: 'yyyy-mm-dd',
+            minView: 'month'
+        });
+
+        $('#config-table').bootstrapTable({
+        }).on('click-row.bs.table', function (e, row, $element) {
+            $("#curr_id").val(row.id);
+        }).on('load-success.bs.table', function (e, data) {
+            var  html="异常设备："+"<span style='color: red'>"+data['total_eq']+"</span>";
+            if(data['log_type_list'].length){
+                html+="（";
+                $.each(data['log_type_list'],function(n,value) {
+                    var html_content='';
+                    if(value['log_type']==1){
+                        html_content='商品增多：';
+                    }else if(value['log_type']==2){
+                        html_content='开关门状态异常：';
+                    }else if(value['log_type']==3){
+                        html_content='支付不成功：';
+                    }else if(value['log_type']==4){
+                        html_content='商品绑定异常：';
+                    }else if(value['log_type']==5){
+                        html_content='零售机心跳异常：';
+                    }else if(value['log_type']==6){
+                        html_content='盘点差异超过10件：';
+                    }else if(value['log_type']==7){
+                        html_content='消息重复发送：';
+                    }else if(value['log_type']==8){
+                        html_content='硬件设备告警：';
+                    }else if(value['log_type']==9){
+                        html_content='不稳定标签：';
+                    }
+                    html+="&nbsp;&nbsp;"+html_content+"<span style='color: red'>"+value['coum']+"</span>";
+                });
+                html+="）";
+            }
+            $('#total_eq').html(html);
+        });
+        $("#config-body").delegate(".show_img","click",function(){
+            MessageBox.alert($(this).attr('data-content'));
+        });
+
+        $("#search-btn").on('click', function(){
+            var serverUrl = $('#origin_url').val();
+            var filterData = "";
+            $.each($("[name^='search_']"), function() {
+                field = $(this).attr('name');
+                data = $(this).val();
+                if(data!=-1 && data!=""){
+                    filterData += field+"="+data+"&";
+                }
+            });
+            if(filterData==""){
+                var url = serverUrl;
+            }else{
+                var url = serverUrl +'?'+filterData;
+            }
+            $('#config-table').bootstrapTable('refresh', {url: url});
+        });
+
+
+        $("#export-btn").on('click', function(){
+            var serverUrl = '/showlog/abnormal_list_export/';
+            var filterData = "isTotal=1&";
+            $.each($("[name^='search_']"), function() {
+                field = $(this).attr('name');
+                data = $(this).val();
+                if(data!=-1 && data!=""){
+                    filterData += field+"="+data+"&";
+                }
+            });
+            var _this = $(this);
+            if(_this.attr('loading') == 1){
+                return;
+            }
+            _this.attr('loading', 1);
+            $.ajax({
+                url: serverUrl,
+                type: "GET",
+                data: filterData,
+                dataType: 'json',
+                success: function (resp) {
+                    _this.attr('loading', 0);
+                    if (resp.status != 'y') {
+                        alert(resp.msg);
+                        return;
+                    }
+
+                    var tr = [];
+                    $.each(resp.data, function(){
+                        tr.push('<tr><td data-offset="'+this.start+'">'+this.start+' - ' + this.end +'</td></tr>');
+                    });
+                    modalMain.find('table').html(tr);
+                    modalMain.modal('show');
+                }
+            });
+        });
+        modalMain.on('click', 'td', function(){
+            var filterData = "";
+
+            $.each($("[name^='search_']"), function () {
+                var field = $(this).attr('name');
+                var data = $(this).val();
+                if (field && data != -1 && data != "") {
+                    filterData += field + "=" + data + "&";
+                }
+            });
+            filterData += 'offset='+ $(this).data('offset');
+            window.location.href='/showlog/abnormal_list_export/?' + filterData;
+        });
+    });
+</script>

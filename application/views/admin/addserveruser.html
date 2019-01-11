@@ -1,0 +1,32 @@
+<{if $tips eq ''}>
+<{elseif $tips eq '新增成功'}>
+<div class="alert alert-success" role="alert"><{$tips}></div>
+<{else}>
+<div class="alert alert-danger" role="alert"><{$tips}></div>
+<{/if}>
+<div class="panel panel-default">
+	<div class="panel-heading">添加客服</div>
+	<div class="panel-body">
+		<form id="add-user-form" class="form-horizontal" role="form" method="post" action="/admin/addserveruser">
+		   <div class="form-group">
+			  <label for="name" class="col-sm-2 control-label">用户：</label>
+			  <div class="col-sm-3">
+				<textarea rows="3" class="form-control" name="name"></textarea>
+			  </div>
+			  <div class="Validform_checktip"></div>
+		   </div>
+		   <div class="form-group">
+			  <div class="col-sm-offset-2 col-sm-10">
+				 <input type="hidden" name="submit" value="1">
+				 <button type="submit" class="btn btn-default">确定</button>
+			  </div>
+		   </div>
+		</form>
+	</div>
+</div>
+
+<script type="text/javascript"> 
+	$("#add-user-form").Validform(
+		{tiptype:2}
+	);
+</script>

@@ -1,0 +1,258 @@
+
+<style type="text/css">
+    .ui-autocomplete{
+        border: 1px solid #aaa;
+        -webkit-border-radius: 5px;
+        -moz-border-radius: 5px;
+        border-radius: 5px;
+        background-color: #FFFFFF;
+    }
+</style>
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <h3 class="panel-title">线索公海</h3>
+    </div>
+    <div class="panel-body">
+        <div class="form-horizontal" id="search">
+            <div class="form-group">
+                <div class="col-sm-2">
+                    <input type="text" class="form-control" name="search_name" placeholder="点位名称">
+                </div>
+                <div class="col-sm-2">
+                    <select  id="select_province" class="form-control" name="search_province" >
+                        <option value="-1">省份</option>
+                    </select>
+                </div>
+                <div class="col-sm-2">
+                    <select  id="select_city" class="form-control" name="search_city" >
+                        <option value="-1">市区</option>
+                    </select>
+                </div>
+                <div class="col-sm-2">
+                    <select  id="select_area" class="form-control" name="search_area" >
+                        <option value="-1">地区</option>
+                    </select>
+                </div>
+                <div class="col-sm-2">
+                    <input type="text" class="form-control" size='11' name="search_address" placeholder="点位地址" >
+                </div>
+
+                <div class="col-sm-2">
+                    <input type="text" class="form-control" name="search_contacts" placeholder="点位联系人">
+                </div>
+
+
+            </div>
+            <div class="form-group">
+                <div class="col-sm-2">
+                     <input type="text" class="form-control" name="search_phone"  placeholder="联系人电话">
+                </div>
+
+                <div class="col-sm-2">
+                    <input type="text" class="form-control" name="search_re_contacts" placeholder="推荐人">
+                </div>
+                <div class="col-sm-2">
+                     <input type="text" class="form-control" name="search_re_phone"  placeholder="推荐人电话">
+                </div>
+                <div class="col-sm-3">
+                    <div class="input-group date  col-md-12" data-link-field="dtp_input1" id="time" >
+                        <input class="form-control" type="text" name="search_start_time" value="" placeholder="开始时间"  readonly>
+                        <span class="input-group-addon"><span class="glyphicon glyphicon-remove"></span></span>
+                        <span class="input-group-addon"><span class="glyphicon glyphicon-th"></span></span>
+                    </div>
+                </div>
+                <div class="col-sm-3">
+                    <div class="input-group date  col-md-12" data-link-field="dtp_input2" id="time2" >
+                        <input class="form-control" type="text" name="search_end_time" value="" placeholder="截止时间"  readonly>
+                        <span class="input-group-addon"><span class="glyphicon glyphicon-remove"></span></span>
+                        <span class="input-group-addon"><span class="glyphicon glyphicon-th"></span></span>
+                    </div>
+                </div>
+
+            </div>
+            <div class="form-group">
+                <input type="hidden" value="0" name="search_db_duty" id="search_db_duty">
+                <div class="col-sm-2">
+                    <select class="form-control shift-info"  >
+                        <ul>
+                        <option value="">BD负责人</option>
+
+                        <{foreach from=$admin_list item=val }>
+                        <option value="<{$val['id']}>"><{$val['alias']}></option>
+                        <{/foreach}>
+                        </ul>
+
+                    </select>
+                </div>
+                <div class="col-sm-2">
+
+                    <select class="form-control" name="search_db_status" >
+                        <option value="">BD进度</option>
+                        <{foreach from=$db_status  key=key item=val }>
+                        <option value="<{$key}>"><{$val['1']}></option>
+                        <{/foreach}>
+
+                    </select>
+
+                </div>
+                <div class="col-sm-2">
+                    <input type="text" class="form-control" name="search_source" placeholder="推荐源">
+                </div>
+
+                <div class="col-sm-2">
+
+
+
+                    <input type="hidden" id="origin_url" value="/seas/table">
+                    <button type="button" class="btn btn-success" id="search-btn">查找</button>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    <!--<button type="button" class="btn btn-warning" onclick="yesterday_order(1)">前一天</button>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-->
+
+                    <button type="button" class="btn btn-info" id="explore-btn"  >拾起</button>
+                    <input type="hidden" id="clue_id" value="0">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="panel-body">
+        <div id="config-body">
+            <table id="config-table" data-toggle="table" data-url="/seas/table" data-click-to-select="true" data-select-item-name="radioName" data-pagination="true" data-page-size="20" data-side-pagination="server" data-page-list="[50,100]" >
+                <thead>
+                <tr>
+                    <th data-field="state" data-checkbox="true"></th>
+                    <th data-field="clue_id" data-align="center">ID</th>
+                    <th data-field="name" data-align="center">点位名称</th>
+                    <th data-field="grade" data-align="center">等级</th>
+                    <th data-field="contacts" data-align="center">联系人</th>
+                    <th data-field="phone" data-align="center">联系人电话</th>
+                    <th data-field="re_contacts" data-align="center">推荐人</th>
+                    <th data-field="re_phone" data-align="center">推荐人电话</th>
+                    <th data-field="create_time" data-align="center">添加时间</th>
+                    <th data-field="clue_source" data-align="center">线索来源</th>
+                    <th data-field="source" data-align="center" >推荐源</th>
+                    <th data-field="admin_name" data-align="center" >BD负责人</th>
+                    <th data-field="db_status" data-align="center">BD进度</th>
+                    <th data-field="gl" data-align="center">线索备注</th>
+                </tr>
+                </thead>
+
+            </table>
+        </div>
+    </div>
+</div>
+
+
+
+
+<script type="text/javascript">
+
+    $('.shift-info').editableSelect({
+        effects: 'slide',
+        onSelect: function (element) {
+            $('#search_db_duty').val(element.val())
+        }
+    }).prop('placeholder','请输入或选择BD负责人');
+    $(document).on('click',".btn-gl", function(){
+
+        var clue_id = $(this).attr("clue_id");
+
+        window.open("/business/clueLog?clue_id="+clue_id);
+    });
+    //搜索
+    $(function(){
+        function ckRadio(){
+            var clue_id_obj = $("input[type=checkbox]:checked");
+            var clue_id =[];
+            if(clue_id_obj.length==0){
+                MessageBox.error('请选择一条线索');
+                return;
+            }else{
+                var clue_id = [];
+                clue_id_obj.each(function(){
+                    if($(this).parent().next().html() != ""){
+                        clue_id.push($(this).parent().next().html());
+
+                    }
+                })
+            }
+            $("#clue_id").val(clue_id);
+        }
+
+        $('#time').datetimepicker({
+            language: 'zh', //汉化
+            autoclose: 1,
+            format: 'yyyy-mm-dd hh:00:00',
+            minView: 'day'
+        });
+        $('#time2').datetimepicker({
+            language: 'zh', //汉化
+            autoclose: 1,
+            format: 'yyyy-mm-dd hh:00:00',
+            minView: 'day'
+        });
+
+        $("#search-btn").on('click', function(){
+
+            var serverUrl  = $('#origin_url').val();
+            var filterData = "";
+            $.each($("[name^='search_']"), function() {
+                field = $(this).attr('name');
+                data  = $(this).val();
+                if(data!=-1 && data!=""){
+                    filterData += "&"+field+"="+data;
+                }
+            });
+            filterData  = filterData.substr(1);
+
+            if(filterData==""){
+                var url = serverUrl;
+            }else{
+                var url = serverUrl +'?'+filterData;
+            }
+
+            $('#config-table').bootstrapTable('refresh', {url: url});
+        });
+        //拾起线索
+        $("#explore-btn").on('click', function(){
+            ckRadio();
+            var clue_id = $("#clue_id").val();
+
+            if( clue_id == "0") {
+                MessageBox.error('请选择一条线索');
+                return;
+            }
+
+            var serverUrl = "/seas/pickup";
+
+            $.ajax({
+                type: 'post',
+                url: serverUrl,
+                dataType: 'json',
+                data:{clue_id:clue_id},
+                success: function (resp) {
+                    var msg = "";
+                    $.each(resp, function (k, v) {
+                        if (v.status == 'success') {
+                            msg = msg + v.clue_id + "拾起成功";
+                            $("input[type=checkbox]:checked").each(function(){
+                                if($(this).parent().next().html() == v.clue_id ){
+                                    $(this).parent().parent().remove();
+                                }
+                            });
+                            return;
+                        } else {
+                            msg = msg + v.clue_id + "拾起失败";
+                        }
+                    })
+                    MessageBox.success(msg)
+                }
+            });
+        });
+
+
+
+
+
+
+    });
+</script>

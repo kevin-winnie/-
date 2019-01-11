@@ -1,0 +1,145 @@
+<style type="text/css">
+    td.name {
+        max-width: 150px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+    table{
+        font-size: 12px;
+    }
+</style>
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <h3 class="panel-title"><{$detail['name']}></h3>
+    </div>
+    <div class="panel-body">
+        <div class="form-horizontal" id="search">
+            <div class="form-group">
+                <div class="col-sm-2">
+                    <input type="text" class="form-control" name="search_card_number" placeholder="请输入卡号">
+                </div>
+                <div class="col-sm-2">
+                    <select name="search_is_used" class="form-control">
+                        <option value="-1">充值状态</option>
+                        <option value="0">未充值</option>
+                        <option value="1">已充值</option>
+                    </select>
+                </div>
+                <div class="col-sm-3">
+                    <div class="input-group date  col-md-12" data-link-field="dtp_input1" id="time" >
+                        <input class="form-control" type="text" name="search_start_time" value="" placeholder="充值开始时间"  readonly>
+                        <span class="input-group-addon"><span class="glyphicon glyphicon-th"></span></span>
+                    </div>
+                </div>
+                <div class="col-sm-3">
+                    <div class="input-group date  col-md-12" data-link-field="dtp_input2" id="time2" >
+                        <input class="form-control" type="text" name="search_end_time" value="" placeholder="充值截止时间"  readonly>
+                        <span class="input-group-addon"><span class="glyphicon glyphicon-th"></span></span>
+                    </div>
+                </div>
+                <input type="hidden" id="origin_url" value="/recharge/card_list_table?id=<{$id}>">
+                <button type="button" class="btn btn-default" id="search-btn">查找</button>
+
+            </div>
+        </div>
+    </div>
+    <div class="panel-body">
+        <div id="config-body">
+            <table id="config-table" data-toggle="table" data-url="/recharge/card_list_table?id=<{$id}>" data-pagination="true" data-side-pagination="server" data-page-list="[5,10,15,20]">
+                <thead>
+                <tr>
+                    <th data-field="state" data-radio="true"></th>
+                    <th data-field="acount_id" data-align="center">账号id</th>
+                    <th data-field="card_number" data-align="center" data-class="name">卡号</th>
+                    <th data-field="format_pass" data-align="center" data-class="name">密码</th>
+
+                    <th data-field="card_money" data-align="center">金额</th>
+                    <th data-field="to_date" data-align="center">到期时间</th>
+                    <th data-field="status" data-align="center">状态</th>
+                    <th data-field="used_time" data-align="center">充值时间</th>
+
+                </tr>
+                </thead>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog" style="width: 800px">
+        <div class="modal-content">
+
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal -->
+</div>
+
+
+<script type="text/javascript">
+    $(function(){
+        $('#config-table').bootstrapTable({
+        }).on('click-row.bs.table', function (e, row, $element) {
+            $("#curr_id").val(row.id);
+        }).on('dbl-click-row.bs.table', function (e, row, $element) {
+            $element.find('td').eq(2).toggleClass('code');
+        });
+
+
+        $("#config-body").delegate(".show_img","click",function(){
+            MessageBox.alert($(this).attr('data-content'));
+        });
+        $('#time').datetimepicker({
+            language: 'zh', //汉化
+            autoclose: 1,
+            format: 'yyyy-mm-dd hh:00:00',
+            minView: 'day'
+        });
+        $('#time2').datetimepicker({
+            language: 'zh', //汉化
+            autoclose: 1,
+            format: 'yyyy-mm-dd hh:00:00',
+            minView: 'day'
+        });
+        $("#search-btn").on('click', function(){
+            var serverUrl = $('#origin_url').val();
+            var filterData = "";
+            $.each($("[name^='search_']"), function() {
+                field = $(this).attr('name');
+                data = $(this).val();
+                if(data!=-1 && data!=""){
+                    filterData += field+"="+data+"&";
+                }
+            });
+            if(filterData==""){
+                var url = serverUrl;
+            }else{
+                var url = serverUrl +'&'+filterData;
+            }
+            $('#config-table').bootstrapTable('refresh', {url: url});
+        });
+
+
+        $('#time').datetimepicker({
+            language: 'zh', //汉化
+            autoclose: 1,
+            format: 'yyyy-mm-dd hh:00:00',
+            minView: 'day'
+        });
+        $('#time2').datetimepicker({
+            language: 'zh', //汉化
+            autoclose: 1,
+            format: 'yyyy-mm-dd hh:00:00',
+            minView: 'day'
+        });
+
+    });
+
+    function ckRadio() {
+        var curr_id = $("input[type=radio]:checked").parent().next().text();
+        if (typeof (curr_id) == "undefined") {
+            $("#curr_id").val(0);
+        } else {
+            $("#curr_id").val(curr_id);
+        }
+    }
+</script>

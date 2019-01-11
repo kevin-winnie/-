@@ -1,0 +1,179 @@
+<{if $tips eq ''}>
+<{else}>
+<div class="alert alert-danger" role="alert"><{$tips}></div>
+<{/if}>
+<div class="panel panel-default">
+	<div class="panel-heading">新增/编辑</div>
+	<table class="table">
+		<form action="/sys_config/save_platform_device" id="myform" name="myform" method="post" >
+		  <input name="id" value="<{$config.id}>" type="hidden">
+		  <tr class="tr" id="platform_tr" style="<{if !$config.platform_id }>display:none<{/if}>">
+		    <td width="22%" align="right" > 商户：</td>
+		    <td width="75%">
+				<{if ($config.platform_id )}>
+				<input type="hidden" name="platform_id" value="<{$config.platform_id}>" />
+				<{/if}>
+		    	<select class="form-control" <{if ($config.platform_id )}>disabled<{else}><{/if}> name="platform_id" id="platform_id" style="width:140px;" onchange="platform_sel()">
+					<option value="0" >--请选择--</option>
+					<{foreach key=key item=item from=$platforms}>
+					<option value="<{$key}>" <{if $key eq $config.platform_id}>selected<{/if}>> <{$item}> </option>
+					<{/foreach}>
+				 </select>
+				<!--<span>默认平台配置，则不需要填写单台设备配置</span>-->
+		    </td>
+		  </tr>
+			<tr class="tr" id="device_tr" style='display: <{if ($config.device_id )}>  <{else}> none <{/if}>' >
+				<td width="22%" align="right" > 单台设备ID配置：</td>
+				<td width="75%" >
+					<input name="device_id" id="device"  readonly class="form-control" style="width:540px;" placeholder="请输入设备id" value="<{$config.device_id}>" onblur="device_config()" onkeydown=""/>
+					<!--<<span>填写单台设备配置，则不需要平台配置</span>-->
+				</td>
+			</tr>
+
+			<tr class="tr">
+				<td width="22%" align="right" >通用二维码前缀：</td>
+				<td width="75%" >
+                    <select class="form-control" style="width: 300px" name="common_pr" id="common_pr" datatype="*" nullmsg="请输入通用二维码前缀！">
+                        <option value="">请选择</option>
+                        <{foreach $qr_common_url as $url}>
+                        <option value="<{$url.value}>" <{if $config.common_pr == $url.value}>selected<{/if}>><{$url.name}></option>
+                        <{/foreach}>
+                    </select>
+				<!--<span style="color: red">URL中必须有DEVICEID字符，用于替换设备id，正常情况请勿修改！</span>-->
+				</td>
+			</tr>
+
+			<tr class="tr">
+				<td width="22%" align="right" >允许开门来源：
+					<br><br><br><br>
+					<input type="checkbox" value="" id="box_check_all"> 全选
+				</td>
+				<td width="75%" >
+					<div class="store-box" style="width:540px;min-height:250px;overflow-y:auto;max-height:100px;border-radius:5px;border:1px solid #aaa;padding:10px;">
+						<{foreach key=key item=item from=$open_refer}>
+						<label style="margin-right:10px;font-weight: normal">
+							<input type="checkbox" name="refer[]" <{if $open_refer_check[$key] }>checked<{/if}>  value="<{$key}>"> <{$item}>
+					<{/foreach}>
+					</div>
+				</td>
+			</tr>
+
+				<tr class="tr">
+					<td width="22%" align="right" >如果非允许来源扫码，提示语：</td>
+					<td width="75%" >
+						<input type="text" style="width:540px;" value="<{$config.error_msg}>" class="form-control width_180" id="error_msg" name="error_msg"  placeholder="提示语">
+					</td>
+					</tr>
+				<tr class="tr">
+					<td width="22%" align="right" >如果非允许来源扫码，重定向URL：</td>
+					<td width="75%" >
+                        <select class="form-control" style="width: 300px" name="error_url" id="error_url">
+                            <option value="">请选择</option>
+                            <{foreach $qr_common_url as $url}>
+                            <option value="<{$url.error}>" <{if $config.error_url == $url.error}>selected<{/if}>><{$url.name}></option>
+                            <{/foreach}>
+                        </select>
+					</td>
+				</tr>
+
+				<tr class="tr">
+					<td width="22%" align="right" >是否能使用魔盒余额支付：</td>
+					<td width="75%" >
+						<select class="form-control" name="use_yue" id="use_yue"  style="width:140px;" datatype="*" nullmsg="请至少选择一个！">
+							<option value="1" <{if $config.use_yue == "1" }>selected<{/if}>>是</option>
+							<option value="0" <{if $config.use_yue == "0" }>selected<{/if}>>否</option>
+						</select>
+					</td>
+				</tr>
+                <tr class="tr">
+                    <td width="22%" align="right" >是否能使用魔豆：</td>
+                    <td width="75%" >
+                        <select class="form-control" name="use_modou" id="use_modou"  style="width:140px;" datatype="*" nullmsg="请至少选择一个！">
+                            <option value="1" <{if $config.use_modou == "1" }>selected<{/if}>>是</option>
+                            <option value="0" <{if $config.use_modou == "0" }>selected<{/if}>>否</option>
+                        </select>
+                    </td>
+                </tr>
+
+				<tr class="tr">
+					<td width="22%" align="right" >所属集团：</td>
+					<td width="75%" >
+						<select class="form-control" name="group_code" id="group_code" style="width:140px;" datatype="*" nullmsg="请至少选择一个！">
+							<{foreach key=key1 item=item1 from=$groups}>
+							<option value="<{$item1.code}>" <{if $item1.code eq $config.group_code}>selected<{/if}>> <{$item1.name}> </option>
+							<{/foreach}>
+						</select>
+					</td>
+				</div>
+			</tr>
+
+			<{foreach key=key item=item from=$configs}>
+			<tr class="tr">
+				<td width="22%" align="right" > 选择<{$key}>配置：</td>
+				<td width="75%" >
+					<select class="form-control" name="config['<{$key}>']"  style="width:140px;">
+						<{foreach key=key1 item=item1 from=$configs[$key]}>
+						<option value="<{$item1.id}> " <{if $item1.checked }>selected<{/if}>> <{$item1.name}></option>
+						<{/foreach}>
+					</select>
+				</td>
+			</tr>
+
+			<{/foreach}>
+		  <tr class="tr">
+		    <td align="right" >&nbsp;</td>
+		    <td ><input type="button" onclick="submitForm()" name="Submit" class="lostfocus" onFocus='this.className="getfocus";' onMouseOver='this.className="getfocus";' onBlur='this.className="lostfocus";' onMouseOut='this.className="lostfocus";'
+			value="保存">
+			<input type="button" value="返回" onclick="history.back();" />
+		  </tr>
+		</form>
+	</table>
+</div>
+<script type="text/javascript">
+
+
+    $('#box_check_all').click(function(){
+        var flag = $(this).prop('checked');
+        $('.store-box').find('input[type="checkbox"]').prop('checked', flag)
+    });
+
+function submitForm(){
+	if ($('#config_text').val() == ''){
+		alert('填写配置内容！');
+		return;
+	}
+    if ($('#common_pr').val() == ''){
+        alert('填写二维码前缀！');
+        return;
+    }
+    if ($('#error_url').val() == ''){
+        alert('错误URL！');
+        return;
+    }
+    if ($('#error_msg').val() == ''){
+        alert('扫码提示！');
+        return;
+    }
+	$('#myform').submit();
+}
+
+
+function platform_sel() {
+	var v = $('#platform_id').val();
+	if(v == "0"){
+	    $("#device_tr").show();
+	}else{
+        $("#device_tr").hide();
+        $('#device').val('');
+	}
+}
+function device_config() {
+    var v = $('#device').val();
+    if(v == ""){
+        $("#platform_tr").show();
+	}else{
+        $("#platform_tr").hide();
+    }
+}
+</script>
+

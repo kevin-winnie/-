@@ -1,0 +1,47 @@
+<{if $tips eq ''}>
+<{elseif $tips eq '更新成功'}>
+<div class="alert alert-success" role="alert"><{$tips}></div>
+<{else}>
+<div class="alert alert-danger" role="alert"><{$tips}></div>
+<{/if}>
+
+<div class="panel panel-default">
+	<div class="panel-heading">修改密码</div>
+	<div class="panel-body">
+		<form id="change-pwd-form" class="form-horizontal" role="form" method="post" action="/admin/changepwd">
+		   <div class="form-group">
+			  <label for="old" class="col-sm-2 control-label">旧密码：</label>
+			  <div class="col-sm-3">
+				 <input type="password" class="form-control" id="old" name="old"  datatype="*" nullmsg="请输入旧密码！" placeholder="请输入旧密码">
+			  </div>
+			  <div class="Validform_checktip"></div>
+		   </div>
+		    <div class="form-group">
+			  <label for="new" class="col-sm-2 control-label">新密码：</label>
+			  <div class="col-sm-3">
+				 <input type="password" class="form-control" id="new" name="new" datatype="*6-30" errormsg="密码范围在6~30位之间！" nullmsg="请输入新密码！"  placeholder="请确认新密码">
+			  </div>
+			  <div class="Validform_checktip"></div>
+		   </div>
+		   <div class="form-group">
+			  <label for="newconfirm" class="col-sm-2 control-label">确认：</label>
+			  <div class="col-sm-3">
+				 <input type="password" class="form-control" id="newconfirm" name="newconfirm" datatype="*" recheck="new" errormsg="您两次输入的新密码不一致！" placeholder="请确认新密码">
+			  </div>
+			  <div class="Validform_checktip"></div>
+		   </div>
+		   <div class="form-group">
+			  <div class="col-sm-offset-2 col-sm-10">
+				 <input type="hidden" name="submit" value="1">
+				 <button type="submit" class="btn btn-default" id="change-pwd-btn">确定</button>
+			  </div>
+		   </div>
+		</form>
+	</div>
+</div>
+
+<script type="text/javascript"> 
+	$("#change-pwd-form").Validform(
+		{tiptype:2}
+	);
+</script>

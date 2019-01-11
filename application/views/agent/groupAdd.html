@@ -1,0 +1,41 @@
+
+<div class="panel panel-default">
+    <div class="panel-heading">添加集团</div>
+    <div class="panel-body">
+        <form id="add-user-form" class="form-horizontal" role="form" method="post" action="/commercial/commercialGroupSave">
+            <div class="form-group">
+                <label for="name" class="col-sm-2 control-label">名称：</label>
+                <div class="col-sm-3">
+                    <input type="text" class="form-control" value="<{$info.value}>" id="name" name="value" datatype="*" nullmsg="请输入名称！"  placeholder="请输入名称">
+                </div>
+                <div class="Validform_checktip"></div>
+            </div>
+            <div class="form-group">
+                <label for="code" class="col-sm-2 control-label">商户code：</label>
+                <div class="col-sm-3">
+                    <input type="text" class="form-control" value="<{$info.key}>" id="code" name="key" placeholder="请输入code，英文">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <div class="col-sm-offset-2 col-sm-10">
+                    <input type="hidden" name="id" value="<{$info.id}>"/>
+                    <button type="submit" class="btn btn-default">确定</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script type="text/javascript">
+    $("#add-user-form").Validform(
+        {tiptype:2}
+    );
+</script>
+
+<script type="text/javascript">
+    $('#box_check_all').click(function(){
+        var flag = $(this).prop('checked');
+        $('.store-box').find('input[type="checkbox"]').prop('checked', flag)
+    });
+</script>

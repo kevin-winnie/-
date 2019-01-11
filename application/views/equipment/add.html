@@ -1,0 +1,66 @@
+<{if $tips eq ''}>
+<{else}>
+<div class="alert alert-danger" role="alert"><{$tips}></div>
+<{/if}>
+<div class="panel panel-default">
+	<div class="panel-heading">新增设备</div>
+	<table class="table">
+		<form action="/equipment/add_save" id="myform" name="myform" method="post" >
+		  <tr class="tr">
+		    <td width="22%" align="right" > 盒子方设备ID：</td>
+		    <td width="75%" ><input name="equipment_id" type="text" id="equipment_id" size="30" value="" placeholder="盒子ID，如68805328909" /></td>
+		  </tr>
+		  
+		  <tr class="tr">
+		    <td width="22%" align="right" > 盒子编码：</td>
+		    <td width="75%" ><input name="code" type="text" id="code" size="30" value="" placeholder="盒子编码，如A000001" /></td>
+		  </tr>
+		  
+		  <tr class="tr">
+		    <td width="22%" align="right" > 盒子类型：</td>
+		    <td width="75%" >
+		    	<select class="form-control" name="type" id="type"  style="width:200px;">
+					<{foreach $eq_type as $val}>
+					<option value="<{$val.code}>"><{$val.name}></option>
+					<{/foreach}>
+				 </select>
+		    </td>
+		  </tr>
+
+		  <!--<tr class="tr">
+		    <td width="22%" align="right" > 所属商户：</td>
+		    <td width="75%" >
+		    	<select class="form-control" name="platform_id" id="platform_id"  style="width:100px;">
+					<{foreach $platform_list as $val}>
+                    <option value="<{$val.id}>"><{$val.name}></option>
+                    <{/foreach}>
+				 </select>
+		    </td>
+		  </tr>-->
+		  
+		  <tr class="tr">
+		    <td align="right" >&nbsp;</td>
+		    <td ><input type="button" onclick="submitForm()" name="Submit" class="lostfocus" onFocus='this.className="getfocus";' onMouseOver='this.className="getfocus";' onBlur='this.className="lostfocus";' onMouseOut='this.className="lostfocus";'
+			value="更新">
+			<input type="button" value="返回" onclick="history.back();" />
+		  </tr>
+		</form>
+	</table>
+</div>
+<script type="text/javascript">
+
+function submitForm(){
+	if ($('#equipment_id').val() == ''){
+		alert('请输入盒子id！');
+		return;
+	}
+	if ($('#code').val() == ''){
+		alert('请输入盒子编码！');
+		return;
+	}	
+	$('#myform').submit();
+}
+
+
+</script>
+

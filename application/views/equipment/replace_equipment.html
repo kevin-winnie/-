@@ -1,0 +1,78 @@
+
+<style type="text/css">
+    .ui-autocomplete{
+        border: 1px solid #aaa;
+        -webkit-border-radius: 5px;
+        -moz-border-radius: 5px;
+        border-radius: 5px;
+        background-color: #FFFFFF;
+    }
+</style>
+<div class="panel panel-default">
+    <div class="panel-heading">中控替换</div>
+
+    <form id="add-user-form" class="form-horizontal" role="form" >
+
+        <div class="panel-body">
+            <div class="form-horizontal" id="search">
+
+                <div class="form-group">
+                    <label  class="col-sm-2 control-label">原设备id：</label>
+                    <div class="col-sm-2">
+                        <input type="text" class="form-control blur" id="equipment_id"  value="" datatype="*" nullmsg="请输入要替换的设备id！" >
+                    </div>
+                    <div class="Validform_checktip"></div>
+                </div>
+                <div class="form-group">
+                    <label  class="col-sm-2 control-label">新设备id：</label>
+                    <div class="col-sm-2">
+                        <input type="text" class="form-control blur" id="to_equipment_id"  value="" datatype="*" nullmsg="请输入新的设备id！" >
+                    </div>
+                    <div class="Validform_checktip"></div>
+                </div>
+                <div class="form-group">
+                    <label  class="col-sm-2 control-label">新设备类型：</label>
+                    <div class="col-sm-2">
+                        <select class="form-control" name="to_type" id="to_type"  style="width:200px;">
+                            <{foreach $eq_type as $val}>
+                            <option value="<{$val.code}>"><{$val.name}></option>
+                            <{/foreach}>
+                        </select>
+                    </div>
+                    <div class="Validform_checktip"></div>
+                </div>
+
+                <div class="form-group">
+                    <label  class="col-sm-2 control-label"></label>
+                    <div class="col-sm-2">
+
+                        <button type="button" class="btn btn-info" id="replace_equipment">确认提交</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+<script type="text/javascript">
+    $('#replace_equipment').on('click',function(){
+        var equipment_id = $('#equipment_id').val().trim();
+        var to_equipment_id = $('#to_equipment_id').val().trim();
+        var to_type = $('#to_type').val();
+
+        if(equipment_id == ""){
+            MessageBox.error('旧设备不能为空');
+        }
+        if(to_equipment_id == ""){
+            MessageBox.error('新设备不能为空');
+        }
+        $.post('/equipment/replace_equipment',{equipment_id:equipment_id,to_equipment_id:to_equipment_id, to_type: to_type},function(respData){
+
+             if(respData.status == 'success'){
+                 MessageBox.success(respData.message);
+             }else{
+                 MessageBox.error(respData.message);
+             }
+        },'json')
+    })
+
+</script>

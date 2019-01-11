@@ -1,0 +1,97 @@
+<search>
+	<form id="search" class="form-inline" onsubmit="{ search }">
+
+		<div class="row">
+			<div class="form-group">
+				<label>名称：</label>
+				<input type="text" class="form-control" name="remarks">
+			</div>
+
+			<div class="form-group">
+				<label>开始：</label>
+				<input type="text" class="form-control" name="start">
+			</div>			
+
+			<div class="form-group">
+				<label>结束：</label>
+				<input type="text" class="form-control" name="end">
+			</div>		
+			
+		</div>
+		
+		<div class="row">
+			<div class="form-group">
+				<label>平台：</label>
+				<select class="form-control" name="platform">
+					<option value="">所有</option>
+					<option value="o2o">o2o</option>
+					<option value="b2c">b2c</option>
+				</select>		
+			</div>
+
+			<div class="form-group">
+				<label>类型：</label>
+				<select class="form-control" name="type">
+					<option value="">所有</option>
+					<option value="amount">满额</option>
+					<option value="quantity">满件</option>
+				</select>		
+			</div>		
+
+			<div class="form-group">
+				<label>方式：</label>
+				<select class="form-control" name="solution_type">
+					<option value="">所有</option>
+					<option value="gift">赠品</option>
+					<option value="discount">减免</option>
+					<option value="exchange">换购</option>
+				</select>		
+			</div>	
+
+			<div class="form-group">
+				<label>启用：</label>
+				<select class="form-control" name="active">
+					<option value="">所有</option>
+					<option value="true">是</option>
+					<option value="false">否</option>
+				</select>		
+			</div>				
+
+			<div class="form-group">
+				<button type="submit" class="btn btn-primary">查询</button>
+				<button type="button" class="btn btn-default" onclick="{ reset }">重置</button>
+			</div>
+		</div>	
+	</form>
+
+	<script>
+		var tag       = this;
+		var promotion = opts;
+
+		search() {
+			promotion.getAll($("#search").serialize());
+		}
+		reset() {
+			$("#search")[0].reset();
+		}
+
+		tag.on('mount', function(){
+			$("input[name=start]").datetimepicker({
+				format: "YYYY-MM-DD HH:mm:ss"
+			});
+			$("input[name=end]").datetimepicker({
+				format: "YYYY-MM-DD HH:mm:ss"
+			});
+
+			$("select[name=platform]").val(promotion.getPlatform());
+		})
+
+	</script>
+
+	<style scoped>
+		#search .form-group {
+			padding-left: 15px;
+			padding-top: 15px;
+		}
+	</style>
+</search>

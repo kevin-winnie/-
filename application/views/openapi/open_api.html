@@ -1,0 +1,121 @@
+<{if $tips eq ''}>
+<{elseif $tips eq '新增成功'}>
+<div class="alert alert-success" role="alert"><{$tips}></div>
+<{else}>
+<div class="alert alert-danger" role="alert"><{$tips}></div>
+<{/if}>
+<div class="panel panel-default">
+    <div class="panel-heading">新增/编辑</div>
+    <div class="panel-body">
+        <form id="add-user-form" class="form-horizontal" role="form" method="post" action="/openapi/openapi_add">
+            基本信息：
+            <div class="form-group">
+                <label  class="col-sm-2 control-label">商户app_id：</label>
+                <div class="col-sm-3">
+                    <input type="text" class="form-control" id="app_id" name="app_id"  datatype="/^\d+$/" nullmsg="请输入商户app_id！"  placeholder="请输入商户app_id">
+                </div>
+                <div class="Validform_checktip"></div>
+            </div>
+            <div class="form-group">
+                <div for="need_product" class="form-group">
+                    <label class="col-sm-2 control-label">所属商户：</label>
+                    <div class="col-sm-3">
+                        <select class="form-control" name="platform_id" id="platform_id" datatype="*" nullmsg="请至少选择一个！">
+                            <{foreach key=key1 item=item1 from=$platform_ids}>
+                            <option value="<{$item1.id}>"  > <{$item1.name}></option>
+                            <{/foreach}>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <div for="need_product" class="form-group">
+                    <label class="col-sm-2 control-label">所属集团：</label>
+                    <div class="col-sm-3">
+                        <select class="form-control" name="group_code" id="group_code" datatype="*" nullmsg="请至少选择一个！">
+
+                            <{foreach key=key1 item=item1 from=$groups}>
+                            <option value="<{$item1.code}>" > <{$item1.name}></option>
+                            <{/foreach}>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <div for="need_product" class="form-group">
+                    <label class="col-sm-2 control-label">是否推送：</label>
+                    <div class="col-sm-3">
+                        <select class="form-control" name="is_push" id="is_push" datatype="*" nullmsg="请至少选择一个！">
+                            <option value="0" >否</option>
+                            <option value="1" >是</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div id="is_sh" style="display: none">
+            <div class="form-group">
+                <label  class="col-sm-2 control-label">推送地址：</label>
+                <div class="col-sm-3">
+                    <input type="text" class="form-control" id="api_url" name="api_url" placeholder="请输入推送地址 必填">
+                </div>
+            </div>
+            <div class="form-group">
+                <label  class="col-sm-2 control-label">商户appid：</label>
+                <div class="col-sm-3">
+                    <input type="text" class="form-control" id="appid" name="appid" placeholder="请输入商户appid 选填">
+                </div>
+                <div class="Validform_checktip"></div>
+            </div>
+            <div class="form-group">
+                <label  class="col-sm-2 control-label">商户token：</label>
+                <div class="col-sm-3">
+                    <input type="text" class="form-control" id="app_auth_token" name="app_auth_token" placeholder="请输入商户token 选填">
+                </div>
+                <div class="Validform_checktip"></div>
+            </div>
+            <div class="form-group">
+                <label  class="col-sm-2 control-label">商户key：</label>
+                <div class="col-sm-3">
+                    <input type="text" class="form-control" id="key" name="key"  placeholder="请输入商户key 必填">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-2 control-label">商户method：</label>
+                <div class="col-sm-3">
+                    <input type="text" value="" class="form-control" id="method" name="method"  placeholder="请输入商户method 选填">
+                </div>
+            </div>
+            </div>
+            <div class="form-group">
+                <div class="col-sm-offset-2 col-sm-10">
+
+                    <button type="submit" class="btn btn-default btn-save">确定</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+<script type="application/javascript" src="/assets/js/ajaxfileupload.js"></script>
+
+<script type="text/javascript">
+    $("#add-user-form").Validform(
+        {tiptype:2}
+    );
+</script>
+
+<script type="text/javascript">
+
+    $('#is_push').change(function(){
+        var flag = $(this).val();
+        if(flag == 1){
+            $('#is_sh').show();
+        }else{
+            $('#is_sh').hide();
+        }
+
+    });
+
+
+
+
+</script>

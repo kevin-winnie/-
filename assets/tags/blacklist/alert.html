@@ -1,0 +1,36 @@
+<alert>
+	<div class="alert alert-success" style="display:none"> 
+		<strong>{ event.name }</strong> { event.code } { event.msg }
+	</div>
+	<div class="alert alert-warning" style="display:none"> 
+		<strong>{ event.name }</strong> { event.code } { event.msg }
+	</div>
+	<div class="alert alert-danger" style="display:none"> 
+		<strong>{ event.name }</strong> { event.code } { event.msg }
+	</div>
+
+	<style scoped>
+		:scope div {
+			min-width: 600px;
+			position: fixed;
+			top: 60px;
+			right: 50px;
+		}
+	</style>
+
+	<script>
+		var self = this;
+
+		opts.on('alert', function(data) {
+			self.update({event: data});
+
+			$(".alert").hide();
+			if(data.code == 200)
+				$(".alert-success").show().fadeOut(2000);
+			if(data.code == 300)
+				$(".alert-warning").show().fadeOut(5000);
+			if(data.code == 500)
+				$(".alert-danger").show().fadeOut(5000);			
+		});
+	</script>
+</alert>

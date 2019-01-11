@@ -1,0 +1,37 @@
+<div class="panel panel-default">
+	<div class="panel-heading">
+		分组管理
+		<a href='/admin/addgroup' role="button" class="btn btn-info btn-sm">新增</a>
+	</div>
+
+	<table class="table">
+		<thead>
+		<tr>
+			<th>ID</th>
+			<th>Name</th>
+			<th>相关操作</th>
+		</tr>
+		</thead>
+		<tbody>
+		<{foreach $list as $val}>
+		<tr>
+			<td><{$val->id}></td>
+			<td><{$val->name}></td>
+			<td>
+				<a href='/admin/getpermission?gid=<{$val->id}>' role="button" class="btn btn-info btn-sm">权限分配</a>
+				<a href='javascript:void(0)' role="button" class="btn btn-danger btn-sm" onclick="checkDel('<{$val->id}>','<{$val->name}>')">删除分组</a>
+			</td>
+		</tr>
+		<{/foreach}>
+		</tbody>
+	</table>
+</div>
+<script type="text/javascript">
+	function checkDel(id,name)
+	{
+	    if(confirm("确定要删除"+name+"?"))
+	      window.location.href="/admin/delgroup?gid="+id;
+	    else
+	      return; 
+	}
+</script>

@@ -1,0 +1,161 @@
+<style type="text/css">
+    td.name {
+        max-width: 120px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+    table{
+        font-size: 13px;
+    }
+    td.code{
+        /*max-width: 200px;*/
+        /*line-height: 15px;*/
+        /*height: 60px;*/
+        /*overflow: hidden;*/
+        /*text-overflow: ellipsis;*/
+        /*white-space: nowrap;*/
+
+        line-height: 20px;
+        height:64px;
+        overflow: hidden;
+        text-overflow:ellipsis;
+        display: -webkit-box;
+        -webkit-line-clamp:3;
+        -webkit-box-orient: vertical;
+    }
+    td.code_w{
+        max-width: 300px;
+    }
+    .btn-menu{
+    	background:#fff;
+    	border:1px solid #000;
+    }
+    .btn-menu-curr{
+    	color:#449d44;;
+    	border-color:#449d44;;
+    }
+</style>
+<h2 class="page-header">
+	加盟商公众号管理
+	<span style="float:right"><button type="button" class="btn btn-menu <{if $type eq 2}>btn-menu-curr<{/if}>" onclick="location.href='/wechat/join?type=2';">操作视频管理</button></span>
+	<span style="float:right;margin-right:20px;"><button type="button" class="btn btn-menu <{if $type eq 1}>btn-menu-curr<{/if}>" onclick="location.href='/wechat/join?type=1';">操作文档管理</button></span>
+</h2>
+<div class="panel panel-default">
+	<div class="panel-heading">
+        <h3 class="panel-title"> <{if $type eq 1}>操作文档管理<{else}>操作视频管理<{/if}>&nbsp;&nbsp;&nbsp;&nbsp;<input type="file" name="upload_file" id="upload_file" class="pull-left" style="display:none;" onchange="ajaxFileUpload(this.id,<{$type}>);"><button type="button" class="btn btn-success" onclick="add_click()">上传</button></h3>
+    </div>
+    <div class="panel-body">
+        <div class="table-toolbar">
+            <input type="hidden" id="curr_id" value="0">
+            <button type="button" class="btn btn-success btn-sm" onclick="set_status(1, '启用')">启用</button>&nbsp;&nbsp;&nbsp;&nbsp;
+            <button type="button" class="btn btn-danger  btn-sm" onclick="set_status(0, '删除')">删除</button>&nbsp;&nbsp;&nbsp;&nbsp;
+            
+        </div>
+        <div id="config-body">
+            <table id="config-table" data-toggle="table" data-url="/wechat/table?type=<{$type}>" data-pagination="false" data-side-pagination="server" data-page-list="[5,10,15,20]">
+                <thead>
+                <tr>
+                	<th data-field="state" data-radio="true"></th>
+                	<th data-field="id" data-align="center">ID</th>
+                    <th style="width:80%" data-field="name" data-align="center"><{if $type eq 1}>文档<{else}>视频<{/if}>名称</th>
+                    <th data-field="created_time" data-align="center">上传时间</th>
+                    <th data-field="status_name" data-align="center">状态</th>
+                </tr>
+                </thead>
+            </table>
+        </div>
+    </div>
+</div>
+<script type="application/javascript" src="/assets/js/ajaxfileupload.js"></script>
+<script type="text/javascript">
+
+    $(function(){
+        $('#config-table').bootstrapTable({
+        }).on('click-row.bs.table', function (e, row, $element) {
+            $("#curr_id").val(row.id);
+        });
+        $("#search-btn").on('click', function(){
+            var serverUrl = $('#origin_url').val();
+            var filterData = "";
+            $.each($("[name^='search_']"), function() {
+                field = $(this).attr('name');
+                data = $(this).val();
+                if(data!=-1 && data!=""){
+                    filterData += field+"="+data+"&";
+                }
+            });
+            if(filterData==""){
+                var url = serverUrl;
+            }else{
+                var url = serverUrl +'?'+filterData;
+            }
+            $('#config-table').bootstrapTable('refresh', {url: url});
+        });
+
+
+
+
+    });
+    
+    function add_click(){
+    	$('#upload_file').click();
+    }
+
+    function ckRadio() {
+        var curr_id = $("input[type=radio]:checked").parent().next().text();
+        if (typeof (curr_id) == "undefined") {
+            $("#curr_id").val(0);
+        } else {
+            $("#curr_id").val(curr_id);
+        }
+    }
+
+    function set_status(val, text){
+        ckRadio();
+        var id = $("#curr_id").val();
+        if (id == 0) {
+            MessageBox.error('请选择编辑项');
+            return;
+        }
+        var flag = true;
+
+        if(flag===false){
+            return false;
+        }
+        $.post("/wechat/set_status",{id:id,val:val},function(data){
+            if(data.status=='success'){
+                alert(text + data.msg);
+                window.location.reload()
+            }else{
+                alert(data.msg);
+            }
+        },'json');
+    }
+    
+    //ajax上传图片
+    function ajaxFileUpload(elementId,type) {
+        $.ajaxFileUpload({
+            url: '/wechat/ajax_upload?type='+type, //用于文件上传的服务器端请求地址
+            secureuri: false, //是否需要安全协议，一般设置为false
+            fileElementId: elementId, //文件上传域的ID
+            dataType: 'json', //返回值类型 一般设置为json
+            success: function (data, status)  //服务器成功响应处理函数
+            {
+                if(data.status=='error'){
+                    alert(data.msg);
+                    return false;
+                }
+                if (typeof (data.status) != 'undefined') {
+                    location.reload();
+
+                }
+            },
+            error: function (data, status, e)//服务器响应失败处理函数
+            {
+                alert(e);
+            }
+        });
+        return false;
+    }
+</script>

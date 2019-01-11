@@ -1,0 +1,37 @@
+<stat>
+	<div class="offline">
+	<b>线下(启用):</b>
+		<span class="badge">{stat.db.sms}</span> 短信 
+		<span class="badge">{stat.db.app}</span> APP 
+		<span class="badge">{stat.db.email}</span> 邮件
+		<span class="badge">{stat.db.weixin}</span> 微信
+	</div>
+
+	<div class="online">
+		<b>线上:</b>
+		<span class="badge">{stat.redis.sms}</span> 短信 
+		<span class="badge">{stat.redis.app}</span> APP
+		<span class="badge">{stat.redis.email}</span> 邮件
+		<span class="badge">{stat.redis.weixin}</span> 微信
+	</div>	
+
+	<style scoped>
+	:scope div {
+		display: inline;
+		margin-left: 35px;
+	}
+
+	:scope div.online .badge {
+		background-color: rgb(76, 174, 76)
+	}
+	</style>
+
+	<script>
+		var self = this;
+		
+		opts.stat();
+		opts.on('stat_done', function(data) {
+			self.update({stat: data});
+		})	
+	</script>
+</stat>

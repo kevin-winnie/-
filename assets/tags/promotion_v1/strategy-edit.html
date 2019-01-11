@@ -1,0 +1,354 @@
+<strategy-edit>
+
+	<!-- Modal -->
+	<form class="form-horizontal" onsubmit="{ submit }">
+	<div class="modal fade" id="strategy-edit" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+		<div class="modal-dialog modal-lg" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+					<h4 class="modal-title" id="myModalLabel">修改{ strategy.id }优惠</h4>
+					<input name="id" type="hidden" class="form-control" value="{ strategy.id }">
+				</div>	
+				<div class="modal-body">
+					<div class="form-group">
+						<label class="col-sm-2 control-label">类型：</label>
+						<div class="col-sm-4">
+							<p class="form-control-static">{ strategy.type == 'amount' ? '满额' : '满件' }</p>
+							<input name="type" type="hidden" class="form-control" value="{ strategy.type }">
+						</div>
+					</div>
+					<div class="form-group">
+						<label class="col-sm-2 control-label">名称：</label>
+						<div class="col-sm-4">
+							<input name="name" type="text" class="form-control" placeholder="会对外展示" required="true" value="{ strategy.name }">
+						</div>
+					</div>
+					<div class="form-group">
+						<label class="col-sm-2 control-label">注释：</label>
+						<div class="col-sm-8">
+							<input name="remarks" type="text" class="form-control" placeholder="只对内展示" value="{ strategy.remarks }">
+						</div>
+					</div>
+					<div class="form-group">
+						<label class="col-sm-2 control-label">最后提交人：</label>
+						<div class="col-sm-4">
+							<input name="by" type="text" class="form-control" value="{ strategy.by }" readonly>
+						</div>
+					</div>					
+
+					<div class="form-group">
+						<label class="col-sm-2 control-label">开始时间：</label>
+						<div class="col-sm-4">
+							<input name="start" type="text" class="form-control" value="{ moment.unix(strategy.start).format('YYYY-MM-DD HH:mm:ss') }">
+						</div>
+					</div>
+					<div class="form-group">
+						<label class="col-sm-2 control-label">结束时间：</label>
+						<div class="col-sm-4">
+							<input name="end" type="text" class="form-control" value="{ moment.unix(strategy.end).format('YYYY-MM-DD HH:mm:ss') }">
+						</div>
+					</div>
+
+					<hr />
+
+					<div class="form-group">
+						<label class="col-sm-2 control-label">适用平台：</label>
+						<div class="col-sm-5">
+							<label class="checkbox-inline"><input name="platform[]" type="checkbox" checked="{ $.inArray('b2c', JSON.parse(strategy.platform)) >= 0 }" value="b2c">b2c</label>
+							<label class="checkbox-inline"><input name="platform[]" type="checkbox" checked="{ $.inArray('o2o', JSON.parse(strategy.platform)) >= 0 }" value="o2o" disabled>o2o</label>
+						</div>
+					</div>
+					<div class="form-group">
+						<label class="col-sm-2 control-label">适用渠道：</label>
+						<div class="col-sm-5">
+							<label class="checkbox-inline"><input name="channel[]" type="checkbox" checked="{ $.inArray('pc', JSON.parse(strategy.channel)) >= 0 }" value="pc">pc</label>
+							<label class="checkbox-inline"><input name="channel[]" type="checkbox" checked="{ $.inArray('wap', JSON.parse(strategy.channel)) >= 0 }" value="wap">wap</label>
+							<label class="checkbox-inline"><input name="channel[]" type="checkbox" checked="{ $.inArray('app', JSON.parse(strategy.channel)) >= 0 }" value="app">app</label>
+						</div>
+					</div>
+					<div class="form-group">
+						<label class="col-sm-2 control-label">适用省市：</label>
+						<div class="col-sm-8">
+							<label class="checkbox-inline"><input name="province[]" type="checkbox" checked="{ $.inArray('143949', JSON.parse(strategy.province)) >= 0 }" value="143949">北京</label>
+							<!--<label class="checkbox-inline"><input name="province[]" type="checkbox" checked="{ $.inArray('145874', JSON.parse(strategy.province)) >= 0 }" value="145874">北京五环外</label>-->
+							<label class="checkbox-inline"><input name="province[]" type="checkbox" checked="{ $.inArray('144005', JSON.parse(strategy.province)) >= 0 }" value="144005">天津</label>
+							<label class="checkbox-inline"><input name="province[]" type="checkbox" checked="{ $.inArray('143983', JSON.parse(strategy.province)) >= 0 }" value="143983">河北</label>
+							<label class="checkbox-inline"><input name="province[]" type="checkbox" checked="{ $.inArray('144443', JSON.parse(strategy.province)) >= 0 }" value="144443">四川</label>
+							<label class="checkbox-inline"><input name="province[]" type="checkbox" checked="{ $.inArray('144522', JSON.parse(strategy.province)) >= 0 }" value="144522">重庆</label>							
+						</div>
+					</div>
+					<div class="form-group">
+						<div class="col-sm-offset-2 col-sm-8">
+							<label class="checkbox-inline"><input name="province[]" type="checkbox" checked="{ $.inArray('106092', JSON.parse(strategy.province)) >= 0 }" value="106092">上海</label>
+							<label class="checkbox-inline"><input name="province[]" type="checkbox" checked="{ $.inArray('145855', JSON.parse(strategy.province)) >= 0 }" value="145855">上海郊区</label>
+							<label class="checkbox-inline"><input name="province[]" type="checkbox" checked="{ $.inArray('1', JSON.parse(strategy.province)) >= 0 }" value="1">江苏</label>
+							<label class="checkbox-inline"><input name="province[]" type="checkbox" checked="{ $.inArray('54351', JSON.parse(strategy.province)) >= 0 }" value="54351">浙江</label>
+							<label class="checkbox-inline"><input name="province[]" type="checkbox" checked="{ $.inArray('106340', JSON.parse(strategy.province)) >= 0 }" value="106340">安徽</label>
+							<label class="checkbox-inline"><input name="province[]" type="checkbox" checked="{ $.inArray('144252', JSON.parse(strategy.province)) >= 0 }" value="144252">广东</label>	
+							<label class="checkbox-inline"><input type="checkbox" onclick="{ province_all }">全选</label>						
+						</div>
+					</div>	
+					<div class="form-group">	
+						<label class="col-sm-2 control-label">适用仓库：</label>
+						<div class="col-sm-4">	
+							<select name="warehouse[]" multiple class="form-control">
+								<option each="{ warehouses }" value="{ id }" selected="{ $.inArray(id, JSON.parse(strategy.warehouse)) >= 0 }">{ name }</option>
+							</select>							
+						</div>
+						<div class="col-sm-2">
+							<label class="checkbox-inline"><input type="checkbox" onclick="{ warehouse_all }">全选</label>	
+						</div>
+					</div>									
+					<div class="form-group">
+						<label class="col-sm-2 control-label">会员等级：</label>
+						<div class="col-sm-5">
+							<label class="checkbox-inline"><input name="member[]" type="checkbox" checked="{ $.inArray('1', JSON.parse(strategy.member)) >= 0 }" value="1">v0</label>
+							<label class="checkbox-inline"><input name="member[]" type="checkbox" checked="{ $.inArray('2', JSON.parse(strategy.member)) >= 0 }" value="2">v1</label>
+							<label class="checkbox-inline"><input name="member[]" type="checkbox" checked="{ $.inArray('3', JSON.parse(strategy.member)) >= 0 }" value="3">v2</label>
+							<label class="checkbox-inline"><input name="member[]" type="checkbox" checked="{ $.inArray('4', JSON.parse(strategy.member)) >= 0 }" value="4">v3</label>
+							<label class="checkbox-inline"><input name="member[]" type="checkbox" checked="{ $.inArray('5', JSON.parse(strategy.member)) >= 0 }" value="5">v4</label>
+							<label class="checkbox-inline"><input name="member[]" type="checkbox" checked="{ $.inArray('6', JSON.parse(strategy.member)) >= 0 }" value="6">v5</label>
+						</div>
+					</div>
+					<div class="form-group">
+						<label class="col-sm-2 control-label">有效：</label>
+						<div class="col-sm-5">
+							<label class="radio-inline"><input name="active" type="radio" checked="{ strategy.active == 'true' }" value="true" disabled>是</label>
+							<label class="radio-inline"><input name="active" type="radio" checked="{ strategy.active == 'false'}" value="false" disabled>否</label>
+						</div>
+					</div>
+					<div class="form-group">
+						<label class="col-sm-2 control-label"><small>每用户只享受一次：</small></label>
+						<div class="col-sm-5">
+							<label class="radio-inline"><input name="enjoy_once" type="radio" disabled value="true">是</label>
+							<label class="radio-inline"><input name="enjoy_once" type="radio" disabled value="false" checked>否</label>
+							<input name="enjoy_once" type="hidden" value="false">
+						</div>
+					</div>	
+
+					<hr />
+
+					<div class="form-group">
+						<label class="col-sm-2 control-label">适用商品：</label>
+						<div class="col-sm-4">
+							<label class="radio-inline"><input type="radio" name="product_all" value="true" onclick="{ product_all }" checked="{ strategy.product_all == 'true' }">不限(全场)</label>
+							<label class="radio-inline"><input type="radio" name="product_all" value="false" onclick="{ product_list }"  checked="{ strategy.product_all == 'false' }">否，根据以下规则：</label>				
+						</div>
+					</div>
+					<div class="form-group">
+						<div class="col-sm-offset-2 col-sm-8">
+							<div class="input-group">
+								<span class="input-group-addon">白名单</span>
+								<input name="product_white" type="text" class="form-control" placeholder="product_id: 101, 102" aria-describedby="basic-addon1" required value="{ JSON.parse(strategy.product_white) }" disabled="{ strategy.product_all == 'true' }">
+							</div>
+						</div>
+					</div>
+
+					<hr />
+
+					<div class="form-group">
+						<label class="col-sm-2 control-label">最少满足{ strategy.type == 'amount' ? '金额' : '次数' }：</label>
+						<div class="col-sm-4">
+							<input name="condition_min" type="text" class="form-control" placeholder="最小值(低于此数值就不享受优惠)" value="{ strategy.condition_min }">
+						</div>
+					</div>
+					<div class="form-group" id="max">
+						<label class="col-sm-2 control-label">最多满足{ strategy.type == 'amount' ? '金额' : '次数' }：</label>
+						<div class="col-sm-4">
+							<input name="condition_max" type="text" class="form-control" placeholder="最大值(超过此数值就不享受优惠)" value="{ strategy.condition_max }">
+						</div>
+					</div>
+					<div class="form-group">
+						<label class="col-sm-2 control-label">商品满足方式：</label>
+						<div class="col-sm-8">
+							<label class="radio-inline" title="购物车里有1个商品满足商品白名单算1次满足条件">
+								<input name="condition_combo" type="radio" value="one" checked="{ strategy.condition_combo == 'one' }">单个满足
+							</label>
+							<label class="radio-inline" title="购物车里有n个商品满足商品白名单算1次满足条件">
+								<input name="condition_combo" type="radio" value="some" checked="{ strategy.condition_combo == 'some' }">任意
+								<input name="condition_combo_num" type="text" placeholder="件数" value="{ strategy.condition_combo_num }">件满足
+							</label>
+							<label class="radio-inline" title="购物车里所有商品都满足商品白名单算1次满足条件">
+								<input name="condition_combo" type="radio" value="all" checked="{ strategy.condition_combo == 'all' }">全部满足
+							</label>
+						</div>
+					</div>
+					<div class="form-group">
+						<label class="col-sm-2 control-label">可以重复优惠：</label>
+						<div class="col-sm-4">
+							<label class="radio-inline"><input name="condition_repeat" type="radio" value="true" checked="{ strategy.condition_repeat == 'true' }">是</label>
+							<label class="radio-inline"><input name="condition_repeat" type="radio" value="false" checked="{ strategy.condition_repeat == 'false' }">否</label>
+						</div>
+					</div>	
+					
+					<hr />
+
+					<div class="form-group">
+						<label class="col-sm-2 control-label">优惠类型：</label>
+						<div class="col-sm-4">
+							<label class="radio-inline"><input name="solution_type" type="radio" value="discount" checked="{ strategy.solution_type == 'discount' }" onclick="{ discount }">减免</label>
+							<label class="radio-inline"><input name="solution_type" type="radio" value="exchange" checked="{ strategy.solution_type == 'exchange' }" onclick="{ exchange }">换购</label>
+							<label class="radio-inline"><input name="solution_type" type="radio" value="gift" checked="{ strategy.solution_type == 'gift' }" onclick="{ gift }">赠品</label>
+						</div>
+					</div>			
+					<div class="form-group">
+						<label class="col-sm-2 control-label">减免金额：</label>
+						<div class="col-sm-2">
+							<input type="text" class="form-control" name="solution_reduce_money" placeholder="元" value="{ strategy.solution_reduce_money }">
+						</div>
+					</div>
+					<div class="form-group">
+						<label class="col-sm-2 control-label">商品：</label>
+						<div class="col-sm-4">
+							<input type="text" name="solution_product_id" class="form-control" placeholder="product_id: 101" value="{ strategy.solution_product_id }">
+						</div>
+					</div>
+					<div class="form-group">
+						<label class="col-sm-2 control-label">加价金额：</label>
+						<div class="col-sm-2">
+							<input type="text" class="form-control" name="solution_add_money" placeholder="元" value="{ strategy.solution_add_money }">
+						</div>
+					</div>					
+					<div class="form-group">
+						<label class="col-sm-2 control-label">提醒：</label>
+						<div class="col-sm-4">
+							<label class="radio-inline"><input type="radio" name="solution_alert" value="true" checked="{ strategy.solution_alert == 'true' }">是</label>
+							<label class="radio-inline"><input type="radio" name="solution_alert" value="false" checked="{ strategy.solution_alert == 'false' }">否</label>
+						</div>
+					</div>
+
+				</div>		
+
+				<div class="modal-footer">
+					<button class="btn btn-default" data-dismiss="modal">关闭</button>
+					<button if="{ strategy.active == 'false' }" class="btn btn-primary">提交</button>
+				</div>
+			</div>
+		</div>
+	</div>
+	</form>
+
+	<script>
+
+		var self = this;
+		self.warehouses = [];
+
+		self.on('mount', function() {
+			$.datetimepicker.setLocale('zh');
+			$('#strategy-edit input[name=start]').datetimepicker({
+				format:'YYYY-MM-DD HH:mm',
+			});
+			$('#strategy-edit input[name=end]').datetimepicker({
+				format:'YYYY-MM-DD HH:mm',
+			});		
+			opts.getWarehouses();	
+		});
+
+		// load
+		opts.on('find_one_strategy_done', function(strategy) {
+			// $('#strategy-edit').parents('form')[0].reset();
+			strategy.by = $('.nav.navbar-nav.navbar-right a.dropdown-toggle').text().trim();
+			if(strategy.solution_type == 'discount') {
+				$('input[name=solution_reduce_money]').parents('.form-group').show();
+				$('input[name=solution_reduce_money]').attr('disabled', false);
+				
+				$('input[name=solution_product_id]').parents('.form-group').hide();
+				$('input[name=solution_add_money]').parents('.form-group').hide();
+				$('input[name=solution_product_id]').attr('disabled', true);
+				$('input[name=solution_add_money]').attr('disabled', true);				
+			}
+			if(strategy.solution_type == 'exchange') {
+				$('input[name=solution_product_id]').parents('.form-group').show();
+				$('input[name=solution_add_money]').parents('.form-group').show();
+				$('input[name=solution_product_id]').attr('disabled', false);
+				$('input[name=solution_add_money]').attr('disabled', false);
+				
+				$('input[name=solution_reduce_money]').parents('.form-group').hide();
+				$('input[name=solution_reduce_money]').attr('disabled', true);
+			}
+			if(strategy.solution_type == 'gift') {
+				$('input[name=solution_product_id]').parents('.form-group').show();
+				$('input[name=solution_product_id]').attr('disabled', false);
+				
+				$('input[name=solution_add_money]').parents('.form-group').hide();
+				$('input[name=solution_reduce_money]').parents('.form-group').hide();
+				$('input[name=solution_add_money]').attr('disabled', true);
+				$('input[name=solution_reduce_money]').attr('disabled', true);				
+			}
+			self.update({'strategy': strategy});	
+		});
+		
+		opts.on('update_strategy_done', function() {
+			$('#strategy-edit').modal('hide');
+		});	
+
+		opts.on('get_warehouses_done', function(ret) {
+			self.warehouses = ret;
+			self.update();
+		});				
+
+		submit(e) {
+			opts.update( $(e.target).serialize() );
+		}
+
+		// input
+		province_all(e) {
+			if( $(e.target).prop('checked') )
+				$('input[name="province[]"]').prop('checked', true);
+			else	
+				$('input[name="province[]"]').prop('checked', false);
+		}	
+		warehouse_all(e) {
+			if( $(e.target).prop('checked') )
+				$('select[name="warehouse[]"]').children().prop('selected', true)
+			else	
+				$('select[name="warehouse[]"]').children().prop('selected', false)		
+		}
+		product_all(e) {
+			$('input[name=product_white]').attr('disabled', true);
+			$('input[name=product_black]').attr('disabled', true);
+		}
+		product_list(e) {
+			$('input[name=product_white]').attr('disabled', false);
+			$('input[name=product_black]').attr('disabled', false);
+		}
+		discount(e) {
+			$('input[name=solution_reduce_money]').parents('.form-group').show();
+			$('input[name=solution_reduce_money]').attr('disabled', false);
+			
+			$('input[name=solution_product_id]').parents('.form-group').hide();
+			$('input[name=solution_add_money]').parents('.form-group').hide();
+			$('input[name=solution_product_id]').attr('disabled', true);
+			$('input[name=solution_add_money]').attr('disabled', true);
+		}
+		exchange(e) {
+			$('input[name=solution_product_id]').parents('.form-group').show();
+			$('input[name=solution_add_money]').parents('.form-group').show();
+			$('input[name=solution_product_id]').attr('disabled', false);
+			$('input[name=solution_add_money]').attr('disabled', false);
+			
+			$('input[name=solution_reduce_money]').parents('.form-group').hide();
+			$('input[name=solution_reduce_money]').attr('disabled', true);
+		}
+		gift(e) {
+			$('input[name=solution_product_id]').parents('.form-group').show();
+			$('input[name=solution_product_id]').attr('disabled', false);
+			
+			$('input[name=solution_add_money]').parents('.form-group').hide();
+			$('input[name=solution_reduce_money]').parents('.form-group').hide();
+			$('input[name=solution_add_money]').attr('disabled', true);
+			$('input[name=solution_reduce_money]').attr('disabled', true);
+		}
+	</script>
+
+	<style type="text/css">
+		input[name=condition_combo_num] {
+			width: 35px
+		}
+        select[multiple] {
+            height: 300px
+        }		
+	</style>
+
+</strategy-edit>

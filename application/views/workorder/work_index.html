@@ -1,0 +1,332 @@
+
+<style type="text/css">
+    .ui-autocomplete{
+        border: 1px solid #aaa;
+        -webkit-border-radius: 5px;
+        -moz-border-radius: 5px;
+        border-radius: 5px;
+        background-color: #FFFFFF;
+    }
+</style>
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <h3 class="panel-title">装机工单</h3>
+    </div>
+    <div class="panel-body">
+        <div class="form-horizontal" id="search">
+            <div class="form-group">
+                <div class="col-sm-2">
+                    <input type="text" class="form-control" name="search_name" placeholder="企业名称">
+                </div>
+                <div class="col-sm-2">
+                    <select  id="select_province" class="form-control" name="search_province" >
+                        <option value="-1">省份</option>
+                    </select>
+                </div>
+                <div class="col-sm-2">
+                    <select  id="select_city" class="form-control" name="search_city" >
+                        <option value="-1">市区</option>
+                    </select>
+                </div>
+                <div class="col-sm-2">
+                    <select  id="select_area" class="form-control" name="search_area" >
+                        <option value="-1">地区</option>
+                    </select>
+                </div>
+                <div class="col-sm-2">
+                    <input type="text" class="form-control" size='11' name="search_address" placeholder="企业地址" >
+                </div>
+                <div class="col-sm-2">
+                    <input type="text" class="form-control" name="search_contacts" placeholder="企业联系人">
+                </div>
+
+
+
+            </div>
+            <div class="form-group">
+                <div class="col-sm-2">
+                    <input type="text" class="form-control" name="search_phone"  placeholder="联系人电话">
+                </div>
+                <div class="col-sm-2">
+                    <input type="text" class="form-control" name="search_source" placeholder="推荐源">
+                </div>
+                <div class="col-sm-3">
+                    <div class="input-group date  col-md-12" data-link-field="dtp_input1" id="time" >
+                        <input class="form-control" type="text" name="search_start_time" value="" placeholder="开始时间"  readonly>
+                        <span class="input-group-addon"><span class="glyphicon glyphicon-remove"></span></span>
+                        <span class="input-group-addon"><span class="glyphicon glyphicon-th"></span></span>
+                    </div>
+                </div>
+                <div class="col-sm-3">
+                    <div class="input-group date  col-md-12" data-link-field="dtp_input2" id="time2" >
+                        <input class="form-control" type="text" name="search_end_time" value="" placeholder="截止时间"  readonly>
+                        <span class="input-group-addon"><span class="glyphicon glyphicon-remove"></span></span>
+                        <span class="input-group-addon"><span class="glyphicon glyphicon-th"></span></span>
+                    </div>
+                </div>
+                <div class="col-sm-2">
+                    <input type="hidden" value="" name="search_db_duty" id="search_db_duty">
+                    <select class="form-control shift-info"  >
+                        <option value="">BD负责人</option>
+
+                        <{foreach from=$admin_list item=val }>
+                        <option value="<{$val['id']}>"><{$val['alias']}></option>
+                        <{/foreach}>
+
+
+                    </select>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-sm-2">
+
+                    <select class="form-control" name="search_work_status" >
+                        <option value="">工单状态</option>
+                        <{foreach from=$work_status  key=key item=val }>
+                        <option value="<{$key}>"><{$val}></option>
+                        <{/foreach}>
+
+                    </select>
+
+                </div>
+                <div class="col-sm-2">
+                    <input type="text" class="form-control" name="search_equipment_id" placeholder="设备ID">
+
+                </div>
+               
+                <div class="col-sm-2">
+
+
+
+                    <input type="hidden" id="origin_url" value="/workorder/work_table">
+                    <button type="button" class="btn btn-success" id="search-btn">查找</button>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    <!--<button type="button" class="btn btn-warning" onclick="yesterday_order(1)">前一天</button>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-->
+                    &nbsp;&nbsp;&nbsp;&nbsp;
+                    <button type="button" class="btn btn-info" id="export-btn"  >导出</button>
+
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+    <div class="panel-body">
+        <div id="config-body">
+            <table id="config-table" data-toggle="table" data-url="/workorder/work_table?search_clue_id=<{$clue_ids}>" data-click-to-select="true" data-select-item-name="radioName" data-pagination="true" data-page-size="20" data-side-pagination="server" data-page-list="[50,100]" >
+                <thead>
+                <tr>
+                    <th data-field="state" data-radio="true"></th>
+                    <th data-field="clue_id" data-align="center">ID</th>
+                    <th data-field="name" data-align="center">企业名称</th>
+                    <th data-field="address" data-align="center">企业地址</th>
+                    <th data-field="contacts" data-align="center">联系人</th>
+                    <th data-field="phone" data-align="center">联系人电话</th>
+                    <th data-field="submit_time" data-align="center">工单提交时间</th>
+                    <th data-field="equipment_number" data-align="center">装机数量</th>
+                    <th data-field="source" data-align="center" >推荐源</th>
+                    <th data-field="admin_name" data-align="center" >BD负责人</th>
+                    <th data-field="install_time" data-align="center">期望装机时间</th>
+                    <th data-field="schedule_time" data-align="center">装机时间</th>
+                    <th data-field="work_status" data-align="center">工单状态</th>
+                    <th data-field="gl" data-align="center">操作</th>
+                </tr>
+                </thead>
+
+            </table>
+        </div>
+    </div>
+
+<nav class="navbar navbar-default navbar-fixed-bottom">
+    <div class="form-inline">
+        <div class="col-md-12 form-control-static tool-bottom text-center">
+
+            <form id="schedule" style="display: none" method="post" action="/workorder/schedule">
+                <input type="hidden" id="clue_id" name="clue_id" value="0">
+            </form>
+
+
+            <span class="btn btn-info btn-schedule btn-lg" onclick="submitForm()">排期装机时间</span>
+            <span class="btn btn-info btn-edit     btn-lg">编辑工单</span>
+            <span class="btn btn-info btn-submit   btn-lg">完成工单</span>
+            <span class="btn btn-info btn-select   btn-lg">查看工单</span>
+
+        </div>
+    </div>
+</nav>
+
+
+
+
+<script type="text/javascript">
+    $('.shift-info').editableSelect({
+        effects: 'slide',
+        onSelect: function (element) {
+            $('#search_db_duty').val(element.val())
+        }
+    }).prop('placeholder','请输入或选择BD负责人');
+
+    $(function(){
+        $(document).on("click",".equipment_info",function(){
+          var clue_id = $(this).attr("clue_id");
+         window.open("/business/maintain_add?clue_id="+clue_id+"&edit_status=false");
+       })
+        $(".btn-edit").on("click",function(){
+            ckRadio();
+            var clue_id = $("#clue_id").val();
+
+            if( clue_id == "0") {
+                MessageBox.error('请选择一条线索');
+                return;
+            }
+            var work_status = $("input[type=radio]:checked").parent().parent().find("#work_status").val();
+
+            if( work_status == 2){
+
+                window.open("/workorder/edit_index?clue_id="+clue_id);
+
+            }else if(work_status == 3){
+                window.open("/workorder/edit_save?clue_id="+clue_id);
+            }else{
+                MessageBox.error('工单为待安装、测试才可编辑');
+                return;
+            }
+        })
+        //完成工单
+        $(".btn-submit").on("click",function(){
+            ckRadio();
+            var clue_id = $("#clue_id").val();
+
+            if( clue_id == "0") {
+                MessageBox.error('请选择一条线索');
+                return;
+            }
+            var work_status = $("input[type=radio]:checked").parent().parent().find("#work_status").val();
+
+            if(work_status != 3){
+                MessageBox.error('工单为待测试、才可完成');
+                return;
+            }
+            var serverUrl =  "/workorder/ajaxPost";
+
+
+            $.ajax({
+                type: 'post',
+                url: serverUrl,
+                dataType: 'json',
+                data:{clue_id:clue_id},
+                success: function (resp) {
+                    if (resp.status == 'success') {
+
+                        MessageBox.success("完成")
+                        $("input[type=radio]:checked").parent().parent().find("#work_status").parent().html(resp.total);
+                    }else{
+                        MessageBox.error("失败")
+                    }
+
+                }
+            });
+        })
+
+
+        function ckRadio(){
+            var clue_id = $("input[type=radio]:checked").parent().next().html();
+            if(typeof(clue_id) == "undefined"){
+                $("#clue_id").val(0);
+            }else{
+                $("#clue_id").val(clue_id);
+            }
+        }
+
+        $('#time').datetimepicker({
+            language: 'zh', //汉化
+            autoclose: 1,
+            format: 'yyyy-mm-dd hh:00:00',
+            minView: 'day'
+        });
+        $('#time2').datetimepicker({
+            language: 'zh', //汉化
+            autoclose: 1,
+            format: 'yyyy-mm-dd hh:00:00',
+            minView: 'day'
+        });
+
+        $("#search-btn").on('click', function(){
+
+            var serverUrl  = $('#origin_url').val();
+            var url = search(serverUrl);
+
+            $('#config-table').bootstrapTable('refresh', {url: url});
+        });
+        $(".btn-select").on("click",function(){
+            ckRadio();
+            var clue_id = $("#clue_id").val();
+
+            if( clue_id == "0") {
+                MessageBox.error('请选择一条线索');
+                return;
+            }
+            var work_status = $("input[type=radio]:checked").parent().parent().find("#work_status").val();
+            if(work_status != 4){
+                MessageBox.error('工单状态已完成才可查看');
+                return;
+            }
+            window.open("/business/order_select?clue_id="+clue_id);
+        })
+
+
+
+    });
+    function submitForm(){
+
+
+       var clue_id = $("input[type=radio]:checked").parent().next().html();
+        if(typeof(clue_id) == "undefined"){
+            $("#clue_id").val(0);
+        }else{
+            $("#clue_id").val(clue_id);
+        }
+
+       var a = $("#clue_id").val();
+
+        if( a == 0) {
+
+            MessageBox.error('请选择一条线索');
+            return;
+        }
+        var work_status = $("input[type=radio]:checked").parent().parent().find("#work_status").val();
+        if(work_status == 3 || work_status == 4){
+            MessageBox.error('只有待排期，待安装才可排期');
+            return;
+        }
+
+        $('#schedule').submit();
+    };
+    function search(serverUrl){
+        var filterData = "";
+        $.each($("[name^='search_']"), function() {
+            field = $(this).attr('name');
+            data  = $(this).val();
+            if(data!=-1 && data!=""){
+                filterData += "&"+field+"="+data;
+            }
+        });
+        filterData  = filterData.substr(1);
+
+        if(filterData==""){
+            var url = serverUrl;
+        }else{
+            var url = serverUrl +'?'+filterData;
+        }
+        return url;
+    }
+
+    //线索导出
+    $("#export-btn").on("click",function(){
+        var serverUrl  = "/workorder/workorder_export";
+        var url = search(serverUrl);
+        console.log(url);
+        window.location = url;
+
+    })
+</script>

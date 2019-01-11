@@ -1,0 +1,78 @@
+<batch>
+
+	<button type="button" class="btn btn-success" data-toggle="modal" data-target="#insert_batch">批量添加</button>
+
+	<!-- Modal -->
+	<div class="modal fade" id="insert_batch" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+		<div class="modal-dialog" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+					<h4 class="modal-title" id="myModalLabel">批量添加到黑名单</h4>
+				</div>
+				<div class="modal-body">
+
+					<!-- form -->
+					<form id="send" class="form-horizontal" submit="">
+						<div class="form-group">
+							<label class="col-sm-3 control-label">目标用户：</label>
+							<div class="col-sm-9">
+								<textarea class="form-control" rows="3" placeholder="手机号码/邮箱地址/用户id/微信id(请用英文,号分隔)"></textarea>
+							</div>
+						</div>
+						<div class="form-group">
+							<label class="col-sm-3 control-label">消息类型：</label>
+							<div class="col-sm-9">
+								<select name="type" class="form-control">
+									<option value="sms">短信</option>
+									<option value="app">APP</option>
+									<option value="email">邮件</option>
+									<option value="weixin">微信</option>
+								</select>
+							</div>
+						</div>
+						<div class="form-group">
+							<label class="col-sm-3 control-label">注释：</label>
+							<div class="col-sm-9">
+								<input type="text" class="form-control" name="comment">
+							</div>
+						</div>
+						<div class="form-group">
+							<label class="col-sm-3 control-label">启用：</label>
+							<div class="col-sm-9">
+								<label class="radio-inline">
+									<input name="active" type="radio" value="1" checked="checked">是
+								</label>
+								<label class="radio-inline">
+									<input name="active" type="radio" value="0">否
+								</label>											
+							</div>
+						</div>											
+					</form>
+					<!-- /form -->					
+				</div>
+
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+					<button type="button" class="btn btn-primary" data-dismiss="modal" onclick="{ submit }">提交</button>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<script>
+		
+		var self = this;
+
+		submit(e) {
+			var params = {};
+			$("#insert_batch form").serializeArray().forEach(function(item) {
+				params[item.name] = item.value;
+			});
+			params.target = $("textarea").val().split(',');
+			params.by = $(".nav.navbar-nav.navbar-right a.dropdown-toggle").text().trim();
+			opts.batchInsert(params);
+		}	
+	</script>
+
+</batch>

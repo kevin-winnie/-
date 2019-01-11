@@ -1,0 +1,44 @@
+<{if $tips eq ''}>
+<{elseif $tips eq '编辑成功'}>
+<div class="alert alert-success" role="alert"><{$tips}></div>
+<{else}>
+<div class="alert alert-danger" role="alert"><{$tips}></div>
+<{/if}>
+<div class="panel panel-default">
+    <div class="panel-heading">新增</div>
+    <div class="panel-body">
+        <form id="add-user-form" class="form-horizontal" role="form" method="post" action="/openapi/refer_update">
+            基本信息：
+            <div class="form-group">
+                <label  class="col-sm-2 control-label">商户简称：</label>
+                <div class="col-sm-3">
+                    <input type="text" class="form-control" id="short_name" name="short_name"  value="<{$row.short_name}>" datatype="*" nullmsg="请输入商户简称！"  placeholder="请输入商户简称">
+                </div>
+                <div class="Validform_checktip"></div>
+            </div>
+            <div class="form-group">
+                <label  class="col-sm-2 control-label">开门来源：</label>
+                <div class="col-sm-3">
+                    <input type="text" class="form-control" id="refer" name="refer"  value="<{$row.refer}>" datatype="*" nullmsg="请输入开门来源！"  placeholder="请输入开门来源">
+                </div>
+                <div class="Validform_checktip"></div>
+            </div>
+
+            <div class="form-group">
+                <div class="col-sm-offset-2 col-sm-10">
+                    <input type="hidden" name="submit" value="1">
+                    <input type="hidden" name="id" value="<{$row.id}>">
+                    <button type="submit" class="btn btn-default btn-save">确定</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+<script type="application/javascript" src="/assets/js/ajaxfileupload.js"></script>
+
+<script type="text/javascript">
+    $("#add-user-form").Validform(
+        {tiptype:2}
+    );
+</script>
+

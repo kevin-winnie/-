@@ -1,0 +1,196 @@
+
+<style type="text/css">
+    .ui-autocomplete{
+        border: 1px solid #aaa;
+        -webkit-border-radius: 5px;
+        -moz-border-radius: 5px;
+        border-radius: 5px;
+        background-color: #FFFFFF;
+    }
+</style>
+<div class="panel panel-default">
+    <div class="panel-heading"><{if $status == 'update'}>编辑设备<{else}>组装设备<{/if}></div>
+
+    <form id="add-user-form" class="form-horizontal" role="form" method="post" action="/equipment/add_assemble" onsubmit="return submit_model(this);" >
+
+        <div class="panel-body">
+            <div class="form-horizontal" id="search">
+                <div class="form-group">
+                    <label  class="col-sm-2 control-label"> 盒子类型：</label>
+                    <div class="col-sm-2">
+                        <select class="form-control" name="type" id="type"  datatype="*" nullmsg="请选择类型！">
+                            <option value="">设备类型</option>
+                            <option value="rfid-1" <{if $rows['type']=='rfid-1'}>selected<{/if}>>rfid-1[蚂蚁盒子RFID]</option>
+                            <option value="rfid-2" <{if $rows['type']=='rfid-2'}>selected<{/if}>>rfid-2[自己生产RFID]</option>
+                            <option value="scan-1" <{if $rows['type']=='scan-1'}>selected<{/if}>>scan-1[扫码]</option>
+                            <option value="vision-1" <{if $rows['type']=='vision-1'}>selected<{/if}>>vision-1[视觉]</option>
+                            <option value="vision-2" <{if $rows['type']=='vision-2'}>selected<{/if}>>vision-2[视觉-数烨]</option>
+                        </select>
+                    </div>
+                    <div class="Validform_checktip"></div>
+                </div>
+                <div class="form-group">
+                    <label  class="col-sm-2 control-label">设备id：</label>
+                    <div class="col-sm-2">
+                        <input type="text" class="form-control" name="equipment_id"   value="<{$rows['equipment_id']}>" datatype="*" nullmsg="请输入设备id！" id="equipment_id" >
+                    </div>
+                    <div class="Validform_checktip"></div>
+                </div>
+                <div class="form-group">
+                    <label  class="col-sm-2 control-label">箱体：</label>
+                    <div class="col-sm-2">
+                        <input type="text" class="form-control" name="box"  value="<{$rows['box']}>" >
+                    </div>
+                    <!--<div class="Validform_checktip"></div>-->
+                </div>
+                <div class="form-group">
+                    <label  class="col-sm-2 control-label">路由器：</label>
+                    <div class="col-sm-2">
+                        <input type="text" class="form-control" name="router"  value="<{$rows['router']}>" datatype="*" nullmsg="请输入路由器！">
+                    </div>
+                    <div class="Validform_checktip"></div>
+                </div>
+                <div class="form-group">
+                    <label  class="col-sm-2 control-label">显示器：</label>
+                    <div class="col-sm-2">
+                        <input type="text" class="form-control" name="monitor"  value="<{$rows['monitor']}>" >
+                    </div>
+                    <!--<div class="Validform_checktip"></div>-->
+                </div>
+
+                <div class="form-group">
+                    <label  class="col-sm-2 control-label">读写器：</label>
+                    <div class="col-sm-2">
+                        <input type="text" class="form-control" name="writer" value="<{$rows['writer']}>"  datatype="*" nullmsg="请输入读写器！">
+                    </div>
+                    <div class="Validform_checktip"></div>
+                </div>
+                <div class="form-group">
+                    <label  class="col-sm-2 control-label">摄像头：</label>
+                    <div class="col-sm-2">
+
+                        <input type="text" class="form-control" name="camera"  value="<{$rows['camera']}>">
+                    </div>
+
+                </div>
+                <div class="form-group">
+                    <label  class="col-sm-2 control-label">SIM卡号：</label>
+                    <div class="col-sm-2">
+                        <input type="text" class="form-control" name="sm_number"  value="<{$rows['sm_number']}>" >
+                    </div>
+                    <!--<div class="Validform_checktip"></div>-->
+                </div>
+                <div class="form-group">
+                    <label  class="col-sm-2 control-label"></label>
+                    <div class="col-sm-2">
+                        <input type="hidden" name="id" value="<{$rows['id']}>">
+                        <input type="hidden" name="status" value="<{if $status == 'update'}><{$status}><{/if}>" id="status">
+                        <button type="submit" class="btn btn-info" id="explore-btn"><{if $status == 'update'}>更新<{else}>确认添加<{/if}></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+<script type="text/javascript">
+    $("#add-user-form").Validform(
+        {tiptype:2}
+    );
+$(function(){
+
+    var message = '<{$message}>';
+    if(message){
+        MessageBox.error(message);
+    }
+
+})
+$('#equipment_id').on('blur',function(){
+    var status = $('#status').val();
+    if(status == ''){
+        var equipment_id = $(this).val();
+
+        $.ajax({
+            url: '/equipment/get_assembleinfo',
+            type: 'POST',
+            data: {equipment_id:equipment_id},
+            dataType:'json',
+            success: function(data){
+                if(data.status == 'error'){
+                    MessageBox.error('此设备id已存在,不可重复添加或更新');
+                }
+            }
+        });
+    }
+})
+
+    var item = ["box","router","monitor","writer","camera","sm_number"];
+    $(item).each(function(k,v){
+
+        $("input[name='"+v+"']").blur(function(e){
+                var _this = $(this);
+                var data = $(this).val();
+                var equipment_id = $(this).val();
+                var status = $('#status').val(); // 有值未修改 没有未添加
+           // alert(data)
+                $.ajax({
+                    url: '/equipment/get_info',
+                    type: 'POST',
+                    data: {data:data,key:v,equipment_id:equipment_id,status:status},
+                    dataType:'json',
+                    success: function(data){
+                        if(data.status == 'error'){
+                            MessageBox.error(data.msg);
+                            _this.val('');
+                        }
+                    }
+                });
+
+        });
+    });
+
+//        function submit_model(obj){
+//
+//            ajaxSubmit(obj, function(data){
+//
+//                if(data =='success'){
+//                    alert('成功');
+//
+//                }else{
+//                  //  alert(data.msg);
+//                    return false;
+//                }
+//            });
+//            return false;
+//        }
+//        //将form转为AJAX提交
+//        function ajaxSubmit(frm, fn) {
+//            var dataPara = getFormJson(frm);
+//
+//            $.ajax({
+//                url: frm.action,
+//                type: frm.method,
+//                data: dataPara,
+//                dataType:'json',
+//                success: fn
+//            });
+//        }
+//
+//        //将form中的值转换为键值对。
+//        function getFormJson(frm) {
+//            var o = {};
+//            var a = $(frm).serializeArray();
+//            $.each(a, function () {
+//                if (o[this.name] !== undefined) {
+//                    if (!o[this.name].push) {
+//                        o[this.name] = [o[this.name]];
+//                    }
+//                    o[this.name].push(this.value || '');
+//                } else {
+//                    o[this.name] = this.value || '';
+//                }
+//            });
+//            return o;
+//        }
+
+
+</script>

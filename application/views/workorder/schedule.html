@@ -1,0 +1,61 @@
+<{if $tips eq ''}>
+<{elseif $tips eq '新增成功'}>
+<div class="alert alert-success" role="alert"><{$tips}></div>
+<{else}>
+<div class="alert alert-danger" role="alert"><{$tips}></div>
+<{/if}>
+<style type="text/css">
+    .ui-autocomplete{
+        border: 1px solid #aaa;
+        -webkit-border-radius: 5px;
+        -moz-border-radius: 5px;
+        border-radius: 5px;
+        background-color: #FFFFFF;
+    }
+</style>
+<div class="panel panel-default">
+    <div class="panel-heading"> 工单排期</div>
+
+    <form id="add-user-form" class="form-horizontal" role="form" method="post" action="/workorder/schedule_add">
+
+        <div class="panel-body">
+            <div class="form-horizontal" id="search">
+                <div class="form-group">
+                    <label  class="col-sm-2 control-label">工单ID：</label>
+                    <div class="col-sm-2">
+                        <input type="text" class="form-control"   value="<{$clue_id}>" readonly>
+
+                        <input type="hidden" name="clue_id" value="<{$clue_id}>">
+                    </div>
+
+                </div>
+                <div class="form-group">
+                    <label  class="col-sm-2 control-label">装机时间：</label>
+                    <div class="col-sm-3">
+                    <div class="input-group date  col-md-12" data-link-field="dtp_input2" id="time2" >
+                        <input class="form-control" type="text" name="schedule_time" value="" placeholder="装机时间"  readonly>
+                        <span class="input-group-addon"><span class="glyphicon glyphicon-remove"></span></span>
+                        <span class="input-group-addon"><span class="glyphicon glyphicon-th"></span></span>
+                    </div>
+                    </div>
+                </div>
+
+                <div class="form-group" id="add">
+                    <label  class="col-sm-2 control-label"></label>
+                    <div class="col-sm-2">
+                        <input type="hidden" name="submit" value="1">
+                        <button type="submit" class="btn btn-info" id="explore-btn">提交</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+<script>
+    $('#time2').datetimepicker({
+        language: 'zh', //汉化
+        autoclose: 1,
+        format: 'yyyy-mm-dd hh:00:00',
+        minView: 'day'
+    });
+</script>
