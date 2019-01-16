@@ -85,7 +85,11 @@ function submitForm(){
 	if ($('#code').val() == ''){
 		alert('请输入盒子编码！');
 		return;
-	}	
+	}
+	if ($('#platform_tag').val() == '-1|'){
+		alert('暂不能分配设备,前去添加代理商或商户！');
+		return;
+	}
 	$('#myform').submit();
 }
 

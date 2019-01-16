@@ -277,6 +277,10 @@ class Equipment extends MY_Controller {
         {
             $this->_pagedata['is_hidden'] = 1;
         }
+        if(empty($list))
+        {
+            $list = [['id'=>-1,'name'=>'暂无可选项']];
+        }
         $this->_pagedata['platform_list'] = $list;
         $this->_pagedata['eq_type'] = $this->eq_type;
         $this->page('equipment/add.html');
@@ -501,9 +505,15 @@ class Equipment extends MY_Controller {
         }else
         {
             //若为分配操作，其他商户需要校验是否在其名下
-            if(!in_array($Agent['high_level'],[0,1]) && $equipment['last_agent_id'] != $agent_id)
+            if(!in_array($Agent['high_level'],[0,1]))
             {
-                $this->_pagedata["tips"] = "该设备不属于您！";
+                if(empty($equipment))
+                {
+                    $this->_pagedata["tips"] = "该设备id未添加！";
+                }elseif($equipment['last_agent_id'] != $agent_id)
+                {
+                    $this->_pagedata["tips"] = "该设备不属于您！";
+                }
                 $this->add();
             }
         }
