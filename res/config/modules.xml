@@ -22,6 +22,7 @@
         <name type ="2" value ="21" url="/agent/agentList">代理商列表</name>
 
         <name type ="3" value ="30" url="/equipment/add">添加设备</name>
+        <name type ="3" value ="32" url="/equipment/add_batch">批量添加设备</name>
         <name type ="3" value ="36" url="/equipment/banner_batch">生成banner</name>
         <name type ="3" value ="31" url="/equipment/index">设备列表</name>
         <name type ="3" value ="33" url="/equipment/pault_list">故障设备列表</name>
