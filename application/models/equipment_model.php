@@ -109,7 +109,7 @@ class Equipment_model extends CI_Model
         }
         return $result;
     }
-    function findByBoxId($equipment_id,$need_admin_info=false){
+    function findByBoxId($equipment_id){
         $rs = $this->db->select("*")->from('equipment')->where(array(
             'equipment_id'=>$equipment_id
         ))->get()->row_array();

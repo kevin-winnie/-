@@ -81,7 +81,6 @@ class Commercial extends MY_Controller {
         redirect('/commercial/group');
     }
     function commercialList(){
-//        var_dump($this->redis->hGet($this->com_redis_pre."1",'need_deliver'));
         $search = $this->input->post();
             if (isset($search['search_need_deliver'])) {
                 if ($search['search_need_deliver'] !== '-1') {
@@ -102,7 +101,7 @@ class Commercial extends MY_Controller {
             if (!empty($search['mobile'])) {
                 $where['phone'] = trim($search['mobile']);
             }
-
+            $where['high_agent_id'] = $this->platform_id;
             $this->title = '商户列表';
             $this->_pagedata['search'] = $search;
             $this->_pagedata ["list"] = $this->commercial_model->getList("*", $where);

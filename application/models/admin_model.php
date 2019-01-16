@@ -516,6 +516,20 @@ class Admin_model extends CI_Model
 		return $this->db->insert('agent_group', $flagdata);
 	}
 
+	function insertSgroup($data)
+	{
+		$this->db->set_dbprefix('s_');
+		$this->db->insert('group', $data);
+		return $this->db->insert_id();
+	}
+
+	function insertS_admin_group($data)
+	{
+		$this->db->set_dbprefix('s_');
+		$this->db->insert('admin_group', $data);
+		return $this->db->insert_id();
+	}
+
 }
 
 ?>

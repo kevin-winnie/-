@@ -35,6 +35,7 @@ class Equipment extends MY_Controller {
         $this->load->model("equipment_model");
         $this->load->model("commercial_model");
         $this->load->model("product_model");
+        $this->load->model("agent_model");
         $this->load->library('curl',null,'http_curl');
         $this->eq_type = array(
             array('code'=>'rfid-1','name'=>"rfid-1[蚂蚁盒子RFID]"),
@@ -256,8 +257,27 @@ class Equipment extends MY_Controller {
     }
     
     public function add(){
-        $where = array();
-        $this->_pagedata['platform_list'] = $this->commercial_model->getList("*", $where);
+        //下级代理商及直推商户
+        $platform_id = $this->platform_id;
+        $agent_list = $this->agent_model->get_all_agents($platform_id);
+        foreach($agent_list as $k=>$v)
+        {
+            $agent_list[$k]['name'] = '代理商---'.$v['name'];
+            $agent_list[$k]['tag'] = 'agent';
+        }
+        $commercial_list = $this->agent_model->get_commercial($platform_id);
+        foreach($commercial_list as $k=>$v)
+        {
+            $commercial_list[$k]['name'] = '商户---'.$v['name'];
+            $commercial_list[$k]['tag'] = 'commercial';
+        }
+        $list = array_merge($agent_list,$commercial_list);
+        $Agent = $this->agent_model->get_own_agents($platform_id);
+        if(in_array($Agent['high_level'],[0,1]))
+        {
+            $this->_pagedata['is_hidden'] = 1;
+        }
+        $this->_pagedata['platform_list'] = $list;
         $this->_pagedata['eq_type'] = $this->eq_type;
         $this->page('equipment/add.html');
     }
@@ -459,65 +479,95 @@ class Equipment extends MY_Controller {
 
     }
 
+    /**
+     * 顶级代理商是添加设备(也可分配)，将设备录入系统。
+     *下级代理商为分配设备，当前设备id必须录入
+     */
     public function add_save(){
-        $where = array();
-        //$this->_pagedata['platform_list'] = $this->commercial_model->getList("*", $where);
-        
-        $equipment_id = $_POST['equipment_id'];
+        $equipment_id = $this->input->post('equipment_id');
+        $platform_tag = $this->input->post('platform_tag');
         $equipment_id = trim($equipment_id);
+        $agent_id = $this->platform_id;
+        $Agent = $this->agent_model->get_own_agents($agent_id);
+        //顶级代理商 上海鲜动、海星宝
         $equipment = $this->equipment_model->findByBoxId($equipment_id);
-        if ($equipment){
-            $this->_pagedata["tips"] = "该盒子id已存在！";
-            $this->page('equipment/add.html');
-        } else {
-            $code = $_POST['code'];
-            $type = $_POST['type'];
-            //查看盒子code是否存在
-            $codeEquipment = $this->equipment_model->findByBoxCode($code);
-            if ($codeEquipment){
-                $this->_pagedata["tips"] = "该盒子code已存在！";
-                $this->page('equipment/add.html');
-                exit;
+        if(in_array($Agent['high_level'],[0,1]) && $platform_tag == 0)
+        {
+            if($equipment)
+            {
+                $this->_pagedata["tips"] = "该盒子id已存在！";
+                $this->add();
             }
-            $platform_id  =   isset($_POST['platform_id']) ? $_POST['platform_id'] : 0;
-            $data = array();
-            $data['code'] = $code;
-            $data['type'] = $type;
-            $data['equipment_id'] = $equipment_id;
-            $data['status'] = 1;
-            $data['platform_id'] = $platform_id;
-            $data['created_time'] = time();
-            $insertBox = $this->equipment_model->insertData($data);
-            if ($insertBox){
-                //done 打cityboxadmin接口 插入设备
-                $params = array(
-                    'timestamp'=>time() . '000',
-                    'source'    => 'platform',
-                    'code'=> $code,
-                    'type'=> $type,
-                    'platform_id'=>$platform_id,
-                    'equipment_id'=>$equipment_id
-                );
-                $url = RBAC_URL."apiEquipment/addEquipment";
-                
-                $params['sign'] = $this->create_platform_sign($params);
-                
-                $options['timeout'] = 100;
-                $result = $this->http_curl->request($url, $params, 'POST', $options);
-                if(json_decode($result['response'],1)['code']==200){
-                    echo '<head><meta http-equiv="Content-Type" content="text/html" charset="utf-8"><script>alert("'.json_decode($result['response'],1)['msg'].'");location.href = "/equipment/index";</script></head>';
-                    exit;
-                } else {
-                    echo '<head><meta http-equiv="Content-Type" content="text/html" charset="utf-8"><script>alert("'.json_decode($result['response'],1)['msg'].'");location.href = "/equipment/add";</script></head>';
-                    exit;
-                }
-                exit;
-                
-                redirect('/equipment/index');
+        }else
+        {
+            //若为分配操作，其他商户需要校验是否在其名下
+            if(!in_array($Agent['high_level'],[0,1]) && $equipment['last_agent_id'] != $agent_id)
+            {
+                $this->_pagedata["tips"] = "该设备不属于您！";
+                $this->add();
             }
         }
+        $code = $this->input->post('code');
+        $type = $this->input->post('type');
+        //查看盒子code是否存在
+        $codeEquipment = $this->equipment_model->findByBoxCode($code);
+        if ($codeEquipment){
+            $this->_pagedata["tips"] = "该盒子code已存在！";
+            $this->page('equipment/add.html');
+            exit;
+        }
+        $platform_tag = $this->input->post('platform_id');
+        $tag = explode('|',$platform_tag);
+        if($tag[1] == 'commercial')
+        {
+            $platform_id = $tag[0];
+        }
+        $data = array();
+        $data['code'] = $code;
+        $data['type'] = $type;
+        $data['equipment_id'] = $equipment_id;
+        $data['status'] = 1;
+        $data['platform_id'] = isset($platform_id)?$platform_id:'0';
+        $data['created_time'] = time();
+        $data['last_agent_id'] = $this->platform_id;
+        $data['software_time'] = $this->input->post('software_time');
+        $data['hardware_time'] = $this->input->post('hardware_time');
+        $insertBox = $this->equipment_model->insertData($data);
+        //对设备有分配给商户的操作才去同步Admin后台
+        if ($insertBox && $platform_id){
+            //done 打cityboxadmin接口 插入设备
+            $params = array(
+                'timestamp'=>time() . '000',
+                'source'    => 'program',
+                'code'=> $code,
+                'type'=> $type,
+                'platform_id'=>$data['platform_id'],
+                'equipment_id'=>$equipment_id
+            );
+
+            $url = RBAC_URL."apiEquipment/addEquipment";
+
+            $params['sign'] = $this->create_platform_sign($params);
+
+            $options['timeout'] = 100;
+            $result = $this->http_curl->request($url, $params, 'POST', $options);
+            if(json_decode($result['response'],1)['code']==200){
+                echo '<head><meta http-equiv="Content-Type" content="text/html" charset="utf-8"><script>alert("'.json_decode($result['response'],1)['msg'].'");location.href = "/equipment/index";</script></head>';
+                exit;
+            } else {
+                echo '<head><meta http-equiv="Content-Type" content="text/html" charset="utf-8"><script>alert("'.json_decode($result['response'],1)['msg'].'");location.href = "/equipment/add";</script></head>';
+                exit;
+            }
+            exit;
+
+            redirect('/equipment/index');
+        }else
+        {
+            redirect('/equipment/index');
+        }
+        }
         
-    }
+
     
     public function add_noclue_save(){
         $where = array();

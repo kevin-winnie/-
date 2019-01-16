@@ -50,13 +50,13 @@ class Agent extends MY_Controller {
             //上海鲜动为顶级代理商---->海星宝等为超级代理商（均有最高权限）
             if($this->platform_id == 123)
             {
-                $hign_level = 1;
+                $high_level = 1;
             }else
             {
                 //获取当前代理商等级
                 $sql = " select * from p_agent WHERE id = '{$this->platform_id}' ";
                 $rs = $this->db->query($sql)->row_array();
-                $hign_level = $rs['hign_level'] + 1;
+                $high_level = $rs['high_level'] + 1;
             }
 
             $data = array(
@@ -76,7 +76,7 @@ class Agent extends MY_Controller {
                 'separate_rate'=>$post['separate_rate'],
                 'separate_account'=>$post['separate_account'],
                 'high_agent_id'=>$this->platform_id,
-                'hign_level'=>$hign_level,
+                'high_level'=>$high_level,
             );
             $rs = $this->agent_model->insert($data);
             if($rs){
@@ -123,6 +123,18 @@ class Agent extends MY_Controller {
             $res = $this->admin_model->insertAdmin($params['name'], $params['pwd'], $params['alias'], $params['mobile'], '', $params['email'] ,$params['grade'],$id);
             if ($res > 0) {
                 $this->agent_model->update(array('admin_name'=>$params['name']),array('id'=>$id));
+                //自动生成所有权限组
+                $data['name'] = '超级管理员';
+                $data['flag'] = $this->get_flag();
+                $data['ctime'] = time();
+                $data['platform_id'] = $id;
+                $id = $this->admin_model->insertSgroup($data);
+                if($id)
+                {
+                    $info['admin_id'] = $res;
+                    $info['group_id'] = $id;
+                    $this->admin_model->insertS_admin_group($info);
+                }
                 echo json_encode(array('code'=>200,'msg'=>'创建完成!'));
             } else {
                 echo json_encode(array('code'=>300,'msg'=>'用户名存在!'));
@@ -132,7 +144,25 @@ class Agent extends MY_Controller {
         }
         exit;
     }
+    function get_flag()
+    {
+        $modules = $this->function_class->getModulesXml("ModulesList");
+        $options = $this->function_class->getModulesXml("OptionList");
 
+        foreach ($modules as $module) {
+            $moduleArr = array();
+            $moduleArr['nodeName'] = $module->nodeValue;
+            foreach ($options as $option) {
+                $type = $option->getAttribute("type");
+                if ($type == $module->getAttribute("value")) {
+                    $value = $option->getAttribute("value");
+                    $data_value[] = $value;
+                }
+            }
+        }
+        $flags = implode(",", $data_value);
+        return $flags;
+    }
     function ajaxResetPwd(){   //demo  接口
         $id = $this->input->post('id');
         $rs = $this->agent_model->dump(array('id'=>$id));

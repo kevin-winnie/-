@@ -28,11 +28,17 @@
 		  </tr>
 
 		  <tr class="tr">
-		    <td width="22%" align="right" > 所属代理商/商户：</td>
+		    <td width="22%" align="right" > 分配代理商/商户：</td>
 		    <td width="75%" >
-		    	<select class="form-control" name="platform_id" id="platform_id"  style="width:150px;">
+		    	<select class="form-control" name="platform_tag" id="platform_tag"  style="width:150px;">
+					<{if $is_hidden eq '1'}>
+						<option value="0" style="width:150px;">不分配</option>
+					<{else}>
+					<{/if}>
 					<{foreach $platform_list as $val}>
-                    <option value="<{$val.id}>" style="width:150px;"><{$val.name}></option>
+                    <option value="<{$val.id}>|<{$val.tag}>" style="width:150px;">
+						<{$val.name}>
+					</option>
                     <{/foreach}>
 				 </select>
 		    </td>
@@ -40,7 +46,7 @@
 			<tr class="tr">
 				<td width="22%" align="right" >硬件维保期限：</td>
 				<td width="75%" >
-					<select class="form-control" name="platform_id" id="platform_id"  style="width:150px;">
+					<select class="form-control" name="harfware_time" id="harfware_time"  style="width:150px;">
 						<option value="1" style="width:150px;">一年</option>
 						<option value="2" style="width:150px;">两年</option>
 						<option value="3" style="width:150px;">三年</option>
@@ -51,7 +57,7 @@
 			<tr class="tr">
 				<td width="22%" align="right" > 软件服务周期：</td>
 				<td width="75%" >
-					<select class="form-control" name="platform_id" id="platform_id"  style="width:150px;">
+					<select class="form-control" name="software_time" id="software_time"  style="width:150px;">
 						<option value="1" style="width:150px;">一年</option>
 						<option value="2" style="width:150px;">两年</option>
 						<option value="3" style="width:150px;">三年</option>

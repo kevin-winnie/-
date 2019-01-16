@@ -77,6 +77,30 @@ class Agent_model extends MY_Model
         return $rs;
     }
 
+    public function get_all_agents($id){
+        $this->db->select('*');
+        $this->db->from('agent');
+        $this->db->where(array('high_agent_id'=>$id));
+        $rs = $this->db->get()->result_array();
+        return $rs;
+    }
+
+    public function get_commercial($id){
+        $this->db->select('*');
+        $this->db->from('commercial');
+        $this->db->where(array('high_agent_id'=>$id));
+        $rs = $this->db->get()->result_array();
+        return $rs;
+    }
+
+
+    public function get_own_agents($id){
+        $this->db->select('*');
+        $this->db->from('agent');
+        $this->db->where(array('id'=>$id));
+        $rs = $this->db->get()->row_array();
+        return $rs;
+    }
 
 
 }
