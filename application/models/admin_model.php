@@ -474,7 +474,7 @@ class Admin_model extends CI_Model
 	 */
 	public function getAgentList($platform_id)
 	{
-		$sql = " select * from p_commercial WHERE high_agent_id = '{$platform_id}' OR id = '{$platform_id}'";
+		$sql = " select * from p_agent WHERE high_agent_id = '{$platform_id}' OR id = '{$platform_id}'";
 		return $this->db->query ($sql)->result_array();
 	}
 
