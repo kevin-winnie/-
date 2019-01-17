@@ -9,37 +9,61 @@
     </div>
     <div class="panel-body">
         <div class="form-horizontal" id="search">
-
             <div class="form-group">
-            	<div class="col-sm-4">
-                    <select class="form-control" name="search_platform_id" id="search_platform_id" style="width:100px;display:inline;">
-                        <option value="-1">选择商户</option>
-                        <{foreach $platform_list as $val}>
-                        <option value="<{$val.id}>" <{if $val.id eq $id}>selected<{/if}>><{$val.name}></option>
-                        <{/foreach}>
+                <div class="col-sm-2">
+                    <select class="form-control" name="search_order_status">
+                        <option value="-1">代理商</option>
+                        <option value="0">商户</option>
                     </select>
-                    <select class="form-control" name="search_platform_is_hidden" style="width:100px;display:inline;" placeholder="商户状态">
-                        <option value="0">商户状态</option>
-                        <option value="-1">全部</option>
-                        <option value="0">正常</option>
-                        <option value="1">隐藏</option>
-                    </select>
-                    <input style="width:40%;display:inline;" type="text" class="form-control" name="search_equipment_id" placeholder="设备ID">
-                    <input style="width:30%;display:inline;" type="text" class="form-control" name="search_code" placeholder="设备编码">
                 </div>
-            	
-                <!-- <div class="col-sm-2">
-                	<select class="form-control" name="search_status">
-                        <option value="-1">请选择设备状态</option>
-                        <option value="1">启用</option>
-                        <option value="0">停用</option>
-                        
-                	</select>
-                </div> -->
-                
-                <div class="col-sm-3">
+                <div class="col-sm-2">
+                    <select class="form-control" name="search_order_status">
+                        <option value="-1">代理商级别</option>
+                        <option value="0">顶级</option>
+                        <option value="1">一级</option>
+                        <option value="2">二级</option>
+                    </select>
+                </div>
+                <div class="col-sm-2">
+                    <select class="form-control" name="search_order_status">
+                        <option value="-1">代理商名称</option>
+                        <option value="0">顶级</option>
+                        <option value="1">一级</option>
+                        <option value="2">二级</option>
+                    </select>
+                </div>
+                <div class="col-sm-2">
+                    <select class="form-control" name="search_order_status">
+                        <option value="">设备类型</option>
+                        <option value="rfid-1">蚂蚁盒子RFID</option>
+                        <option value="rfid-2">魔盒生产RFID</option>
+                        <option value="rfid-3">数字RFID</option>
+                        <option value="rfid-4">无膜RFID</option>
+                        <option value="rfid-5">无膜RFID-数烨</option>
+                        <option value="rfid-6">数字RFID-数烨</option>
+                        <option value="scan-1">扫码</option>
+                        <option value="vision-1">视觉</option>
+                        <option value="coffee-1">咖啡设备-沙丁鱼</option>
+                    </select>
+                </div>
+                <div class="col-sm-2">
+                    <select class="form-control" name="search_order_status">
+                        <option value="-1">设备状态</option>
+                        <option value="0">顶级</option>
+                        <option value="1">一级</option>
+                        <option value="2">二级</option>
+                    </select>
+                </div>
+                <div class="col-sm-2">
+                    <input type="text" class="form-control" name="search_product_name" id="search_product_name" placeholder="设备ID">
+                </div>
+
+                <input type="hidden" id="origin_url" value="/order/table">
+            </div>
+
+            <div class="form-group"><div class="col-sm-3">
                     <div class="input-group date  col-md-12 datetime_input" data-link-field="dtp_input1" id="time" >
-                        <input class="form-control" type="text" class="" name="search_start_time" value="" placeholder="开始时间"  readonly>
+                        <input class="form-control" type="text" class="" name="search_start_time" value="" placeholder="创建时间"  readonly>
                         <span class="input-group-addon"><span class="glyphicon glyphicon-remove"></span></span>
                         <span class="input-group-addon"><span class="glyphicon glyphicon-th"></span></span>
                     </div>
@@ -51,9 +75,10 @@
                         <span class="input-group-addon"><span class="glyphicon glyphicon-th"></span></span>
                     </div>
                 </div>
-                
-                <button type="button" class="btn btn-default" id="search-btn">查找</button>
-                <input type="hidden" id="origin_url" value="/equipment/table">
+                <div class="col-sm-2" >
+                    <button type="button" class="btn btn-default" id="search-btn">查找</button>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    <button type="button" class="btn btn-info" id="explore-btn">导出</button>
+                </div>
             </div>
         </div>
     </div>
@@ -74,14 +99,15 @@
                 <tr>
                     <th data-field="state" data-radio="true"></th>
                     <th data-field="id" data-align="center">id</th>
+                    <th data-field="platform_name" data-align="center">代理商</th>
                     <th data-field="platform_name" data-align="center">商户</th>
                     <th data-field="equipment_id" data-align="center">设备id</th>
                     <th data-field="type" data-align="center">设备类型</th>
                     <th data-field="status_name" data-align="center">状态</th>
                     <th data-field="code" data-align="center">设备编码</th>
+                    <th data-field="equipment_id" data-align="center">软件服务结束时间</th>
+                    <th data-field="type" data-align="center">硬件维保结束时间</th>
                     <th data-field="created_time" data-align="center">创建时间</th>
-                    <!--<th data-field="qr_action" data-align="center">支付宝二维码</th>
-                    <th data-field="qr_fruitday_action" data-align="center">果园二维码</th>-->
                     <th data-field="qr_common_action" data-align="center">通用二维码</th>
                     <th data-field="banner_common" data-align="center">通用banner</th>
                     <th data-field="banner_common_alipay" data-align="center">通用支付宝banner</th>

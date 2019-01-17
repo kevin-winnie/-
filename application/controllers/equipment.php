@@ -117,16 +117,6 @@ class Equipment extends MY_Controller {
         foreach ($array as $k=>$v){
             $array[$k]['qr_action'] = '';
             $array[$k]['platform_name'] = $v['platform_name'] ? $v['platform_name'] : '无';
-            if (!$v['qr']){
-                $array[$k]['qr_action'] = "<a href = '/equipment/qr/".$v['equipment_id']."'>生成支付宝二维码</a>";
-            } else {
-                $array[$k]['qr_action'] = "<a target='_blank' href = '".$v['qr']."'>显示</a>";
-            }
-            if (!$v['qr_fruitday']){
-                $array[$k]['qr_fruitday_action'] = "<a href = '/equipment/qrcode/".$v['equipment_id']."/fruitday'>生成果园二维码</a>";
-            } else {
-                $array[$k]['qr_fruitday_action'] = "<a target='_blank' href = '".$v['qr_fruitday']."'>显示</a>";
-            }
             if (!$v['qr_common']){
                 $array[$k]['qr_common_action'] = "<a href = '/equipment/qrcode/".$v['equipment_id']."/common'>生成通用二维码</a>";
             } else {
