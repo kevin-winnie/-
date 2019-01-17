@@ -67,6 +67,10 @@ class Equipment_model extends CI_Model
         if ($where['end_time']){
             $sql.= " and a.created_time <= '".$where['end_time']."'";
         }
+        if($where['last_agent_id'])
+        {
+            $sql.= " and a.last_agent_id = '{$where['last_agent_id']}'";
+        }
         $sql .= " ORDER BY a.id ASC";
         if ($limit > 0) {
             $sql .= " LIMIT {$offset},{$limit}";

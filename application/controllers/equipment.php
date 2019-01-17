@@ -59,9 +59,8 @@ class Equipment extends MY_Controller {
         }
         $this->_pagedata['platform_list'] = $this->commercial_model->getList("*", $where);
         $this->title = '设备信息管理';
-        $this->_pagedata ["list"] = $this->equipment_model->getList(); 
-//      $this->_pagedata['list'] = $this->Admin_model->getLoginById ( $this->session->userdata('sess_admin_data') ["adminid"] );//最近十次登录查询
-//      $this->_pagedata['list'] = $array;
+        $filter = ['last_agent_id'=>$this->platform_id];
+        $this->_pagedata ["list"] = $this->equipment_model->getList($filter);
         $this->page('equipment/index.html');
     }
 
@@ -113,6 +112,7 @@ class Equipment extends MY_Controller {
             $where['end_time'] = strtotime($search_end_time);
         }
         $where['admin_id'] = $this->adminid;
+        $where['last_agent_id'] = $this->platform_id;
         $array = $this->equipment_model->getEquipments("", $where, $offset, $limit, $platform_is_hidden);
         foreach ($array as $k=>$v){
             $array[$k]['qr_action'] = '';
