@@ -102,5 +102,17 @@ class Agent_model extends MY_Model
         return $rs;
     }
 
+    public function change_platform($id_string)
+    {
+        $sql = " select * from p_commercial as a WHERE a.high_agent_id in ({$id_string})";
+        return $this->db->query($sql)->result_array();
+    }
+
+    public function high_agent_list($agent_id)
+    {
+        $sql = " select * from p_agent as a WHERE  a.high_agent_id = '{$agent_id}'";
+        return $this->db->query($sql)->result_array();
+    }
+
 
 }

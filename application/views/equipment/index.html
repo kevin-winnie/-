@@ -11,29 +11,31 @@
         <div class="form-horizontal" id="search">
             <div class="form-group">
                 <div class="col-sm-2">
-                    <select class="form-control" name="search_order_status">
-                        <option value="-1">代理商</option>
+                    <select class="form-control" name="agent_platform" id="agent_platform">
+                        <option value="1">代理商</option>
                         <option value="0">商户</option>
                     </select>
                 </div>
+                <{if $is_super eq '1'}>
+                    <div class="col-sm-2">
+                        <select class="form-control" name="agent_level" id="agent_level">
+                            <option value="-1">代理商级别</option>
+                            <option value="0">顶级</option>
+                            <option value="1">一级</option>
+                            <option value="2">二级</option>
+                        </select>
+                    </div>
+                <{/if}>
                 <div class="col-sm-2">
-                    <select class="form-control" name="search_order_status">
-                        <option value="-1">代理商级别</option>
-                        <option value="0">顶级</option>
-                        <option value="1">一级</option>
-                        <option value="2">二级</option>
-                    </select>
-                </div>
-                <div class="col-sm-2">
-                    <select class="form-control" name="search_order_status">
+                    <select class="form-control" name="agent_name" id="agent_name">
                         <option value="-1">代理商名称</option>
-                        <option value="0">顶级</option>
+                        <option value="0">商户</option>
                         <option value="1">一级</option>
                         <option value="2">二级</option>
                     </select>
                 </div>
                 <div class="col-sm-2">
-                    <select class="form-control" name="search_order_status">
+                    <select class="form-control" name="equipment_type">
                         <option value="">设备类型</option>
                         <option value="rfid-1">蚂蚁盒子RFID</option>
                         <option value="rfid-2">魔盒生产RFID</option>
@@ -47,18 +49,19 @@
                     </select>
                 </div>
                 <div class="col-sm-2">
-                    <select class="form-control" name="search_order_status">
+                    <select class="form-control" name="equipment_status">
                         <option value="-1">设备状态</option>
-                        <option value="0">顶级</option>
-                        <option value="1">一级</option>
-                        <option value="2">二级</option>
+                        <option value="0">启用</option>
+                        <option value="1">禁用</option>
+                        <option value="2">报废</option>
+                        <option value="2">维修中</option>
                     </select>
                 </div>
                 <div class="col-sm-2">
                     <input type="text" class="form-control" name="search_product_name" id="search_product_name" placeholder="设备ID">
                 </div>
 
-                <input type="hidden" id="origin_url" value="/order/table">
+                <input type="hidden" id="origin_url" value="/equipment/table">
             </div>
 
             <div class="form-group"><div class="col-sm-3">
@@ -91,6 +94,7 @@
             <button style="float:right;" type="button" class="btn btn-success btn-sm" id="equipment_start">启用</button>
             <input type="hidden" id="curr_id" value="0">
             <input type="hidden" id="device_id" value="0">
+            <input type="hidden" id="agent_id" value="<{$agent_id}>">
             <!--<a href='javascript:void(0)' onclick="refresh_cache()" role="button" class="btn btn-info btn-sm">刷新配置缓存</a>-->
         </div>
         <div id="config-body">
@@ -290,5 +294,29 @@
             window.location.href = "/equipment/add";
         });
 
+        //切换代理商、商户
+        $("#agent_platform").change(function(){
+            var agent_id = $("#agent_id").val();
+            $.ajax({
+                type: "post",
+                url: "/equipment/change_platform",
+                data: {
+                    agent_id:agent_id
+                },
+                success: function (data, status) {
+                        $("#agent_name").html();
+//                        $.each(data.data,function (k,v) {
+//                            $("#agent_name").append("<option value='"+v['id']+"'>"+v['name']+"</option>");
+//                        })
+                },
+                error: function () {
+
+                },
+                complete: function () {
+
+                }
+
+            });
+        })
     });
 </script>
