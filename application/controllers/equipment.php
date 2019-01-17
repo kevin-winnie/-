@@ -489,60 +489,81 @@ class Equipment extends MY_Controller {
      */
     public function add_save(){
         $equipment_id = $this->input->post('equipment_id');
-        $platform_tag = $this->input->post('platform_tag');
         $equipment_id = trim($equipment_id);
+        $platform_tag = $this->input->post('platform_tag');
+        $code = $this->input->post('code');
+        $type = $this->input->post('type');
+        $software_time = $this->input->post('software_time');
+        $hardware_time = $this->input->post('hardware_time');
         $agent_id = $this->platform_id;
         $Agent = $this->agent_model->get_own_agents($agent_id);
-        //顶级代理商 上海鲜动、海星宝
         $equipment = $this->equipment_model->findByBoxId($equipment_id);
+        //查看盒子code是否存在
+        $codeEquipment = $this->equipment_model->findByBoxCode($code);
+        //解析出商户id
+        $tag = explode('|',$platform_tag);
+        if($tag[1] == 'commercial')
+        {
+            $platform_id = $tag[0];
+        }else
+        {
+            $last_agent = $tag[0];
+        }
+        //顶级代理商添加设备 上海鲜动、海星宝
         if(in_array($Agent['high_level'],[0,1]) && $platform_tag == 0)
         {
             if($equipment)
             {
                 $this->_pagedata["tips"] = "该盒子id已存在！";
-                $this->add();
+                $this->add();exit;
             }
-        }else
-        {
-            //若为分配操作，其他商户需要校验是否在其名下
-            if(!in_array($Agent['high_level'],[0,1]))
-            {
-                if(empty($equipment))
+            if ($codeEquipment){
+                $this->_pagedata["tips"] = "该盒子code已存在！";
+                $this->add();exit;
+            }
+            $data = array();
+            $data['code'] = $code;
+            $data['type'] = $type;
+            $data['equipment_id'] = $equipment_id;
+            $data['status'] = 1;
+            $data['platform_id'] = isset($platform_id)?$platform_id:'0';
+            $data['created_time'] = time();
+            $data['last_agent_id'] = $agent_id;
+            $data['software_time'] = $software_time;
+            $data['hardware_time'] = $hardware_time;
+            $data['agent_config'] = json_encode(array($agent_id));
+            $insertBox = $this->equipment_model->insertData($data);
+        }else { //分配设备
+                //校验
+                if(empty($equipment) || empty($codeEquipment) || $equipment['last_agent_id'] != $agent_id ||$equipment['type'] != $type)
                 {
-                    $this->_pagedata["tips"] = "该设备id未添加！";
-                }elseif($equipment['last_agent_id'] != $agent_id)
-                {
-                    $this->_pagedata["tips"] = "该设备不属于您！";
+                    $this->check_equipment($equipment,$codeEquipment,$agent_id,$type);
                 }
-                $this->add();
-            }
+                //更新equipment表
+                //若为顶级代理需更新顶级代理字段
+                if(in_array($Agent['high_level'],[0,1]))
+                {
+                    $data['first_agent_id'] = $agent_id;
+                }
+                if(!$platform_id)
+                {   //分配给代理商
+                    $agent_config = json_decode($equipment['agent_config'],true);
+                    $agent_config[] = $last_agent;
+                    $data['agent_config'] = json_encode($agent_config);
+                    $data['last_agent_id'] = $last_agent;
+                    $data['software_time'] = $software_time;
+                    $data['hardware_time'] = $hardware_time;
+                    $data['platform_id'] = 0;
+                    $insertBox = $this->db->update('equipment',$data,array('equipment_id'=>$equipment['equipment_id']));
+                }else
+                {//分配给商户
+                    $data['last_agent_id'] = $last_agent;
+                    $data['platform_id'] = $platform_id;
+                    $data['software_time'] = $software_time;
+                    $data['hardware_time'] = $hardware_time;
+                    $insertBox = $this->db->update('equipment',$data,array('equipment_id'=>$equipment['equipment_id']));
+                }
         }
-        $code = $this->input->post('code');
-        $type = $this->input->post('type');
-        //查看盒子code是否存在
-        $codeEquipment = $this->equipment_model->findByBoxCode($code);
-        if ($codeEquipment){
-            $this->_pagedata["tips"] = "该盒子code已存在！";
-            $this->page('equipment/add.html');
-            exit;
-        }
-        $platform_tag = $this->input->post('platform_id');
-        $tag = explode('|',$platform_tag);
-        if($tag[1] == 'commercial')
-        {
-            $platform_id = $tag[0];
-        }
-        $data = array();
-        $data['code'] = $code;
-        $data['type'] = $type;
-        $data['equipment_id'] = $equipment_id;
-        $data['status'] = 1;
-        $data['platform_id'] = isset($platform_id)?$platform_id:'0';
-        $data['created_time'] = time();
-        $data['last_agent_id'] = $this->platform_id;
-        $data['software_time'] = $this->input->post('software_time');
-        $data['hardware_time'] = $this->input->post('hardware_time');
-        $insertBox = $this->equipment_model->insertData($data);
         //对设备有分配给商户的操作才去同步Admin后台
         if ($insertBox && $platform_id){
             //done 打cityboxadmin接口 插入设备
@@ -551,7 +572,7 @@ class Equipment extends MY_Controller {
                 'source'    => 'program',
                 'code'=> $code,
                 'type'=> $type,
-                'platform_id'=>$data['platform_id'],
+                'platform_id'=>$platform_id,
                 'equipment_id'=>$equipment_id
             );
 
@@ -578,7 +599,24 @@ class Equipment extends MY_Controller {
         }
         
 
-    
+    private function check_equipment($equipment,$codeEquipment,$agent_id,$type)
+    {
+        if(empty($equipment))
+        {
+            $this->_pagedata["tips"] = "该设备id未添加！";
+        }elseif(empty($codeEquipment))
+        {
+            $this->_pagedata["tips"] = "该设备code未添加！";
+        }elseif($equipment['last_agent_id'] != $agent_id)
+        {
+            $this->_pagedata["tips"] = "该设备您暂无分配权限！";
+        }elseif($equipment['type'] != $type)
+        {
+            $this->_pagedata["tips"] = "设备类型选择不正确！";
+        }
+        $this->add();
+        exit;
+    }
     public function add_noclue_save(){
         $where = array();
         $this->_pagedata['platform_list'] = $this->commercial_model->getList("*", $where);
