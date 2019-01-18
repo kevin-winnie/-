@@ -1302,12 +1302,15 @@ class Equipment extends MY_Controller {
         $Agent = $this->agent_model->get_own_agents($this->platform_id);
         if(in_array($Agent['high_level'],[0,1]))
         {
+            //代理商级别
+            $agent_level_list = $this->agent_model->get_agent_level_list($Agent);
             $this->_pagedata['is_svip']= 1;
         }
         $this->_pagedata['pault_code']= $this->pault_code;
         $this->_pagedata['pault_status']= $this->pault_status;
         $this->_pagedata['pault_type']= $this->pault_type;
         $this->_pagedata['scene']= $this->scene;
+        $this->_pagedata['agent_level_list']= $agent_level_list;
         $this->page("equipment/pault_list.html");
     }
     public function pault_table(){

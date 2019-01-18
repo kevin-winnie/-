@@ -81,9 +81,9 @@
                     <div class="col-sm-2">
                         <select class="form-control" name="search_scene"  >
                             <option value="">代理商等级</option>
-                            <option value="">顶级</option>
-                            <option value="">一级</option>
-                            <option value="">二级</option>
+                            <{foreach $agent_level_list as $val}>
+                                <option value="<{$val['id']}>"><{$val['name']}></option>
+                            <{/foreach}>
                         </select>
                     </div>
                  <{/if}>
