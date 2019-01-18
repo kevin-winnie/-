@@ -264,23 +264,23 @@ class Equipment extends MY_Controller {
             $agent_list[$k]['name'] = '代理商---'.$v['name'];
             $agent_list[$k]['tag'] = 'agent';
         }
-        $commercial_list = $this->agent_model->get_commercial($platform_id);
-        foreach($commercial_list as $k=>$v)
-        {
-            $commercial_list[$k]['name'] = '商户---'.$v['name'];
-            $commercial_list[$k]['tag'] = 'commercial';
-        }
-        $list = array_merge($agent_list,$commercial_list);
+//        $commercial_list = $this->agent_model->get_commercial($platform_id);
+//        foreach($commercial_list as $k=>$v)
+//        {
+//            $commercial_list[$k]['name'] = '商户---'.$v['name'];
+//            $commercial_list[$k]['tag'] = 'commercial';
+//        }
+//        $list = array_merge($agent_list,$commercial_list);
         $Agent = $this->agent_model->get_own_agents($platform_id);
         if(in_array($Agent['high_level'],[0,1]))
         {
             $this->_pagedata['is_hidden'] = 1;
         }
-        if(empty($list))
+        if(empty($agent_list))
         {
-            $list = [['id'=>-1,'name'=>'暂无可选项']];
+            $agent_list = [['id'=>-1,'name'=>'暂无可选项']];
         }
-        $this->_pagedata['platform_list'] = $list;
+        $this->_pagedata['platform_list'] = $agent_list;
         $this->_pagedata['eq_type'] = $this->eq_type;
         $this->page('equipment/add.html');
     }
@@ -1290,13 +1290,7 @@ class Equipment extends MY_Controller {
                     $this->showJson(['status'=>'error','msg'=>'该配件不可重复添加,请重新输入']);
                 }
             }
-
-
-
         }
-
-
-
     }
     //故障设备start
     public function pault_list(){
