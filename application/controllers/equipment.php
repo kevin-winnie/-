@@ -58,6 +58,7 @@ class Equipment extends MY_Controller {
             $this->_pagedata['id'] = $id;
         }
         $Agent = $this->agent_model->get_own_agents($this->platform_id);
+        $Agent_list = $this->agent_model->get_all_agents($this->platform_id);
         if(in_array($Agent['high_agent_id'],[0,1]))
         {
             $this->_pagedata['is_super'] = 1;
@@ -66,6 +67,7 @@ class Equipment extends MY_Controller {
         $this->title = '设备信息管理';
         $filter = ['last_agent_id'=>$this->platform_id];
         $this->_pagedata ["list"] = $this->equipment_model->getList($filter);
+        $this->_pagedata ["Agent_list"] = $Agent_list;
         $this->_pagedata['agent_id'] = $this->platform_id;
         $this->page('equipment/index.html');
     }
@@ -1808,19 +1810,27 @@ class Equipment extends MY_Controller {
     public function change_platform()
     {
         $agent_id = $this->input->post('agent_id')?$this->input->post('agent_id'):$this->platform_id;
+        $type_id = $this->input->post('type_id');
         $Agent = $this->agent_model->get_own_agents($agent_id);
         $id_string = "'";
-        if(in_array($Agent['high_agent_id'],[0,1]))
+        //获取商户
+        if($type_id == 0)
         {
-            $high_agent_list = $this->agent_model->high_agent_list($agent_id);
-            if(!empty($high_agent_list))
+            if(in_array($Agent['high_agent_id'],[0,1]))
             {
-                $ids = array_column($high_agent_list, 'id');
-                $id_string .= implode("','",$ids)."','";
+                $high_agent_list = $this->agent_model->high_agent_list($agent_id);
+                if(!empty($high_agent_list))
+                {
+                    $ids = array_column($high_agent_list, 'id');
+                    $id_string .= implode("','",$ids)."','";
+                }
             }
+            $id_string .= $agent_id."'";
+            $data = $this->agent_model->change_platform($id_string);
+        }else
+        {//获取代理商
+            $data = $this->agent_model->get_all_agents($agent_id);
         }
-        $id_string .= $agent_id."'";
-        $platform = $this->agent_model->change_platform($id_string);
-        $this->showJson($platform);
+        $this->showJson(['status'=>'success','data'=>$data]);
     }
 }

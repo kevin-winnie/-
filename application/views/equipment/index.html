@@ -20,7 +20,7 @@
                     <div class="col-sm-2">
                         <select class="form-control" name="agent_level" id="agent_level">
                             <option value="-1">代理商级别</option>
-                            <option value="0">顶级</option>
+                            <option value="0">商户</option>
                             <option value="1">一级</option>
                             <option value="2">二级</option>
                         </select>
@@ -29,9 +29,9 @@
                 <div class="col-sm-2">
                     <select class="form-control" name="agent_name" id="agent_name">
                         <option value="-1">代理商名称</option>
-                        <option value="0">商户</option>
-                        <option value="1">一级</option>
-                        <option value="2">二级</option>
+                        <{foreach $Agent_list as $val}>
+                            <option value="<{$val['id']}>"><{$val['name']}></option>
+                        <{/foreach}>
                     </select>
                 </div>
                 <div class="col-sm-2">
@@ -297,17 +297,32 @@
         //切换代理商、商户
         $("#agent_platform").change(function(){
             var agent_id = $("#agent_id").val();
+            var type_id = $('#agent_platform option:selected') .val();
             $.ajax({
                 type: "post",
                 url: "/equipment/change_platform",
                 data: {
-                    agent_id:agent_id
+                    agent_id:agent_id,type_id:type_id
                 },
                 success: function (data, status) {
-                        $("#agent_name").html();
-//                        $.each(data.data,function (k,v) {
-//                            $("#agent_name").append("<option value='"+v['id']+"'>"+v['name']+"</option>");
-//                        })
+                    $("#agent_name").find("option").remove();
+                    var data_arr = JSON.parse( data );
+                    var data_s = data_arr.data;
+                    if(data_s.length >0)
+                    {
+                        if(type_id = 1)
+                        {
+                            $("#agent_name").append("<option value='-1'>商户名称</option>");
+                        }
+                        for(var i= 0;i< data_s.length;i++)
+                        {
+                            var item = data_s[i];
+                            $("#agent_name").append("<option value="+item.id+">"+item.name+"</option>");
+                        }
+                    }else
+                    {
+                        $("#agent_name").append("<option value=''>--暂无可选商户--</option>");
+                    }
                 },
                 error: function () {
 
