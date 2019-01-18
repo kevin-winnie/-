@@ -258,18 +258,19 @@ class Equipment_model extends CI_Model
         return $this->db->insert($table,$params);
     }
     function update_assemble($params,$id,$table='assemble_equipment'){
-        return $this->db->where('id',$id)->update($table,$params);
+        $pdb = $this->load->database('platform_master',true);
+        return $pdb->where('id',$id)->update($table,$params);
     }
     function assemble_table($where,$sort,$order,$offset,$limit){
+        $pdb = $this->load->database('platform_master',true);
         $sql = 'select e.*,a.alias as admin_name from p_assemble_equipment as e join s_admin as a on e.admin_id=a.id '.$where.' ORDER BY '.$sort.' '.$order.' LIMIT '.$offset.','.$limit;
 
-        return $this->db->query($sql)->result_array();
+        return $pdb->query($sql)->result_array();
     }
     public function pault_table($where,$sort,$order,$offset,$limit){
-
+        $pdb = $this->load->database('platform_master',true);
         $sql = 'select p.*,a.contacts,a.phone from p_pault as p LEFT JOIN p_clue_equipment as c on p.equipment_id=c.equipment_id LEFT JOIN p_clue as a on a.clue_id=c.clue_id '.$where.' ORDER BY '.$sort.' '.$order.' LIMIT '.$offset.','.$limit;
-
-        return $this->db->query($sql)->result_array();
+        return $pdb->query($sql)->result_array();
     }
 }
 

@@ -20,9 +20,6 @@
                     <input type="text" class="form-control" name="search_equipment_id"  placeholder="设备id" >
                 </div>
                 <div class="col-sm-2">
-                    <input type="text" class="form-control" name="search_equipment_name"   placeholder="设备名称！">
-                </div>
-                <div class="col-sm-2">
                     <select class="form-control" name="search_pault_code"  >
                         <option value="">故障代码</option>
                         <{foreach $pault_code as $key=>$val}>
@@ -78,13 +75,10 @@
                     </select>
                 </div>
                 <div class="col-sm-2">
-                    <select class="form-control" name="search_commercial"  >
-                        <option value="">商户</option>
-                        <{foreach $commercial as $key=>$val}>
-                        <option value="<{$val['id']}>"><{$val['name']}></option>
-                        <{/foreach}>
-
-                    </select>
+                    <input type="text" class="form-control" name="search_equipment_id"  placeholder="代理商名称" >
+                </div>
+                <div class="col-sm-2">
+                    <input type="text" class="form-control" name="search_equipment_id"  placeholder="商户名称" >
                 </div>
                 <div class="col-sm-4">
                     <input type="hidden" id="origin_url" value="/equipment/pault_table">
@@ -107,33 +101,19 @@
                 <thead>
                 <tr>
                     <th data-field="state" data-checkbox="true"></th>
-                    <th data-field="id" data-align="center">ID</th>
-
-
                     <th data-field="equipment_id" data-align="center">设备id</th>
-                    <th data-field="equipment_name" data-align="center">设备名称</th>
-                    <th data-field="equipment_address" data-align="center">设备地址</th>
-                    <th data-field="equipment_admin" data-align="center">运营人员</th>
+                    <th data-field="equipment_id" data-align="center">设备编码</th>
+                    <th data-field="equipment_id" data-align="center">维保结束时间</th>
                     <th data-field="pault_type" data-align="center">故障类别</th>
                     <th data-field="pault_code" data-align="center">故障代码</th>
-
                     <th data-field="pault_info" data-align="center">故障详情</th>
                     <th data-field="scene" data-align="center">信息来源</th>
                     <th data-field="contacts_phone" data-align="center">点位联系人+电话</th>
                     <th data-field="create_time" data-align="center">上报时间</th>
                     <th data-field="complete_time" data-align="center">完成时间</th>
-                    <!--<th data-field="phone" data-align="center">点位联系人电话</th>-->
-                    <!--<th data-field="make_time" data-align="center">预约开始时间</th>-->
-                    <!--<th data-field="make_time_end" data-align="center">预约结束时间</th>-->
-                    <th data-field="user_name_user_phone" data-align="center">上报人+电话</th>
-                    <!--<th data-field="user_phone" data-align="center">上报人电话</th>-->
                     <th data-field="urgent_status" data-align="center">故障状态</th>
                     <th data-field="pault_status" data-align="center" >维修状态</th>
-                    <!--<th data-field="create_admin" data-align="center">创建人</th>-->
                     <th data-field="update_time" data-align="center">更新时间</th>
-                    <th data-field="update_admin" data-align="center">更新人</th>
-
-
                 </tr>
                 </thead>
 
