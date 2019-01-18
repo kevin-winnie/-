@@ -115,4 +115,46 @@ class Agent_model extends MY_Model
     }
 
 
+    public function get_agent_level_list($agent)
+    {
+        //上海鲜动
+        if($agent['high_level'] == 0)
+        {
+            $sql = " select * from p_agent WHERE id != '{$agent['id']}' ";
+            $rs = $this->db->query($sql)->result_array();
+            $level = array_unique(array_column($rs,'high_level'));
+        }elseif($agent['high_level'] == 1)
+        {//海星宝（递归吗？）
+
+        }
+        $data_level = array();
+        foreach($level as $key=>$val)
+        {
+            switch($val)
+            {
+                case 1:
+                    $data_level[$key]['id'] = '1';
+                    $data_level[$key]['name'] = '顶级';
+                    break;
+                case 2:
+                    $data_level[$key]['id'] = '2';
+                    $data_level[$key]['name'] = '一级';
+                    break;
+                case 3:
+                    $data_level[$key]['id'] = '3';
+                    $data_level[$key]['name'] = '二级';
+                    break;
+                case 4:
+                    $data_level[$key]['id'] = '4';
+                    $data_level[$key]['name'] = '三级';
+                    break;
+                case 5:
+                    $data_level[$key]['id'] = '4';
+                    $data_level[$key]['name'] = '四级';
+                    break;
+            }
+        }
+        return $data_level;
+    }
+
 }

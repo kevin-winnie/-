@@ -60,9 +60,12 @@ class Equipment extends MY_Controller {
         }
         $Agent = $this->agent_model->get_own_agents($this->platform_id);
         $Agent_list = $this->agent_model->get_all_agents($this->platform_id);
+
         if(in_array($Agent['high_agent_id'],[0,1]))
         {
             $this->_pagedata['is_super'] = 1;
+            //代理商级别
+            $agent_level_list = $this->agent_model->get_agent_level_list($Agent);
         }
         $this->_pagedata['platform_list'] = $this->commercial_model->getList("*", $where);
         $this->title = '设备信息管理';
@@ -70,6 +73,7 @@ class Equipment extends MY_Controller {
         $this->_pagedata ["list"] = $this->equipment_model->getList($filter);
         $this->_pagedata ["Agent_list"] = $Agent_list;
         $this->_pagedata['agent_id'] = $this->platform_id;
+        $this->_pagedata['agent_level_list'] = $agent_level_list;
         $this->page('equipment/index.html');
     }
 
