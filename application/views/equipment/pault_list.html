@@ -77,6 +77,16 @@
                 <div class="col-sm-2">
                     <input type="text" class="form-control" name="search_equipment_id"  placeholder="代理商名称" >
                 </div>
+                <{if $is_svip eq '1'}>
+                    <div class="col-sm-2">
+                        <select class="form-control" name="search_scene"  >
+                            <option value="">代理商等级</option>
+                            <option value="">顶级</option>
+                            <option value="">一级</option>
+                            <option value="">二级</option>
+                        </select>
+                    </div>
+                 <{/if}>
                 <div class="col-sm-2">
                     <input type="text" class="form-control" name="search_equipment_id"  placeholder="商户名称" >
                 </div>
@@ -101,9 +111,11 @@
                 <thead>
                 <tr>
                     <th data-field="state" data-checkbox="true"></th>
+                    <th data-field="agent_name" data-align="center">代理商名称</th>
+                    <th data-field="commercial_name" data-align="center">商户名称</th>
                     <th data-field="equipment_id" data-align="center">设备id</th>
-                    <th data-field="equipment_id" data-align="center">设备编码</th>
-                    <th data-field="equipment_id" data-align="center">维保结束时间</th>
+                    <th data-field="code" data-align="center">设备编码</th>
+                    <th data-field="hardware_time" data-align="center">维保结束时间</th>
                     <th data-field="pault_type" data-align="center">故障类别</th>
                     <th data-field="pault_code" data-align="center">故障代码</th>
                     <th data-field="pault_info" data-align="center">故障详情</th>

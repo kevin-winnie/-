@@ -21,6 +21,7 @@ class Equipment_model extends CI_Model
         $this->table = 'equipment';
         $this->load->library('phpredis');
         $this->redis = $this->phpredis->getConn();
+        $this->p_db = $this->load->database('platform_master',true);
     }
     
     function getList($where = array(),$limit = array()){
@@ -258,19 +259,30 @@ class Equipment_model extends CI_Model
         return $this->db->insert($table,$params);
     }
     function update_assemble($params,$id,$table='assemble_equipment'){
-        $pdb = $this->load->database('platform_master',true);
-        return $pdb->where('id',$id)->update($table,$params);
+        return $this->p_db->where('id',$id)->update($table,$params);
     }
     function assemble_table($where,$sort,$order,$offset,$limit){
-        $pdb = $this->load->database('platform_master',true);
         $sql = 'select e.*,a.alias as admin_name from p_assemble_equipment as e join s_admin as a on e.admin_id=a.id '.$where.' ORDER BY '.$sort.' '.$order.' LIMIT '.$offset.','.$limit;
 
-        return $pdb->query($sql)->result_array();
+        return $this->p_db->query($sql)->result_array();
     }
     public function pault_table($where,$sort,$order,$offset,$limit){
-        $pdb = $this->load->database('platform_master',true);
-        $sql = 'select p.*,a.contacts,a.phone from p_pault as p LEFT JOIN p_clue_equipment as c on p.equipment_id=c.equipment_id LEFT JOIN p_clue as a on a.clue_id=c.clue_id '.$where.' ORDER BY '.$sort.' '.$order.' LIMIT '.$offset.','.$limit;
-        return $pdb->query($sql)->result_array();
+        $sql = 'select p.*,a.contacts,a.phone,d.code from p_pault as p
+                LEFT JOIN p_clue_equipment as c on p.equipment_id=c.equipment_id
+                LEFT JOIN p_clue as a on a.clue_id=c.clue_id
+                LEFT JOIN p_equipment as d ON p.equipment_id = d.equipment_id
+                '.$where.' ORDER BY '.$sort.' '.$order.' LIMIT '.$offset.','.$limit;
+        return $this->p_db->query($sql)->result_array();
+    }
+
+    public function get_agent_commercial_name($equipment_id)
+    {
+      $sql = " select a.hardware_time,a.code,b.name as agent_name,c.name as commercial_name from p_equipment as a
+                LEFT JOIN p_agent as b ON  a.last_agent_id = b.id
+                LEFT JOIN p_commercial as c ON  a.platform_id = c.id
+                WHERE a.equipment_id = '{$equipment_id}'
+            ";
+        return $this->db->query($sql)->row_array();
     }
 }
 

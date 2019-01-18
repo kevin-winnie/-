@@ -32,6 +32,7 @@ class Equipment extends MY_Controller {
     public  $scene = [1=>'平台后台',2=>'补货小程序',3=>'魔盒小程序'];
     function __construct() {
         parent::__construct();
+        $this->p_db = $this->load->database('platform_master',true);
         $this->load->model("equipment_model");
         $this->load->model("commercial_model");
         $this->load->model("product_model");
@@ -1299,19 +1300,22 @@ class Equipment extends MY_Controller {
     }
     //故障设备start
     public function pault_list(){
-        $commercial= $this->db->from('commercial')->get()->result_array();
+        //判断当前代理商权限
+        $Agent = $this->agent_model->get_own_agents($this->platform_id);
+        if(in_array($Agent['high_level'],[0,1]))
+        {
+            $this->_pagedata['is_svip']= 1;
+        }
         $this->_pagedata['pault_code']= $this->pault_code;
         $this->_pagedata['pault_status']= $this->pault_status;
         $this->_pagedata['pault_type']= $this->pault_type;
         $this->_pagedata['scene']= $this->scene;
-        $this->_pagedata['commercial']= $commercial;
         $this->page("equipment/pault_list.html");
     }
     public function pault_table(){
         $limit = $this->input->get('limit') ? $this->input->get('limit') : 20;
         $offset = $this->input->get('offset') ? $this->input->get('offset') : 0;
         $search_equipment_id = $this->input->get('search_equipment_id');
-        $search_equipment_name = $this->input->get('search_equipment_name');
         $search_pault_code = $this->input->get('search_pault_code');
         $search_pault_status = $this->input->get('search_pault_status');
         $start_time = $this->input->get('search_start_time');
@@ -1347,7 +1351,6 @@ class Equipment extends MY_Controller {
             $where .= ' and p.pault_type = '.$search_pault_type;
         }
         $rows = $this->equipment_model->pault_table($where,$sort,$order,$offset,$limit);
-        $equipment_info = [];
         foreach($rows as $key=>$val) {
             //array_push($equipment_ids, $val['equipment_id']);
             //判断状态为1的显示天数
@@ -1387,71 +1390,23 @@ class Equipment extends MY_Controller {
             $rows[$key]['pault_type'] =$this->pault_type[$val['pault_type']];
             $rows[$key]['contacts_phone'] = $val['contacts'].$val['phone'];
             $rows[$key]['user_name_user_phone'] = $val['user_name'].$val['user_phone'];
-            $params = array(
-                'timestamp' => time() . '000',
-                'source' => 'platform',
-                'equipment_id' => $val['equipment_id']
-            );
-
-            //判断是否根据设备名称搜索
-            if($search_equipment_name){
-                $params['equipment_name'] = $search_equipment_name;
-            }
-            $res = $this->equipment_info($params, "equipment_info");
-//            error_log(var_export($res,1),3,dirname(dirname(__FILE__)).'/a.log');
-            //判断查找是是否有$search_equipment_name 有以$res未主表循环 无已$rows
-            if($search_equipment_name){
-                foreach($res as $k=>$v){
-                    $equipment_info[] = array_merge($v,$val);
-                    //print_r($val);die;
-                }
-            }else{
-                    $rows[$key]['equipment_address'] = $res[0]['equipment_address'];
-                    $rows[$key]['equipment_name'] = $res[0]['equipment_name'];
-                    $rows[$key]['equipment_admin'] = $res[0]['equipment_admin'];
-            }
+            //获取代理商名字、商户名称
+            $name_list = $this->equipment_model->get_agent_commercial_name($val['equipment_id']);
+            $rows[$key]['agent_name'] = $name_list['agent_name'];
+            $rows[$key]['commercial_name'] = $name_list['commercial_name'];
+            $rows[$key]['hardware_time'] = $name_list['hardware_time'];
+            $rows[$key]['code'] = $name_list['code'];
         }
-        //error_log('select count(id) as c  from p_pault as p'.$where,3,dirname(dirname(__FILE__)).'/logs/b.log');
-        $total = $this->db->query('select count(id) as c  from p_pault as p'.$where)->row_array();
+        $total = $this->p_db->query('select count(id) as c  from p_pault as p'.$where)->row_array();
 
-
-
-        if($search_equipment_name){
-            $result = array("rows" => $equipment_info, "total" => $total['c']);
-            echo $this->showJson($result);
-        }else{
-            $result = array("rows" => $rows, "total" => $total['c']);
-            echo $this->showJson($result);
-        }
-
-
-
+        $result = array("rows" => $rows, "total" => $total['c']);
+        echo $this->showJson($result);
     }
-    //    接口cityboxadmin 获取设备地址 管理员 设备名称
-    public function equipment_info($params,$action){
 
-        //done 打cityboxadmin接口 插入设备或获取设备
-       // $url = 'http://stagingcityboxadmin.fruitday.com/api/apiEquipment/'.$action;
-        $url =RBAC_URL."/apiEquipment/".$action;
-        //$url = 'http://www.cityboxadmin.com/api/apiEquipment/'.$action;
-        $params['sign'] = $this->create_platform_sign($params);
-
-        $options['timeout'] = 100;
-
-        $result = $this->http_curl->request($url, $params, 'POST', $options);
-
-        if(json_decode($result['response'],1)['code']==200){
-
-            return json_decode($result['response'],1)['data'];
-        }else {
-            return false;
-        }
-    }
     public function pault_add(){
         if(strtolower($_SERVER["REQUEST_METHOD"]) == 'post'){
             $params = $this->input->post();
-//            var_dump($params);die;
-            $row = $this->db->from('pault')->where('equipment_id',trim($params['equipment_id']))->where('pault_status !=',3)->where('is_del',0)->get()->row_array();
+            $row = $this->p_db->from('pault')->where('equipment_id',trim($params['equipment_id']))->where('pault_status !=',3)->where('is_del',0)->get()->row_array();
             if(!$row){
 
                 $params['create_admin'] = $this->session->userdata('sess_admin_data')["adminid"];
@@ -1482,7 +1437,7 @@ class Equipment extends MY_Controller {
     //查询是否有设备未维修或维修中的
     public function get_pault_equipment(){
         $equipment_id = $this->input->post('equipment_id');
-        $row = $this->db->from('pault')->where('equipment_id',$equipment_id)->where('pault_status !=',3)->where('is_del',0)->get()->row_array();
+        $row = $this->p_db->from('pault')->where('equipment_id',$equipment_id)->where('pault_status !=',3)->where('is_del',0)->get()->row_array();
         if($row){
             $this->showJson('error');
         }else{
