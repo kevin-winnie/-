@@ -125,7 +125,15 @@ class Agent_model extends MY_Model
             $level = array_unique(array_column($rs,'high_level'));
         }elseif($agent['high_level'] == 1)
         {//海星宝（递归吗？）
-
+            $sql = " select * from p_agent WHERE high_agent_id = '{$agent['id']}' ";
+            $rs = $this->db->query($sql)->result_array();
+            $sql = " select * from p_agent WHERE id != '{$agent['id']}' ";
+            $member = $this->db->query($sql)->result_array();
+            foreach($rs as $key=>$val)
+            {
+                $res = $this->GetTeamMember($member ,$val['high_agent_id']);
+                $level = array_unique(array_column($res,'high_level'));
+            }
         }
         $data_level = array();
         foreach($level as $key=>$val)
@@ -156,5 +164,34 @@ class Agent_model extends MY_Model
         }
         return $data_level;
     }
+
+
+    /*
+    *2.获取某个会员的无限下级方法
+    *$members是所有会员数据表,$mid是用户的id
+    */
+    function GetTeamMember($members, $mid) {
+        $Teams=array();//最终结果
+        $mids=array($mid);//第一次执行时候的用户id
+        do {
+            $othermids=array();
+            $state=false;
+            foreach ($mids as $valueone) {
+                foreach ($members as $key => $valuetwo) {
+                    if($valuetwo['agentid']==$valueone){
+                        $Teams[]=$valuetwo[id];//找到我的下级立即添加到最终结果中
+                        $othermids[]=$valuetwo['id'];//将我的下级id保存起来用来下轮循环他的下级
+                        array_splice($members,$key,1);//从所有会员中删除他
+                        $state=true;
+                    }
+                }
+            }
+            $mids=$othermids;//foreach中找到的我的下级集合,用来下次循环
+        } while ($state==true);
+
+        return $Teams;
+    }
+//    $member = 1;
+//    $res=GetTeamMember($member ,1);
 
 }
