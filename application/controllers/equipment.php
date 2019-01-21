@@ -60,8 +60,7 @@ class Equipment extends MY_Controller {
         }
         $Agent = $this->agent_model->get_own_agents($this->platform_id);
         $Agent_list = $this->agent_model->get_all_agents($this->platform_id);
-
-        if(in_array($Agent['high_agent_id'],[0,1]))
+        if(in_array($Agent['high_level'],[0,1]))
         {
             $this->_pagedata['is_super'] = 1;
             //代理商级别
