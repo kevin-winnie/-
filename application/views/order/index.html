@@ -16,19 +16,18 @@
     </div>
     <div class="panel-body">
         <div class="form-horizontal" id="search">
-            <{include 'order/search_box.html'}>
             <div class="form-group">
                 <div class="col-sm-2">
-                    <input type="text" class="form-control" name="search_name" placeholder="设备名称">
+                    <input type="text" class="form-control" name="search_agent_name" placeholder="代理商名称">
                 </div>
                 <div class="col-sm-2">
-                    <input type="text" class="form-control" size='11' name="search_mobile" placeholder="手机号" value="<{$info['mobile']}>">
+                    <input type="text" class="form-control" size='11' name="search_commercial_name" placeholder="商户名称" value="<{$info['mobile']}>">
                 </div>
                 <div class="col-sm-2">
-                    <input type="text" class="form-control" name="search_order_name" placeholder="订单编号">
+                    <input type="text" class="form-control" name="search_equipment_id" placeholder="设备ID">
                 </div>
                 <div class="col-sm-2">
-                    <input type="text" class="form-control" name="search_product_name" id="search_product_name" placeholder="商品名称">
+                    <input type="text" class="form-control" name="search_order_name" id="search_product_name" placeholder="订单编号">
                 </div>
                 <div class="col-sm-2">
                     <select class="form-control" name="search_order_status">
@@ -55,20 +54,16 @@
             </div>
 
             <div class="form-group">
-                <div class="col-sm-2">
-                    <select class="form-control" name="search_type">
-                        <option value="">设备类型</option>
-                        <option value="rfid-1">蚂蚁盒子RFID</option>
-                        <option value="rfid-2">魔盒生产RFID</option>
-                        <option value="rfid-3">数字RFID</option>
-                        <option value="rfid-4">无膜RFID</option>
-                        <option value="rfid-5">无膜RFID-数烨</option>
-                        <option value="rfid-6">数字RFID-数烨</option>
-                        <option value="scan-1">扫码</option>
-                        <option value="vision-1">视觉</option>
-                        <option value="coffee-1">咖啡设备-沙丁鱼</option>
-                    </select>
-                </div>
+                <{if $is_svip eq '1'}>
+                    <div class="col-sm-2">
+                        <select class="form-control" name="search_scene"  >
+                            <option value="">代理商等级</option>
+                            <{foreach $agent_level_list as $val}>
+                                <option value="<{$val['id']}>"><{$val['name']}></option>
+                            <{/foreach}>
+                        </select>
+                    </div>
+                <{/if}>
                 <div class="col-sm-3"  >
                     <div class="input-group date  col-md-12" data-link-field="dtp_input1" id="time" >
                         <input class="form-control" type="text" name="search_start_time"  placeholder="开始时间"  readonly="readonly" value="<{$start_time}>">
@@ -105,8 +100,10 @@
                 <thead>
                 <tr>
                     <th data-field="order_name" data-align="left">订单编号</th>
-                    <th data-field="uid" data-align="left">用户</th>
-                    <th data-field="name" data-align="left">设备名称</th>
+                    <{if $is_svip eq '1'}>
+                        <th data-field="uid" data-align="left">用户</th>
+                    <{/if}>
+                    <th data-field="name" data-align="left">设备ID</th>
                     <th data-field="product" data-align="left">订单商品</th>
                     <th data-field="money" data-align="left">在线支付</th>
                     <th data-field="yue" data-align="left">余额支付</th>
