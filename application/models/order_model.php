@@ -249,4 +249,22 @@ class Order_model extends MY_Model
         return $result;
     }
 
+    /**
+     * @param $agent_id
+     * @return array
+     */
+    public function get_box_list_by_agent($agent_id,$field = null)
+    {
+        $sql = " select * from p_equipment as a WHERE a.platform_id > 0 AND a.last_agent_id = '{$agent_id}'";
+        $rs = $this->db->query($sql)->result_array();
+        if($field){
+            $tmp = array();
+            foreach($rs as $k=>$v){
+                $tmp[] = $v[$field];
+            }
+            return $tmp;
+        }
+        return $rs;
+    }
+
 }

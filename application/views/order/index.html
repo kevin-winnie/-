@@ -21,13 +21,13 @@
                     <input type="text" class="form-control" name="search_agent_name" placeholder="代理商名称">
                 </div>
                 <div class="col-sm-2">
-                    <input type="text" class="form-control" size='11' name="search_commercial_name" placeholder="商户名称" value="<{$info['mobile']}>">
+                    <input type="text" class="form-control" size='11' name="search_commercial_name" id="search_commercial_name" placeholder="商户名称" value="<{$info['mobile']}>">
                 </div>
                 <div class="col-sm-2">
-                    <input type="text" class="form-control" name="search_equipment_id" placeholder="设备ID">
+                    <input type="text" class="form-control" name="search_equipment_id" id="search_equipment_id" placeholder="设备ID">
                 </div>
                 <div class="col-sm-2">
-                    <input type="text" class="form-control" name="search_order_name" id="search_product_name" placeholder="订单编号">
+                    <input type="text" class="form-control" name="search_order_name" id="search_order_name" placeholder="订单编号">
                 </div>
                 <div class="col-sm-2">
                     <select class="form-control" name="search_order_status">
@@ -295,6 +295,7 @@
                     filterData += field+"="+data+"&";
                 }
             });
+            console.log(filterData);
             if(filterData==""){
                 var url = serverUrl;
             }else{

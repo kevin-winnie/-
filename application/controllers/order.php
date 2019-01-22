@@ -134,49 +134,23 @@ class Order extends MY_Controller
         $limit      = $this->input->get('limit')?$this->input->get('limit'):10;
         $offset     = $this->input->get('offset')?$this->input->get('offset'):0;
         $order_name = $this->input->get('search_order_name');
-        $mobile     = $this->input->get('search_mobile');
+        $agent_name = $this->input->get('search_agent_name');
+        $commercial_name = $this->input->get('search_commercial_name');
+        $equipment_id = $this->input->get('search_equipment_id');
+        $order_status = $this->input->get('order_status');
         $start_time = $this->input->get('search_start_time');
         $end_time   = $this->input->get('search_end_time');
-        $platform_id= $this->input->get('search_platform_id');
         if(isset($_GET['day']) && $_GET['day']!=''){
             $start_time = date('Y-m-d 00:00:00', strtotime($_GET['day']));
             $end_time   = date('Y-m-d 23:59:59', strtotime($_GET['day']));
         }
-        $name        = $this->input->get('search_name');
-        $order_status= $this->input->get('search_order_status');
-
-        $uid        = $this->input->get('uid');
-        $box_param['province'] = $this->input->get('search_province')?$this->input->get('search_province'):0;
-        $box_param['city'] = $this->input->get('search_city');
-        $box_param['area'] = $this->input->get('search_area');
-        $box_param['address'] = $this->input->get('search_address');
-        $box_param['name']    = $name;
-        $box_param['replenish_location'] = $this->input->get('search_replenish_location');
-        $box_param['admin_id'] = $this->input->get('search_admin');
-        $box_param['type'] = $this->input->get('search_type');
-        if($this->array_is_empty($box_param)){//搜索条件为空,默认显示全部
-            $search_box = array();
-        }else{
-            $search_box = $this->equipment_new_model->get_box_no($box_param, 'equipment_id');//盒子搜索
-            if(empty($search_box)){//没有搜索到盒子
-                $search_box = array('-1');
-            }
-        }
-
-
         $search_product_name = $this->input->get('search_product_name');
         $tmp = explode('|', $search_product_name);
         $order_list = $user_id_arr = array();
         if($tmp[0]){
             $order_list = $this->order_model->get_order_by_product($tmp[0]);
         }
-        if($mobile){
-            $user_id_arr = $this->user_model->get_user_id_by_mobile($mobile);
-        }
         $where['id >'] = 0;
-        if($uid){
-            $where['uid'] = $uid;
-        }
         if($order_name){
             $where['order_name'] = $order_name;
         }
@@ -186,9 +160,7 @@ class Order extends MY_Controller
         if($end_time){
             $where['order_time <='] = $end_time;
         }
-        if($platform_id){
-            $where['platform_id'] = $platform_id;
-        }
+
 
         if(isset($_GET['search_order_status']) && $order_status!=-1){
             $where['order_status'] = $order_status;
@@ -196,16 +168,21 @@ class Order extends MY_Controller
         if(isset($_GET['search_refer']) && !empty($_GET['search_refer'])){
             $where['refer'] = $_GET['search_refer'];
         }
+        //订单设备要取该商户发展的直营商户
+        $box_list = $this->order_model->get_box_list_by_agent($this->platform_id,'equipment_id');
         $this->c_db->from('order');
         $this->c_db->where($where);
-        if(!empty($search_box)){
+        $search_box = array();
+        if($equipment_id)
+        {
+            $search_box = array($equipment_id);
+        }
+        if(!empty($search_box) || !empty($box_list)){
+            $search_box = array_unique(array_merge($search_box,$box_list));
             $this->c_db->where_in('box_no', $search_box);
         }
         if(!empty($order_list)){
             $this->c_db->where_in('order_name', $order_list);
-        }
-        if(!empty($user_id_arr)){
-            $this->c_db->where_in('uid', $user_id_arr);
         }
         $this->c_db->order_by('id desc');
         $this->c_db->limit($limit,$offset);
@@ -239,24 +216,16 @@ class Order extends MY_Controller
                 $list[$k]['order_status'] = '驳回申请';
             }
             $list[$k]['dis'] = '<span style="color:red;">-'.bcadd($list[$k]['discounted_money'], $list[$k]['card_money'], 2).'</span>';
-            $product_list = $this->order_model->get_order_product($v['order_name']);
-            $tmp = '';
-            foreach($product_list as $kp=>$vp){
-                $tmp .= intval($kp+1).'.'.$vp['product_name'].'('.$vp['qty'].'*'.$vp['price'].')<br/>';
-            }
-            $list[$k]['product'] = $tmp;
         }
         $this->c_db->select("count(id) as num, SUM(money+yue) as money, count(DISTINCT(uid)) as user_num, sum(qty) as qty");
         $this->c_db->from('order');
         $this->c_db->where($where);
-        if(!empty($search_box)){
+        if(!empty($search_box) || !empty($box_list)){
+            $search_box = array_unique(array_merge($search_box,$box_list));
             $this->c_db->where_in('box_no', $search_box);
         }
         if(!empty($order_list)){
             $this->c_db->where_in('order_name', $order_list);
-        }
-        if(!empty($user_id_arr)){
-            $this->c_db->where_in('uid', $user_id_arr);
         }
         $total = $this->c_db->get()->row_array();
         if($_GET['search_product_name']){
