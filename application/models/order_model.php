@@ -255,6 +255,7 @@ class Order_model extends MY_Model
      */
     public function get_box_list_by_agent($agent_id,$field = null)
     {
+        //只推商户
         $sql = " select * from p_equipment as a WHERE a.platform_id > 0 AND a.last_agent_id = '{$agent_id}'";
         $rs = $this->db->query($sql)->result_array();
         if($field){
@@ -265,6 +266,87 @@ class Order_model extends MY_Model
             return $tmp;
         }
         return $rs;
+    }
+
+    /**
+     * @param $agent_id
+     * @return array
+     */
+    public function get_box_list_by_next_agent($agent_id,$field = null,$type=0)
+    {
+        //该代理商下级代理
+        $sql = " select * from p_agent as a WHERE a.high_agent_id = '{$agent_id}'";
+        $rs = $this->db->query($sql)->result_array();
+        if($type == 0)
+        {
+            $res_id = array_column($rs,'id');
+            $rs = $this->get_box_list_by_agent_array($res_id,$field);
+            return $rs;
+        }
+        $sql = " select * from p_agent WHERE id != '{$agent_id}' and high_level not in (0,1) ";
+        $member = $this->db->query($sql)->result_array();
+        $res = array();
+        foreach($rs as $key=>$val)
+        {
+            $res[] = $this->GetTeamMember($member,$val['id']);
+        }
+        foreach($res as $key=>$val)
+        {
+            foreach($val as $k=>$v)
+            {
+                $info[] = $v;
+            }
+        }
+        $info = array_merge($rs,$info);
+        $res_id = array_unique(array_column($info,'id'));
+        $rs = $this->get_box_list_by_agent_array($res_id,$field);
+        return $rs;
+    }
+
+    public function get_box_list_by_agent_array($array,$field)
+    {
+        //设备
+        $where = array('platform_id >'=>0);
+        $this->db->from('equipment');
+        $this->db->where($where);
+        $this->db->where_in('last_agent_id', $array);
+        $list = $this->db->get()->result_array();
+        if($field){
+            $tmp = array();
+            foreach($list as $k=>$v){
+                $tmp[] = $v[$field];
+            }
+            return $tmp;
+        }
+        return $list;
+    }
+
+    /*
+   *2.获取某个会员的无限下级方法
+   *$members是所有会员数据表,$mid是用户的id
+   */
+    function GetTeamMember($members,$mid) {
+        $Teams=array();//最终结果
+        $mids=array($mid);//第一次执行时候的用户id
+        do {
+            $othermids=array();
+            $state=false;
+            foreach ($mids as $valueone) {
+                foreach ($members as $key => $valuetwo) {
+                    if($valuetwo['high_agent_id']==$valueone){
+                        $info['id'] =  $valuetwo['id'];
+                        $info['high_level'] =  $valuetwo['high_level'];
+                        $Teams[]=$info;//找到我的下级立即添加到最终结果中
+                        $othermids[]=$valuetwo['id'];//将我的下级id保存起来用来下轮循环他的下级
+                        array_splice($members,$key,1);//从所有会员中删除他
+                        $state=true;
+                    }
+                }
+            }
+            $mids=$othermids;//foreach中找到的我的下级集合,用来下次循环
+        } while ($state==true);
+
+        return $Teams;
     }
 
 }

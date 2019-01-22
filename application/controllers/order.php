@@ -137,18 +137,12 @@ class Order extends MY_Controller
         $agent_name = $this->input->get('search_agent_name');
         $commercial_name = $this->input->get('search_commercial_name');
         $equipment_id = $this->input->get('search_equipment_id');
-        $order_status = $this->input->get('order_status');
+        $order_status = $this->input->get('search_order_status');
         $start_time = $this->input->get('search_start_time');
         $end_time   = $this->input->get('search_end_time');
         if(isset($_GET['day']) && $_GET['day']!=''){
             $start_time = date('Y-m-d 00:00:00', strtotime($_GET['day']));
             $end_time   = date('Y-m-d 23:59:59', strtotime($_GET['day']));
-        }
-        $search_product_name = $this->input->get('search_product_name');
-        $tmp = explode('|', $search_product_name);
-        $order_list = $user_id_arr = array();
-        if($tmp[0]){
-            $order_list = $this->order_model->get_order_by_product($tmp[0]);
         }
         $where['id >'] = 0;
         if($order_name){
@@ -168,8 +162,19 @@ class Order extends MY_Controller
         if(isset($_GET['search_refer']) && !empty($_GET['search_refer'])){
             $where['refer'] = $_GET['search_refer'];
         }
-        //订单设备要取该商户发展的直营商户
-        $box_list = $this->order_model->get_box_list_by_agent($this->platform_id,'equipment_id');
+        //权限判定
+        $Agent = $this->agent_model->get_own_agents($this->platform_id);
+        //自己发展的商户
+        $box_list_zhitui = $this->order_model->get_box_list_by_agent($this->platform_id,'equipment_id');
+        if(in_array($Agent['high_level'],[0,1]))
+        {
+            //超级 代理商 订单设备要该代理商下所有下级代理发展的商户和自己发展的商户
+            $box_list_next = $this->order_model->get_box_list_by_next_agent($this->platform_id,'equipment_id',1);
+        }else
+        {
+            $box_list_next = $this->order_model->get_box_list_by_next_agent($this->platform_id,'equipment_id');
+        }
+        $box_list = array_merge($box_list_zhitui,$box_list_next);
         $this->c_db->from('order');
         $this->c_db->where($where);
         $search_box = array();
@@ -177,12 +182,13 @@ class Order extends MY_Controller
         {
             $search_box = array($equipment_id);
         }
-        if(!empty($search_box) || !empty($box_list)){
-            $search_box = array_unique(array_merge($search_box,$box_list));
-            $this->c_db->where_in('box_no', $search_box);
+//        $search_box = array_unique(array_merge($search_box,$box_list));
+        if(!empty($box_list) && empty($search_box))
+        {
+            $this->c_db->where_in('box_no', $box_list);
         }
-        if(!empty($order_list)){
-            $this->c_db->where_in('order_name', $order_list);
+        if(!empty($search_box)){
+            $this->c_db->where_in('box_no', $search_box);
         }
         $this->c_db->order_by('id desc');
         $this->c_db->limit($limit,$offset);
@@ -220,8 +226,11 @@ class Order extends MY_Controller
         $this->c_db->select("count(id) as num, SUM(money+yue) as money, count(DISTINCT(uid)) as user_num, sum(qty) as qty");
         $this->c_db->from('order');
         $this->c_db->where($where);
-        if(!empty($search_box) || !empty($box_list)){
-            $search_box = array_unique(array_merge($search_box,$box_list));
+        if(!empty($box_list))
+        {
+            $this->c_db->where_in('box_no', $box_list);
+        }
+        if(!empty($search_box)){
             $this->c_db->where_in('box_no', $search_box);
         }
         if(!empty($order_list)){
