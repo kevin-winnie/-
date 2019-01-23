@@ -389,7 +389,7 @@ class Commercial extends MY_Controller {
                 unset($data['high_agent_id']);
                 $platform_rs_id = $this->commercial_model->platform_insert($data);
                 $this->db->set('platform_rs_id',$platform_rs_id);
-                $this->db->where('id', $rs['id']);  //agent里面的商户id
+                $this->db->where('id', $rs);  //agent里面的商户id
                 $this->db->update('commercial');
                 $this->commercial_model->setCommInfo($rs);
             }else{
