@@ -33,7 +33,7 @@ class Current extends MY_Controller
         $this->load->library('phpredis');
         $this->c_db = $this->load->database('citybox_master', TRUE);
         $this->redis = $this->phpredis->getConn();
-        $this->platform_id = $this->input->get('platform_id')>0?$this->input->get('platform_id'):0;
+        $this->platform_id = $this->input->get('platform_id')>0?$this->input->get('platform_id'):$this->platform_id;
     }
 
     public function index()
@@ -41,7 +41,7 @@ class Current extends MY_Controller
         ini_set('memory_limit', '500M');
         @set_time_limit(60);
         $this->_pagedata['platform_id']  = $this->platform_id;
-        $this->_pagedata['platform_list']= $this->commercial_model->get_all_platforms();
+        $this->_pagedata['platform_list']= $this->commercial_model->get_commercial_list($this->platform_id,1);
         $this->_pagedata['order'] = $this->get_today_data();
         $this->_pagedata['yesterday_order'] = $this->get_yesterday_data();
         $this->_pagedata['last_order'] = $this->get_yesterday_data('-7');
