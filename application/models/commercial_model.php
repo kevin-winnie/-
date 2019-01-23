@@ -104,13 +104,16 @@ class Commercial_model extends MY_Model
         return $this->p_db->insert_id();
     }
 
-    public function get_commercial_list($agent_id)
+    public function get_commercial_list($agent_id,$type= 0)
     {
         $this->db->select('*');
         $this->db->from('commercial');
         $this->db->where(array('high_agent_id'=>$agent_id));
         $rs = $this->db->get()->result_array();
-        $platform_array = array_column($rs,'platform_rs_id');
-        return $platform_array;
+        if($type == 0)
+        {
+            $rs = array_column($rs,'platform_rs_id');
+        }
+        return $rs;
     }
 }

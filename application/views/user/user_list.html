@@ -27,7 +27,7 @@
                     <select class="form-control" name="search_platform_id">
                         <option value="-1">选择商户</option>
                         <{foreach key=key item=item from=$platform_list}>
-                        <option value="<{$item['id']}>"><{$item['name']}></option>
+                        <option value="<{$item['platform_rs_id']}>"><{$item['name']}></option>
                         <{/foreach}>
                     </select>
                 </div>

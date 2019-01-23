@@ -19,7 +19,7 @@ class User extends MY_Controller
     public function user_list(){
         $this->_pagedata['acount_id']    = $this->input->get('acount_id')?$this->input->get('acount_id'):0;
         $this->_pagedata['store_list']   = $this->equipment_new_model->get_store_list();
-        $this->_pagedata['platform_list']= $this->commercial_model->get_all_platforms();
+        $this->_pagedata['platform_list']= $this->commercial_model->get_commercial_list($this->platform_id,1);
         $this->page('user/user_list.html');
     }
 
@@ -80,8 +80,12 @@ class User extends MY_Controller
         if(!empty($equipment_arr)){
             $this->c_db->where_in('u.register_device_id', $equipment_arr);
         }
-        $this->c_db->where_in('u.platform_id', $commercial_list);
+        if(!$platform_id)
+        {
+            $this->c_db->where_in('u.platform_id', $commercial_list);
+        }
         $list = $this->c_db->get()->result_array();
+        
         if($_GET['is_export'] == 1){
             return $this->user_export($list);
         }
