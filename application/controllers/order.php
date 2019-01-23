@@ -140,11 +140,15 @@ class Order extends MY_Controller
         $order_status = $this->input->get('search_order_status');
         $start_time = $this->input->get('search_start_time');
         $end_time   = $this->input->get('search_end_time');
+        $uid        = $this->input->get('uid');
         if(isset($_GET['day']) && $_GET['day']!=''){
             $start_time = date('Y-m-d 00:00:00', strtotime($_GET['day']));
             $end_time   = date('Y-m-d 23:59:59', strtotime($_GET['day']));
         }
         $where['id >'] = 0;
+        if($uid){
+            $where['uid'] = $uid;
+        }
         if($order_name){
             $where['order_name'] = $order_name;
         }
