@@ -66,6 +66,8 @@ class User extends MY_Controller
         if($acount_id){
             $where['u.acount_id']   = $acount_id;
         }
+        //仅能看到直营商户的用户数据
+        $commercial_list = $this->commercial_model->get_commercial_list($this->platform_id);
         $this->c_db->select("u.id,u.mobile,u.user_name,u.reg_time,sum(i.buy_times) as buy_times, sum(i.total_money) as total_money, sum(i.open_times) as open_times,u.source,u.open_id,u.register_device_id, u.acount_id");
         $this->c_db->from('user u');
         $this->c_db->join('user_daily_info i',"u.id=i.uid",'left');
@@ -78,8 +80,8 @@ class User extends MY_Controller
         if(!empty($equipment_arr)){
             $this->c_db->where_in('u.register_device_id', $equipment_arr);
         }
+        $this->c_db->where_in('u.platform_id', $commercial_list);
         $list = $this->c_db->get()->result_array();
-
         if($_GET['is_export'] == 1){
             return $this->user_export($list);
         }
@@ -89,6 +91,7 @@ class User extends MY_Controller
         if(!empty($equipment_arr)){
             $this->c_db->where_in('u.register_device_id', $equipment_arr);
         }
+        $this->c_db->where_in('u.platform_id', $commercial_list);
         $total = $this->c_db->get()->row_array();
         $acount_id_arr = array();
         foreach($list as $k=>$v){
@@ -109,9 +112,6 @@ class User extends MY_Controller
         );
         $result['a'] = $this->user_model->get_reg_by_pl(date('Y-m-d 00:00:00'), date('Y-m-d 23:59:59'),$platform_id);
         $result['b'] = $this->user_model->get_reg_by_pl(date('Y-m-d 00:00:00', strtotime('-1 days')), date('Y-m-d 23:59:59', strtotime('-1 days')),$platform_id);
-        $sql = " SELECT count(*) as noscan from cb_user where platform_id =0";
-        $noscan = $this->c_db->query($sql)->row_array();
-        $result['c'] = $noscan['noscan'];
         echo json_encode($result);
     }
 
