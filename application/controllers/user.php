@@ -85,7 +85,7 @@ class User extends MY_Controller
             $this->c_db->where_in('u.platform_id', $commercial_list);
         }
         $list = $this->c_db->get()->result_array();
-        
+
         if($_GET['is_export'] == 1){
             return $this->user_export($list);
         }
@@ -95,7 +95,10 @@ class User extends MY_Controller
         if(!empty($equipment_arr)){
             $this->c_db->where_in('u.register_device_id', $equipment_arr);
         }
-        $this->c_db->where_in('u.platform_id', $commercial_list);
+        if(!$platform_id)
+        {
+            $this->c_db->where_in('u.platform_id', $commercial_list);
+        }
         $total = $this->c_db->get()->row_array();
         $acount_id_arr = array();
         foreach($list as $k=>$v){
