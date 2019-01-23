@@ -378,39 +378,19 @@ class Commercial extends MY_Controller {
                 'img_banner'=>$post['img_banner'],
                 'qr_logo'=>$post['qr_logo'],
                 'wechat_name'=>$post['wechat_name'],
-                'alipay_name'=>$post['alipay_name']
+                'alipay_name'=>$post['alipay_name'],
+                'high_agent_id'=>$this->platform_id
             );
             $rs = $this->commercial_model->insert($data);
             if($rs){
-                //icon新增
-                $icon_info = array(
-                    'platform_id'=>$rs,
-                    'icon1_path'=>$post['icon1_path'],
-                    'icon1_name'=>$post['icon_name_1'],
-                    'icon1_url'=>$post['icon_url_1'],
-                    'icon2_name'=>$post['icon_name_2'],
-                    'icon2_path'=>$post['icon2_path'],
-                    'icon2_url'=>$post['icon_url_2'],
-                );
-                $this->db->insert('p_icon',$icon_info);
                 $this->_pagedata["tips"] = "新增成功";
-                $data = array(
-                    'refer'=>json_encode($post['refer']),
-                    'common_pr'=>$post['common_pr'],
-                    'error_msg'=>$post['error_msg'],
-                    'error_url'=>$post['error_url'],
-                    'use_yue'=>$post['use_yue'],
-                    'group_code'=>$post['group_code'],
-                );
-                $data['platform_id'] = $rs;
-                $data['config_ids'] = json_encode($post['config']);
-                $data['last_update'] = date('Y-m-d H:i:s');
-                $data['id'] = 0;
-                $data['create_time'] = date('Y-m-d H:i:s');
-                $data['wechat_rate'] = $post['wechat_rate'];
-                $data['alipay_rate'] = $post['alipay_rate'];
-                $this->db->insert('p_config_device',$data);
                 refresh_config_cache();
+                //去PLATFORM平台添加该商户
+                unset($data['high_agent_id']);
+                $platform_rs_id = $this->commercial_model->platform_insert($data);
+                $this->db->set('platform_rs_id',$platform_rs_id);
+                $this->db->where('id', $rs['id']);  //agent里面的商户id
+                $this->db->update('commercial');
                 $this->commercial_model->setCommInfo($rs);
             }else{
                 $this->_pagedata["tips"] = "新增失败";

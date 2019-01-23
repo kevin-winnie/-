@@ -10,6 +10,7 @@ class Commercial_model extends MY_Model
         parent::__construct();
         $this->load->library('phpredis');
         $this->redis = $this->phpredis->getConn();
+        $this->p_db = $this->load->database('platform_master', TRUE);
     }
 
     function table_name()
@@ -95,5 +96,11 @@ class Commercial_model extends MY_Model
         $this->db->where(array('status'=>1,"id"=>$id));
         $rs = $this->db->get()->row_array();
         return $rs;
+    }
+
+    public function platform_insert($data)
+    {
+        $this->p_db->insert('commercial',$data);
+        return $this->p_db->insert_id();
     }
 }
