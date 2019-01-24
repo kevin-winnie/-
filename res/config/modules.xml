@@ -7,8 +7,7 @@
         <name value="6" menu = "6" workgroup="order">交易管理</name>
         <name value="7" menu = "7" workgroup="user">用户管理</name>
         <name value="8" menu = "8" workgroup="report">数据报表</name>
-        <name value="10" menu = "20" workgroup="wechat">对账管理</name>
-        <name value="9" menu = "9" workgroup="report">商务市场</name>
+        <name value="9" menu = "9" workgroup="wechat">对账管理</name>
     </ModulesList>
 
     <OptionList>
@@ -37,10 +36,7 @@
         <name type ="8" value ="81" url="/report/current">实时看板</name>
         <name type ="8" value ="82" url="/report/overall">整体看板</name>
 
-        <name type ="10" value ="91" url="/business/clue_index">对账管理</name>
-
-        <name type ="9" value ="91" url="/business/clue_index">点位线索</name>
-        <name type ="9" value ="93" url="/workorder/work_index">装机工单</name>
+        <name type ="9" value ="91" url="/reconciliation/index">对账管理</name>
 
     </OptionList>
 </Menu>
