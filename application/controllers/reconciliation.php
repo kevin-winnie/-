@@ -37,7 +37,7 @@ class Reconciliation extends MY_Controller
         {
             $this->_pagedata['is_svip'] = 1;
             //代理商级别
-            $agent_level_list = $this->order_model->get_box_list_by_next_agent($Agent);
+            $agent_level_list = $this->commercial_model->get_agent_level_list($Agent,2);
         }
         $this->_pagedata['start_time'] = $this->input->get('uid')?'':date('Y-m-d 00:00:00');
         $this->_pagedata['end_time']   = $this->input->get('uid')?'':date('Y-m-d 23:59:59');
@@ -45,7 +45,7 @@ class Reconciliation extends MY_Controller
         $this->_pagedata['store_list'] = $this->equipment_new_model->get_store_list();
         $this->_pagedata['uid'] = $this->input->get('uid');
         $this->_pagedata['info']= $this->user_model->get_user_info($this->_pagedata['uid']);
-        $this->_pagedata['platform_list']= $this->commercial_model->get_commercial_list($this->platform_id,1);
+        $this->_pagedata['platform_list']= $this->commercial_model->get_agent_level_list($Agent,1);
         $this->_pagedata['agent_level_list'] = $agent_level_list;
         $this->page('reconciliation/index.html');
     }

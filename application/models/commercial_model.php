@@ -122,35 +122,52 @@ class Commercial_model extends MY_Model
      * 通用的获取下级所有代理商及商户
      * @param $agent_id
      * @return array
+     * $type = 1 返回代理商  $type = 2 返回商户
      */
-    public function get_box_list_by_next_agent($agent_id,$field = null,$type=0)
+    public function get_agent_level_list($agent,$type=1)
     {
-        //该代理商下级代理
-        $sql = " select * from p_agent as a WHERE a.high_agent_id = '{$agent_id}'";
-        $rs = $this->db->query($sql)->result_array();
-        if($type == 0)
+        //上海鲜动
+        if($agent['high_level'] == 0)
         {
-            $res_id = array_column($rs,'id');
-            $rs = $this->get_box_list_by_agent_array($res_id,$field);
-            return $rs;
-        }
-        $sql = " select * from p_agent WHERE id != '{$agent_id}' and high_level not in (0,1) ";
-        $member = $this->db->query($sql)->result_array();
-        $res = array();
-        foreach($rs as $key=>$val)
-        {
-            $res[] = $this->GetTeamMember($member,$val['id']);
-        }
-        foreach($res as $key=>$val)
-        {
-            foreach($val as $k=>$v)
+            $sql = " select * from p_agent WHERE id != '{$agent['id']}' ";
+            $rs = $this->db->query($sql)->result_array();
+
+            if($type == 2)
             {
-                $info[] = $v;
+                return $rs;
             }
+            $all_agent = array_unique(array_column($rs,'id'));
+            $all_agent[] = $agent['id'];
+        }elseif($agent['high_level'] == 1)
+        {//海星宝（递归吗？）
+            $sql = " select * from p_agent WHERE high_agent_id = '{$agent['id']}' ";
+            $rs = $this->db->query($sql)->result_array();
+            $sql = " select * from p_agent WHERE id != '{$agent['id']}' and high_level not in (0,1) ";
+            $member = $this->db->query($sql)->result_array();
+            $res = array();
+            foreach($rs as $key=>$val)
+            {
+                $res[] = $this->GetTeamMember($member,$val['id']);
+            }
+            foreach($res as $key=>$val)
+            {
+                foreach($val as $k=>$v)
+                {
+                    $info[] = $v;
+                }
+            }
+            $info = array_merge($rs,$info);
+            if($type == 2)
+            {
+                return $info;
+            }
+            $all_agent = array_unique(array_column($info,'id'));
         }
-        $info = array_merge($rs,$info);
-        $res_id = array_unique(array_column($info,'id'));
-        $rs = $this->get_box_list_by_agent_array($res_id,$field);
+
+        $this->db->select('*');
+        $this->db->from('commercial');
+        $this->db->where_in('high_agent_id', $all_agent);
+        $rs = $this->db->get()->result_array();
         return $rs;
     }
     /*
@@ -167,6 +184,7 @@ class Commercial_model extends MY_Model
                 foreach ($members as $key => $valuetwo) {
                     if($valuetwo['high_agent_id']==$valueone){
                         $info['id'] =  $valuetwo['id'];
+                        $info['name'] =  $valuetwo['name'];
                         $info['high_level'] =  $valuetwo['high_level'];
                         $Teams[]=$info;//找到我的下级立即添加到最终结果中
                         $othermids[]=$valuetwo['id'];//将我的下级id保存起来用来下轮循环他的下级
