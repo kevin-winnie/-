@@ -34,8 +34,8 @@
                 <div class="col-sm-2">
                     <select class="form-control" name="search_refer">
                         <option value="">选择商户</option>
-                        <{foreach key=key item=item from=$refer}>
-                            <option value="<{$key}>"><{$item}></option>
+                        <{foreach key=key item=item from=$platform_list}>
+                            <option value="<{$item.id}>"><{$item.name}></option>
                         <{/foreach}>
                     </select>
                 </div>

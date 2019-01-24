@@ -45,7 +45,7 @@ class Reconciliation extends MY_Controller
         $this->_pagedata['store_list'] = $this->equipment_new_model->get_store_list();
         $this->_pagedata['uid'] = $this->input->get('uid');
         $this->_pagedata['info']= $this->user_model->get_user_info($this->_pagedata['uid']);
-        $this->_pagedata['platform_list']= $this->commercial_model->get_all_platforms();
+        $this->_pagedata['platform_list']= $this->commercial_model->get_commercial_list($this->platform_id,1);
         $this->_pagedata['agent_level_list'] = $agent_level_list;
         $this->load->model('refer_model');
         $refer = $this->refer_model->all();
