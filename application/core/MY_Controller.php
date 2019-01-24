@@ -61,8 +61,13 @@ class MY_Controller extends CI_Controller
 		$this->adminid = $sess_admin_data['adminid'];
 		$this->platform_id = $sess_admin_data['platform_id'];
 		$this->box_num = intval($sess_admin_data['box_num']);
-
-
+		$this->load->model("agent_model");
+		$Agent = $this->agent_model->get_own_agents($this->platform_id);
+		$this->svip = 0;
+		if(in_array($Agent['high_level'],[0,1]))
+		{
+			$this->svip = 1;
+		}
 	}
 
 	public function page($view)

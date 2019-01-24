@@ -41,7 +41,7 @@ class Order extends MY_Controller
 
     public function index(){
         $Agent = $this->agent_model->get_own_agents($this->platform_id);
-        if(in_array($Agent['high_level'],[0,1]))
+        if($this->svip)
         {
             $this->_pagedata['is_svip'] = 1;
             //代理商级别
@@ -170,7 +170,7 @@ class Order extends MY_Controller
         $Agent = $this->agent_model->get_own_agents($this->platform_id);
         //自己发展的商户
         $box_list_zhitui = $this->order_model->get_box_list_by_agent($this->platform_id,'equipment_id');
-        if(in_array($Agent['high_level'],[0,1]))
+        if($this->svip)
         {
             //超级 代理商 订单设备要该代理商下所有下级代理发展的商户和自己发展的商户
             $box_list_next = $this->order_model->get_box_list_by_next_agent($this->platform_id,'equipment_id',1);
@@ -241,39 +241,7 @@ class Order extends MY_Controller
             $this->c_db->where_in('order_name', $order_list);
         }
         $total = $this->c_db->get()->row_array();
-        if($_GET['search_product_name']){
-            $tmp = explode('|', $search_product_name);
-            $product_id = $tmp[0];
-            $total['qty'] = 0;
 
-            $this->c_db->select("order_name");
-            $this->c_db->from('order');
-            $this->c_db->where($where);
-            $this->c_db->where_in('box_no', $search_box);
-            if(!empty($order_list)){
-                $this->c_db->where_in('order_name', $order_list);
-            }
-            if(!empty($user_id_arr)){
-                $this->c_db->where_in('uid', $user_id_arr);
-            }
-            $order_name_list = $this->c_db->get()->result_array();
-            if(!empty($order_name_list)){
-                $tmp = array();
-                foreach($order_name_list as $k=>$v){
-                    $tmp[] = $v['order_name'];
-                }
-                $this->c_db->select("sum(qty) as qty ");
-                $this->c_db->from('order_product');
-                if(is_numeric($product_id)){
-                    $this->c_db->where('product_id', $product_id);
-                }else{
-                    $this->c_db->like('product_name', $product_id);
-                }
-                $this->c_db->where_in('order_name', $tmp);
-                $one_total = $this->c_db->get()->row_array();
-                $total['qty'] = $one_total['qty'];
-            }
-        }
 
         $result = array(
             'total' => intval($total['num']),

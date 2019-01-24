@@ -32,8 +32,7 @@ class Reconciliation extends MY_Controller
     }
 
     public function index(){
-        $Agent = $this->agent_model->get_own_agents($this->platform_id);
-        if(in_array($Agent['high_level'],[0,1]))
+        if($this->svip)
         {
             $this->_pagedata['is_svip'] = 1;
             //代理商级别
@@ -159,7 +158,7 @@ class Reconciliation extends MY_Controller
         $Agent = $this->agent_model->get_own_agents($this->platform_id);
         //自己发展的商户
         $box_list_zhitui = $this->order_model->get_box_list_by_agent($this->platform_id,'equipment_id');
-        if(in_array($Agent['high_level'],[0,1]))
+        if($this->svip)
         {
             //超级 代理商 订单设备要该代理商下所有下级代理发展的商户和自己发展的商户
             $box_list_next = $this->order_model->get_box_list_by_next_agent($this->platform_id,'equipment_id',1);

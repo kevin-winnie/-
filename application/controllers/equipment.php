@@ -60,7 +60,7 @@ class Equipment extends MY_Controller {
         }
         $Agent = $this->agent_model->get_own_agents($this->platform_id);
         $Agent_list = $this->agent_model->get_all_agents($this->platform_id);
-        if(in_array($Agent['high_level'],[0,1]))
+        if($this->svip)
         {
             $this->_pagedata['is_super'] = 1;
             //代理商级别
@@ -275,7 +275,7 @@ class Equipment extends MY_Controller {
 //        }
 //        $list = array_merge($agent_list,$commercial_list);
         $Agent = $this->agent_model->get_own_agents($platform_id);
-        if(in_array($Agent['high_level'],[0,1]))
+        if($this->svip)
         {
             $this->_pagedata['is_hidden'] = 1;
         }
@@ -498,7 +498,6 @@ class Equipment extends MY_Controller {
         $software_time = $this->input->post('software_time');
         $hardware_time = $this->input->post('hardware_time');
         $agent_id = $this->platform_id;
-        $Agent = $this->agent_model->get_own_agents($agent_id);
         $equipment = $this->equipment_model->findByBoxId($equipment_id);
         //查看盒子code是否存在
         $codeEquipment = $this->equipment_model->findByBoxCode($code);
@@ -512,7 +511,7 @@ class Equipment extends MY_Controller {
             $last_agent = $tag[0];
         }
         //顶级代理商添加设备 上海鲜动、海星宝
-        if(in_array($Agent['high_level'],[0,1]) && $platform_tag == 0)
+        if($this->svip && $platform_tag == 0)
         {
             if($equipment)
             {
@@ -543,7 +542,7 @@ class Equipment extends MY_Controller {
                 }
                 //更新equipment表
                 //若为顶级代理需更新顶级代理字段
-                if(in_array($Agent['high_level'],[0,1]))
+                if($this->svip)
                 {
                     $data['first_agent_id'] = $agent_id;
                 }
@@ -1298,8 +1297,7 @@ class Equipment extends MY_Controller {
     //故障设备start
     public function pault_list(){
         //判断当前代理商权限
-        $Agent = $this->agent_model->get_own_agents($this->platform_id);
-        if(in_array($Agent['high_level'],[0,1]))
+        if($this->svip)
         {
             //代理商级别
             $agent_level_list = $this->agent_model->get_agent_level_list($Agent);
@@ -1766,12 +1764,11 @@ class Equipment extends MY_Controller {
     {
         $agent_id = $this->input->post('agent_id')?$this->input->post('agent_id'):$this->platform_id;
         $type_id = $this->input->post('type_id');
-        $Agent = $this->agent_model->get_own_agents($agent_id);
         $id_string = "'";
         //获取商户
         if($type_id == 0)
         {
-            if(in_array($Agent['high_agent_id'],[0,1]))
+            if($this->svip)
             {
                 $high_agent_list = $this->agent_model->high_agent_list($agent_id);
                 if(!empty($high_agent_list))
