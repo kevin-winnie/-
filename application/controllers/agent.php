@@ -103,10 +103,21 @@ class Agent extends MY_Controller {
         if (!empty($search['name'])) {
             $where['name like '] = '%'.trim($search['name'].'%');
         }
-
+        if($search['is_frozen'] == 1)
+        {
+            $where['status'] = 0;
+        }elseif($search['is_frozen'] == 0)
+        {
+            $where['status'] = 1;
+        }
         if (!empty($search['mobile'])) {
             $where['phone'] = trim($search['mobile']);
         }
+        if(!empty($search['agent_name']))
+        {
+            $where['id'] = trim($search['agent_name']);
+        }
+//        echo '<pre>';print_r($where);exit;
         $where['high_agent_id'] = $this->platform_id;
         $this->title = '代理商列表';
         $this->_pagedata['search'] = $search;
