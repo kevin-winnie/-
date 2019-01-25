@@ -13,8 +13,9 @@
 				<div class="col-sm-2">
 					<select class="form-control" name="search_need_deliver" id="search_need_deliver">
 						<option value="-1">代理商名称</option>
-						<option value="1" <{if $search['search_need_deliver'] eq 1}>selected<{/if}>>上海鲜动</option>
-						<option value="2" <{if $search['search_need_deliver'] eq 2}>selected<{/if}>>杭州鲜动</option>
+						<{foreach key=key item=item from=$agent_level_list}>
+							<option value="<{$item['id']}>" <{if $agent_id eq $item['id']}>selected="selected"<{/if}>><{$item['name']}></option>
+						<{/foreach}>
 					</select>
 				</div>
 				  <div class="col-sm-2">

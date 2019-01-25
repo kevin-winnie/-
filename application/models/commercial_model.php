@@ -156,10 +156,10 @@ class Commercial_model extends MY_Model
                     $info[] = $v;
                 }
             }
-            $info = array_merge($rs,$info);
+            $t_info = array_merge((array)$rs,(array)$info);
             if($type == 2)
             {
-                return $info;
+                return $t_info;
             }
 
             $all_agent = array_unique(array_column($info,'id'));

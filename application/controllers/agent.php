@@ -90,9 +90,16 @@ class Agent extends MY_Controller {
     }
 
     function agentList(){
-//        var_dump($this->redis->hGet($this->com_redis_pre."1",'need_deliver'));
         $search = $this->input->post();
-
+        $agent_level_list = $this->commercial_model->get_agent_level_list_pt($this->platform_id,1);
+        if($this->svip)
+        {
+            $this->_pagedata['is_svip'] = 1;
+            //代理商级别
+            $Agent = $this->agent_model->get_own_agents($this->platform_id);
+            $agent_level_list = $this->commercial_model->get_agent_level_list($Agent,2);
+        }
+        $this->_pagedata['agent_level_list'] = $agent_level_list;
         if (!empty($search['name'])) {
             $where['name like '] = '%'.trim($search['name'].'%');
         }
