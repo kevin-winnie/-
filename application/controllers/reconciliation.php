@@ -32,7 +32,8 @@ class Reconciliation extends MY_Controller
     }
 
     public function index(){
-        if($this->svip)
+        $Agent = $this->agent_model->get_own_agents($this->platform_id);
+        if(in_array($Agent['high_level'],[0,1]))
         {
             $this->_pagedata['is_svip'] = 1;
             //代理商级别

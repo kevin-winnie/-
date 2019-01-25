@@ -122,7 +122,7 @@ class Commercial_model extends MY_Model
      * 通用的获取下级所有代理商及商户
      * @param $agent_id
      * @return array
-     * $type = 1 返回代理商  $type = 2 返回商户
+     * $type = 1 商户  $type = 2 代理商
      */
     public function get_agent_level_list($agent,$type=1)
     {
@@ -161,7 +161,9 @@ class Commercial_model extends MY_Model
             {
                 return $info;
             }
+
             $all_agent = array_unique(array_column($info,'id'));
+            $all_agent[] = $agent['id'];
         }
 
         $this->db->select('*');
@@ -197,6 +199,27 @@ class Commercial_model extends MY_Model
         } while ($state==true);
 
         return $Teams;
+    }
+
+    /**
+     * 普通代理商查看自己下级代理商
+     * $type = 1代理商 2商户
+     */
+    public function get_agent_level_list_pt($agent_id,$type=1)
+    {
+        $sql = " select * from p_agent as a WHERE  a.high_agent_id = '{$agent_id}'";
+        $rs = $this->db->query($sql)->result_array();
+        if($type == 1)
+        {
+            return $rs;
+        }
+        $all_agent = array_unique(array_column($rs,'id'));
+        $all_agent[] = $agent_id;
+        $this->db->select('*');
+        $this->db->from('commercial');
+        $this->db->where_in('high_agent_id', $all_agent);
+        $rs = $this->db->get()->result_array();
+        return $rs;
     }
 
 }

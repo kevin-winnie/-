@@ -40,8 +40,20 @@ class Current extends MY_Controller
     {
         ini_set('memory_limit', '500M');
         @set_time_limit(60);
+        $agent_level_list = $this->commercial_model->get_agent_level_list_pt($this->platform_id,1);
+        $platform_list = $this->commercial_model->get_agent_level_list_pt($this->platform_id,2);
+        if($this->svip)
+        {
+            $this->_pagedata['is_svip'] = 1;
+            //代理商级别
+            $Agent = $this->agent_model->get_own_agents($this->platform_id);
+            $agent_level_list = $this->commercial_model->get_agent_level_list($Agent,2);
+            $platform_list = $this->commercial_model->get_agent_level_list($Agent,1);
+        }
+        $this->_pagedata['agent_level_list'] = $agent_level_list;
         $this->_pagedata['platform_id']  = $this->platform_id;
-        $this->_pagedata['platform_list']= $this->commercial_model->get_commercial_list($this->platform_id,1);
+        $this->_pagedata['platform_list']= $platform_list;
+
         $this->_pagedata['order'] = $this->get_today_data();
         $this->_pagedata['yesterday_order'] = $this->get_yesterday_data();
         $this->_pagedata['last_order'] = $this->get_yesterday_data('-7');
