@@ -493,7 +493,7 @@ class Admin_model extends CI_Model
 	function get_master_admin($id)
 	{
 		$sql = " SELECT b.* FROM p_commercial  as a
- 				LEFT JOIN s_admin as b ON  a.admin_name = b.name
+ 				LEFT JOIN s_admin as b ON a.admin_name = b.`name`
  				WHERE  a.id = '{$id}'";
 		return $this->db->query ($sql)->row_array();
 	}

@@ -377,7 +377,6 @@ class Admin extends MY_Controller {
         $this->title = '分组';
         $this->_pagedata["tips"] = "";
 
-        $gid = 0;
         //为商户主账号分配权限
         if($this->input->post("config"))
         {
@@ -521,8 +520,17 @@ class Admin extends MY_Controller {
             }
             $modulesArr[] = $moduleArr;
         }
+
         //读取当前商户主账号的身份权限
         $admin = $this->Admin_model->get_master_admin($id);
+        if(empty($admin))
+        {
+            $this->load->model('commercial_model');
+            $where['high_agent_id'] = $this->platform_id;
+            $this->_pagedata ["tips"] = '请先创建商户主账号';
+            $this->_pagedata ["list"] = $this->commercial_model->getList("*", $where);
+            $this->page('commercial/commercialList.html');exit;
+        }
         $master_group_flag = $this->Admin_model->master_group_flag($admin['id']);
         if($master_group_flag)
         {

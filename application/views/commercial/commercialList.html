@@ -1,5 +1,11 @@
 <div class="panel panel-default">
 	<div class="panel-heading">商户列表</div>
+	<{if $tips eq ''}>
+	<{elseif $tips eq '新增成功'}>
+		<div class="alert alert-success" role="alert"><{$tips}></div>
+	<{else}>
+		<div class="alert alert-danger" role="alert"><{$tips}></div>
+	<{/if}>
 	<div class="panel-body">
 	<form class="form-horizontal" role="search"  method="post" action="/commercial/commercialList">
 			<div class="form-group">
