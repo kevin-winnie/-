@@ -261,29 +261,36 @@ class Equipment extends MY_Controller {
     public function add(){
         //下级代理商及直推商户
         $platform_id = $this->platform_id;
-        $agent_list = $this->agent_model->get_all_agents($platform_id);
-        foreach($agent_list as $k=>$v)
+        $agent_level_list = $this->commercial_model->get_agent_level_list_pt($this->platform_id,1);
+        $platform_list    = $this->commercial_model->get_agent_level_list_pt($this->platform_id,2);
+        if($this->svip)
+        {
+            $this->_pagedata['is_svip'] = 1;
+            //代理商级别
+            $Agent = $this->agent_model->get_own_agents($this->platform_id);
+            $agent_level_list = $this->commercial_model->get_agent_level_list($Agent,2);
+            $platform_list = $this->commercial_model->get_agent_level_list($Agent,1);
+        }
+        foreach($agent_level_list as $k=>$v)
         {
             $agent_list[$k]['name'] = '代理商---'.$v['name'];
             $agent_list[$k]['tag'] = 'agent';
         }
-//        $commercial_list = $this->agent_model->get_commercial($platform_id);
-//        foreach($commercial_list as $k=>$v)
-//        {
-//            $commercial_list[$k]['name'] = '商户---'.$v['name'];
-//            $commercial_list[$k]['tag'] = 'commercial';
-//        }
-//        $list = array_merge($agent_list,$commercial_list);
-        $Agent = $this->agent_model->get_own_agents($platform_id);
+        foreach($platform_list as $k=>$v)
+        {
+            $commercial_list[$k]['name'] = '商户---'.$v['name'];
+            $commercial_list[$k]['tag'] = 'commercial';
+        }
+        $list = array_merge($agent_list,$commercial_list);
         if($this->svip)
         {
             $this->_pagedata['is_hidden'] = 1;
         }
         if(empty($agent_list))
         {
-            $agent_list = [['id'=>-1,'name'=>'暂无可选项']];
+            $list = [['id'=>-1,'name'=>'暂无可选项']];
         }
-        $this->_pagedata['platform_list'] = $agent_list;
+        $this->_pagedata['platform_list'] = $list;
         $this->_pagedata['eq_type'] = $this->eq_type;
         $this->page('equipment/add.html');
     }
@@ -1801,15 +1808,108 @@ class Equipment extends MY_Controller {
         foreach($agent_level_list as $key=>$val)
         {
             $agent_level_list[$key]['name'] = '代理商--'.$val['name'];
-            $agent_level_list[$key]['tag'] = '代理商';
+            $agent_level_list[$key]['tag'] = 'agent';
         }
         foreach($platform_list as $key=>$val)
         {
             $platform_list[$key]['name'] = '商户--'.$val['name'];
-            $platform_list[$key]['tag'] = '商户';
+            $platform_list[$key]['tag'] = 'commercial';
         }
         $platform_agent = array_merge((array)$agent_level_list,(array)$platform_list);
+        if(empty($platform_agent))
+        {
+            $platform_agent[0]['name'] = '暂无可选项目';
+            $platform_agent[0]['id'] = '-1';
+        }
+
         $this->_pagedata['platform_agent']= $platform_agent;
         $this->page('equipment/fenpei.html');
+    }
+
+    public function do_fenpei()
+    {
+        $equipment_id = $this->input->post('equipment_id');
+        $equipment_id = trim($equipment_id);
+        $platform_tag = $this->input->post('platform_tag');
+        $code = $this->input->post('code');
+        $type = $this->input->post('type');
+        $software_time = $this->input->post('software_time');
+        $hardware_time = $this->input->post('hardware_time');
+        $agent_id = $this->platform_id;
+        $equipment = $this->equipment_model->findByBoxId($equipment_id);
+        //查看盒子code是否存在
+        $codeEquipment = $this->equipment_model->findByBoxCode($code);
+        //解析出商户id
+        $tag = explode('|',$platform_tag);
+        if($tag[1] == 'commercial')
+        {
+            $platform_id = $tag[0];
+        }else
+        {
+            $last_agent = $tag[0];
+        }
+        //分配设备
+        //校验
+        if(empty($equipment) || empty($codeEquipment) || $equipment['last_agent_id'] != $agent_id ||$equipment['type'] != $type)
+        {
+            $this->check_equipment($equipment,$codeEquipment,$agent_id,$type);
+        }
+        //更新equipment表
+        //若为顶级代理需更新顶级代理字段
+        if($this->svip)
+        {
+            $data['first_agent_id'] = $agent_id;
+        }
+        if(!$platform_id)
+        {   //分配给代理商
+            $agent_config = json_decode($equipment['agent_config'],true);
+            $agent_config[] = $last_agent;
+            $data['agent_config'] = json_encode($agent_config);
+            $data['last_agent_id'] = $last_agent;
+            $data['software_time'] = $software_time;
+            $data['hardware_time'] = $hardware_time;
+            $data['platform_id'] = 0;
+            $insertBox = $this->db->update('equipment',$data,array('equipment_id'=>$equipment['equipment_id']));
+        }else
+        {//分配给商户
+            $data['last_agent_id'] = $last_agent;
+            $data['platform_id'] = $platform_id;
+            $data['software_time'] = $software_time;
+            $data['hardware_time'] = $hardware_time;
+            $insertBox = $this->db->update('equipment',$data,array('equipment_id'=>$equipment['equipment_id']));
+        }
+
+        //对设备有分配给商户的操作才去同步Admin后台
+        if ($insertBox && $platform_id){
+            //done 打cityboxadmin接口 插入设备
+            $params = array(
+                'timestamp'=>time() . '000',
+                'source'    => 'program',
+                'code'=> $code,
+                'type'=> $type,
+                'platform_id'=>$platform_id,
+                'equipment_id'=>$equipment_id
+            );
+
+            $url = RBAC_URL."apiEquipment/addEquipment";
+
+            $params['sign'] = $this->create_platform_sign($params);
+
+            $options['timeout'] = 100;
+            $result = $this->http_curl->request($url, $params, 'POST', $options);
+            if(json_decode($result['response'],1)['code']==200){
+                echo '<head><meta http-equiv="Content-Type" content="text/html" charset="utf-8"><script>alert("'.json_decode($result['response'],1)['msg'].'");location.href = "/equipment/index";</script></head>';
+                exit;
+            } else {
+                echo '<head><meta http-equiv="Content-Type" content="text/html" charset="utf-8"><script>alert("'.json_decode($result['response'],1)['msg'].'");location.href = "/equipment/add";</script></head>';
+                exit;
+            }
+            exit;
+
+            redirect('/equipment/index');
+        }else
+        {
+            redirect('/equipment/index');
+        }
     }
 }
