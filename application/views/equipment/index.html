@@ -20,7 +20,7 @@
                     <div class="col-sm-2">
                         <select class="form-control" name="agent_level" id="agent_level">
                             <option value="-1">代理商级别</option>
-                            <{foreach $agent_level_list as $val}>
+                            <{foreach $agent_level as $val}>
                                 <option value="<{$val['id']}>"><{$val['name']}></option>
                             <{/foreach}>
                         </select>
@@ -29,7 +29,7 @@
                 <div class="col-sm-2">
                     <select class="form-control" name="agent_name" id="agent_name">
                         <option value="-1">代理商名称</option>
-                        <{foreach $Agent_list as $val}>
+                        <{foreach $agent_level_list as $val}>
                             <option value="<{$val['id']}>"><{$val['name']}></option>
                         <{/foreach}>
                     </select>

@@ -59,20 +59,25 @@ class Equipment extends MY_Controller {
             $this->_pagedata['id'] = $id;
         }
         $Agent = $this->agent_model->get_own_agents($this->platform_id);
-        $Agent_list = $this->agent_model->get_all_agents($this->platform_id);
+        $agent_level_list = $this->commercial_model->get_agent_level_list_pt($this->platform_id,1);
+        $platform_list    = $this->commercial_model->get_agent_level_list_pt($this->platform_id,2);
         if($this->svip)
         {
             $this->_pagedata['is_super'] = 1;
             //代理商级别
-            $agent_level_list = $this->agent_model->get_agent_level_list($Agent);
+            $agent_level = $this->agent_model->get_agent_level_list($Agent);
+            $agent_level_list = $this->commercial_model->get_agent_level_list($Agent,2);
+            $platform_list = $this->commercial_model->get_agent_level_list($Agent,1);
         }
         $this->_pagedata['platform_list'] = $this->commercial_model->getList("*", $where);
         $this->title = '设备信息管理';
-        $filter = ['last_agent_id'=>$this->platform_id];
-        $this->_pagedata ["list"] = $this->equipment_model->getList($filter);
-        $this->_pagedata ["Agent_list"] = $Agent_list;
+        //满足条件的所有platform和agent
+        $agent_array = array_column($agent_level_list,'id');
+        $platform_array = array_column($platform_list,'id');
+        $this->_pagedata ["list"] = $this->equipment_model->get_agent_level_equipment($platform_array,$agent_array);
         $this->_pagedata['agent_id'] = $this->platform_id;
         $this->_pagedata['agent_level_list'] = $agent_level_list;
+        $this->_pagedata['agent_level'] = $agent_level;
         $this->page('equipment/index.html');
     }
 
@@ -124,8 +129,20 @@ class Equipment extends MY_Controller {
             $where['end_time'] = strtotime($search_end_time);
         }
         $where['admin_id'] = $this->adminid;
-        $where['last_agent_id'] = $this->platform_id;
-        $array = $this->equipment_model->getEquipments("", $where, $offset, $limit, $platform_is_hidden);
+        $Agent = $this->agent_model->get_own_agents($this->platform_id);
+        $agent_level_list = $this->commercial_model->get_agent_level_list_pt($this->platform_id,1);
+        $platform_list    = $this->commercial_model->get_agent_level_list_pt($this->platform_id,2);
+        if($this->svip)
+        {
+            $this->_pagedata['is_super'] = 1;
+            $agent_level_list = $this->commercial_model->get_agent_level_list($Agent,2);
+            $platform_list = $this->commercial_model->get_agent_level_list($Agent,1);
+        }
+        //满足条件的所有platform和agent
+        $agent_array = array_column($agent_level_list,'id');
+        $platform_array = array_column($platform_list,'id');
+        $array = $this->equipment_model->getEquipments("", $where, $offset, $limit, $platform_is_hidden,$agent_array,$platform_array);
+
         foreach ($array as $k=>$v){
             $array[$k]['qr_action'] = '';
             $array[$k]['platform_name'] = $v['platform_name'] ? $v['platform_name'] : '无';
@@ -152,7 +169,7 @@ class Equipment extends MY_Controller {
             $array[$k]['config'] = "<a target='_blank' href = '/sys_config/device/".$v['equipment_id']."'>个性配置</a>";
         }
 
-        $total = (int)$this->equipment_model->getEquipments("count(*) as c",$where)[0]['c'];
+        $total = (int)$this->equipment_model->getEquipments("count(*) as c",$where,'','','',$agent_array,$platform_array)[0]['c'];
 
         $result = array(
             'total' => $total,
@@ -607,7 +624,7 @@ class Equipment extends MY_Controller {
         }
         
 
-    private function check_equipment($equipment,$codeEquipment,$agent_id,$type)
+    private function check_equipment($equipment,$codeEquipment,$agent_id,$type,$assign='')
     {
         if(empty($equipment))
         {
@@ -621,6 +638,11 @@ class Equipment extends MY_Controller {
         }elseif($equipment['type'] != $type)
         {
             $this->_pagedata["tips"] = "设备类型选择不正确！";
+        }
+        if($assign = 'assign')
+        {
+            $this->fenpei();
+            exit;
         }
         $this->add();
         exit;
@@ -1818,7 +1840,7 @@ class Equipment extends MY_Controller {
         $platform_agent = array_merge((array)$agent_level_list,(array)$platform_list);
         if(empty($platform_agent))
         {
-            $platform_agent[0]['name'] = '暂无可选项目';
+            $platform_agent[0]['name'] = '暂无可选项';
             $platform_agent[0]['id'] = '-1';
         }
 
@@ -1837,8 +1859,6 @@ class Equipment extends MY_Controller {
         $hardware_time = $this->input->post('hardware_time');
         $agent_id = $this->platform_id;
         $equipment = $this->equipment_model->findByBoxId($equipment_id);
-        //查看盒子code是否存在
-        $codeEquipment = $this->equipment_model->findByBoxCode($code);
         //解析出商户id
         $tag = explode('|',$platform_tag);
         if($tag[1] == 'commercial')
@@ -1850,9 +1870,9 @@ class Equipment extends MY_Controller {
         }
         //分配设备
         //校验
-        if(empty($equipment) || empty($codeEquipment) || $equipment['last_agent_id'] != $agent_id ||$equipment['type'] != $type)
+        if(empty($equipment)|| $equipment['last_agent_id'] != $agent_id)
         {
-            $this->check_equipment($equipment,$codeEquipment,$agent_id,$type);
+            $this->check_equipment($equipment,$codeEquipment,$agent_id,$type,'assign');
         }
         //更新equipment表
         //若为顶级代理需更新顶级代理字段

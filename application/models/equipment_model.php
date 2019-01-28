@@ -37,7 +37,7 @@ class Equipment_model extends CI_Model
         return $res;
     }
     
-    function getEquipments($field = "",$where = "",$offset = 0, $limit = 0, $joinWhere_is_hidden = null)
+    function getEquipments($field = "",$where = "",$offset = 0, $limit = 0, $joinWhere_is_hidden = null,$agent_array,$platform_array)
     {
         $sql_fields = $field ? : "a.*,b.name as platform_name ";
     
@@ -68,9 +68,22 @@ class Equipment_model extends CI_Model
         if ($where['end_time']){
             $sql.= " and a.created_time <= '".$where['end_time']."'";
         }
-        if($where['last_agent_id'])
+        if(($agent_array ||$platform_array) && !$where['platform_id'])
         {
-            $sql.= " and a.last_agent_id = '{$where['last_agent_id']}'";
+            $agent_string = implode("','",$agent_array);
+            $agent_string = "'".$agent_string."'";
+            $platform_string = implode("','",$platform_array);
+            $platform_string = "'".$platform_string."'";
+            if($agent_array && empty($platform_array))
+            {
+                $sql.= " and a.last_agent_id in ({$agent_string})";
+            }elseif(empty(($agent_array)) && $platform_array)
+            {
+                $sql.= " and a.platform_id in ({$platform_string}) ";
+            }elseif($agent_array && $platform_array)
+            {
+                $sql.= " and (a.last_agent_id in ({$agent_string}) or a.platform_id in ({$platform_string})) ";
+            }
         }
         $sql .= " ORDER BY a.id ASC";
         if ($limit > 0) {
@@ -283,6 +296,27 @@ class Equipment_model extends CI_Model
                 WHERE a.equipment_id = '{$equipment_id}'
             ";
         return $this->db->query($sql)->row_array();
+    }
+
+    public function get_agent_level_equipment($platform_array,$agent_array)
+    {
+        if(!empty($agent_array))
+        {
+            $this->db->select('*');
+            $this->db->from('equipment');
+            $this->db->where_in('last_agent_id', $agent_array);
+            $eq_agent = $this->db->get()->result_array();
+        }
+        if(!empty($platform_array))
+        {
+            $this->db->select('*');
+            $this->db->from('equipment');
+            $this->db->where_in('platform_id', $platform_array);
+            $eq_platform = $this->db->get()->result_array();
+        }
+
+        $all_list = array_unique(array_merge((array)$eq_agent,(array)$eq_platform));
+        return $all_list;
     }
 }
 
