@@ -410,6 +410,7 @@ class Admin extends MY_Controller {
 
         if ($this->input->get("gid")) {
             $gid = $this->input->get("gid");
+            $agent_id = $this->input->get("agent_id");
 
             if ($this->input->post("submit")) {
                 $flags = "";
@@ -436,6 +437,7 @@ class Admin extends MY_Controller {
                             'value' => $value
                         );
                         //过滤非上海鲜动、海星宝的添加设备权限
+
                         if(!($this->svip))
                         {
                             unset($moduleArr['nodeValue'][1]);
@@ -444,6 +446,7 @@ class Admin extends MY_Controller {
                 }
                 $modulesArr[] = $moduleArr;
             }
+
             $this->_pagedata ["modulesArr"] = $modulesArr;
             $this->_pagedata ["gid"] = $gid;
             $this->_pagedata ["flag"] = $this->Admin_model->getFlag($gid)->flag;

@@ -131,7 +131,7 @@ class Agent extends MY_Controller {
         $rs = $this->agent_model->dump(array('id'=>$id));
         if(!empty($rs)){
             $params = array(
-                'name'        => 'agent_'.mt_rand(100,999).date('Ymdhis'),
+                'name'        => 'agent_'.mt_rand(10,999).date('Ymdhis'),
                 'pwd' => 'agent_'.mt_rand(100,999).date('Ymdhis'),
                 'groupid'=>0,
                 'grade'=>1,
@@ -141,9 +141,14 @@ class Agent extends MY_Controller {
             $res = $this->admin_model->insertAdmin($params['name'], $params['pwd'], $params['alias'], $params['mobile'], '', $params['email'] ,$params['grade'],$id);
             if ($res > 0) {
                 $this->agent_model->update(array('admin_name'=>$params['name']),array('id'=>$id));
-                //自动生成所有权限组
+                //自动生成所有权限组  过滤非上海鲜动、海星宝的添加设备权限
                 $data['name'] = '超级管理员';
-                $data['flag'] = $this->get_flag();
+                $flag = $this->get_flag();
+                if(!in_array($rs['high_level'],[0,1]))
+                {
+                    $flag = str_replace('37','',$flag);
+                }
+                $data['flag'] = $flag;
                 $data['ctime'] = time();
                 $data['platform_id'] = $id;
                 $id = $this->admin_model->insertSgroup($data);
