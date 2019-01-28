@@ -28,24 +28,27 @@ class Reconciliation extends MY_Controller
         $this->load->model('card_model');
         $this->load->model("equipment_new_model");
         $this->load->model('commercial_model');
+        $this->load->model('reconciliation_model');
         $this->c_db = $this->load->database('citybox_master', TRUE);
     }
 
     public function index(){
         $Agent = $this->agent_model->get_own_agents($this->platform_id);
-        if(in_array($Agent['high_level'],[0,1]))
+        $agent_level_list = $this->commercial_model->get_agent_level_list_pt($this->platform_id,1);
+        $platform_list    = $this->commercial_model->get_agent_level_list_pt($this->platform_id,2);
+        if($this->svip)
         {
-            $this->_pagedata['is_svip'] = 1;
-            //代理商级别
             $agent_level_list = $this->commercial_model->get_agent_level_list($Agent,2);
+            $platform_list = $this->commercial_model->get_agent_level_list($Agent,1);
         }
+
         $this->_pagedata['start_time'] = $this->input->get('uid')?'':date('Y-m-d 00:00:00');
         $this->_pagedata['end_time']   = $this->input->get('uid')?'':date('Y-m-d 23:59:59');
         $this->_pagedata['admin'] = $this->user_model->get_all_admin();
         $this->_pagedata['store_list'] = $this->equipment_new_model->get_store_list();
         $this->_pagedata['uid'] = $this->input->get('uid');
         $this->_pagedata['info']= $this->user_model->get_user_info($this->_pagedata['uid']);
-        $this->_pagedata['platform_list']= $this->commercial_model->get_agent_level_list($Agent,1);
+        $this->_pagedata['platform_list']= $platform_list;
         $this->_pagedata['agent_level_list'] = $agent_level_list;
         $this->page('reconciliation/index.html');
     }
@@ -118,162 +121,15 @@ class Reconciliation extends MY_Controller
         return true;
     }
 
-    //订单列表
+    //对账单列表
     public function table(){
-        $limit      = $this->input->get('limit')?$this->input->get('limit'):10;
-        $offset     = $this->input->get('offset')?$this->input->get('offset'):0;
-        $order_name = $this->input->get('search_order_name');
-        $agent_name = $this->input->get('search_agent_name');
-        $commercial_name = $this->input->get('search_commercial_name');
-        $equipment_id = $this->input->get('search_equipment_id');
-        $order_status = $this->input->get('search_order_status');
-        $start_time = $this->input->get('search_start_time');
-        $end_time   = $this->input->get('search_end_time');
-        $uid        = $this->input->get('uid');
-        if(isset($_GET['day']) && $_GET['day']!=''){
-            $start_time = date('Y-m-d 00:00:00', strtotime($_GET['day']));
-            $end_time   = date('Y-m-d 23:59:59', strtotime($_GET['day']));
-        }
-        $where['id >'] = 0;
-        if($uid){
-            $where['uid'] = $uid;
-        }
-        if($order_name){
-            $where['order_name'] = $order_name;
-        }
-        if($start_time){
-            $where['order_time >='] = $start_time;
-        }
-        if($end_time){
-            $where['order_time <='] = $end_time;
-        }
-
-
-        if(isset($_GET['search_order_status']) && $order_status!=-1){
-            $where['order_status'] = $order_status;
-        }
-        if(isset($_GET['search_refer']) && !empty($_GET['search_refer'])){
-            $where['refer'] = $_GET['search_refer'];
-        }
-        //权限判定
-        $Agent = $this->agent_model->get_own_agents($this->platform_id);
-        //自己发展的商户
-        $box_list_zhitui = $this->order_model->get_box_list_by_agent($this->platform_id,'equipment_id');
+        //读取当前代理商下的所有对账列表
+        $reconciliation_list = $this->reconciliation_model->get_list();
         if($this->svip)
         {
-            //超级 代理商 订单设备要该代理商下所有下级代理发展的商户和自己发展的商户
-            $box_list_next = $this->order_model->get_box_list_by_next_agent($this->platform_id,'equipment_id',1);
-        }else
-        {
-            $box_list_next = $this->order_model->get_box_list_by_next_agent($this->platform_id,'equipment_id');
+            $reconciliation_list = $this->reconciliation_model->get_list();
         }
-        $box_list = array_merge($box_list_zhitui,$box_list_next);
-        $this->c_db->from('order');
-        $this->c_db->where($where);
-        $search_box = array();
-        if($equipment_id)
-        {
-            $search_box = array($equipment_id);
-        }
-//        $search_box = array_unique(array_merge($search_box,$box_list));
-        if(!empty($box_list) && empty($search_box))
-        {
-            $this->c_db->where_in('box_no', $box_list);
-        }
-        if(!empty($search_box)){
-            $this->c_db->where_in('box_no', $search_box);
-        }
-        $this->c_db->order_by('id desc');
-        $this->c_db->limit($limit,$offset);
-        $list = $this->c_db->get()->result_array();
-        if($_GET['is_explore'] == 1){
-            return $this->explore($list);//共用筛选条件 导出
-        }
-        $this->load->model('refer_model');
-        $refer = $this->refer_model->all();
-        foreach ($list as $k => $v) {
-            $list[$k]['detail'] = '<button type="button" class="btn btn-success"  onclick="show_model(\''.$v['order_name'].'\')" >详情</button>';
-            $tmp = $this->equipment_new_model->get_box_no(array('equipment_id'=>$v['box_no']), 'name');//盒子搜索
-            $list[$k]['name']   = $tmp[0];
-            $user_info = $this->user_model->get_user_info($v['uid']);
-            $list[$k]['uid']   = $user_info['user_name'].'(用户id:'.$v['uid'].')<br/>手机:'.$user_info['mobile'];
-
-            if(isset($refer[$v['refer']])){
-                $list[$k]['refer'] = $refer[$v['refer']];
-            }
-            if($v['order_status'] == 0){
-                $list[$k]['order_status'] = '<button type="button" class="btn btn-danger">未支付</button>';
-            }elseif($v['order_status'] == self::ORDER_STATUS_CONFIRM){
-                $list[$k]['order_status'] = '下单成功支付处理中';
-            } elseif($v['order_status'] == 1){
-                $list[$k]['order_status'] = '已支付';
-            }elseif($v['order_status'] == 3){
-                $list[$k]['order_status'] = '退款申请';
-            }elseif($v['order_status'] == 4){
-                $list[$k]['order_status'] = '退款完成';
-            }elseif($v['order_status'] == self::ORDER_STATUS_REJECT){
-                $list[$k]['order_status'] = '驳回申请';
-            }
-            $list[$k]['dis'] = '<span style="color:red;">-'.bcadd($list[$k]['discounted_money'], $list[$k]['card_money'], 2).'</span>';
-        }
-        $this->c_db->select("count(id) as num, SUM(money+yue) as money, count(DISTINCT(uid)) as user_num, sum(qty) as qty");
-        $this->c_db->from('order');
-        $this->c_db->where($where);
-        if(!empty($box_list))
-        {
-            $this->c_db->where_in('box_no', $box_list);
-        }
-        if(!empty($search_box)){
-            $this->c_db->where_in('box_no', $search_box);
-        }
-        if(!empty($order_list)){
-            $this->c_db->where_in('order_name', $order_list);
-        }
-        $total = $this->c_db->get()->row_array();
-        if($_GET['search_product_name']){
-            $tmp = explode('|', $search_product_name);
-            $product_id = $tmp[0];
-            $total['qty'] = 0;
-
-            $this->c_db->select("order_name");
-            $this->c_db->from('order');
-            $this->c_db->where($where);
-            $this->c_db->where_in('box_no', $search_box);
-            if(!empty($order_list)){
-                $this->c_db->where_in('order_name', $order_list);
-            }
-            if(!empty($user_id_arr)){
-                $this->c_db->where_in('uid', $user_id_arr);
-            }
-            $order_name_list = $this->c_db->get()->result_array();
-            if(!empty($order_name_list)){
-                $tmp = array();
-                foreach($order_name_list as $k=>$v){
-                    $tmp[] = $v['order_name'];
-                }
-                $this->c_db->select("sum(qty) as qty ");
-                $this->c_db->from('order_product');
-                if(is_numeric($product_id)){
-                    $this->c_db->where('product_id', $product_id);
-                }else{
-                    $this->c_db->like('product_name', $product_id);
-                }
-                $this->c_db->where_in('order_name', $tmp);
-                $one_total = $this->c_db->get()->row_array();
-                $total['qty'] = $one_total['qty'];
-            }
-        }
-
-        $result = array(
-            'total' => intval($total['num']),
-            'money' => floatval($total['money']),
-            'user'  => intval($total['user_num']),
-            'qty'   => intval($total['qty']),
-            'user_avg' => floatval(bcdiv($total['money'], $total['user_num'], 2)),
-            'total_avg'=> floatval(bcdiv($total['money'], $total['num'], 2)),
-            'rows'  => $list
-        );
-        echo json_encode($result);
+        echo json_encode($reconciliation_list);
     }
 
 
