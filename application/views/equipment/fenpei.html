@@ -1,0 +1,79 @@
+<{if $tips eq ''}>
+<{else}>
+<div class="alert alert-danger" role="alert"><{$tips}></div>
+<{/if}>
+<div class="panel panel-default">
+	<div class="panel-heading">分配设备</div>
+	<table class="table">
+		<form action="/equipment/add_save" id="myform" name="myform" method="post" >
+			<tr class="tr">
+				<td width="22%" align="right" > 盒子方设备ID：</td>
+				<td width="75%" >
+					<textarea name="equipment_ids" id="equipment_ids"  rows="10" cols="50" placeholder="盒子ID，如68805328909,68805328903,00D051AD002D 使用逗号分隔，建议不要超过500个ID"></textarea>
+				</td>
+			</tr>
+		  <tr class="tr">
+		    <td width="22%" align="right" > 分配代理商/商户：</td>
+		    <td width="75%" >
+		    	<select class="form-control" name="platform_tag" id="platform_tag"  style="width:150px;">
+					<{foreach $platform_agent as $val}>
+                    <option value="<{$val.id}>|<{$val.tag}>" style="width:150px;">
+						<{$val.name}>
+					</option>
+                    <{/foreach}>
+				 </select>
+		    </td>
+		  </tr>
+			<!--<tr class="tr">
+				<td width="22%" align="right" >硬件维保期限：</td>
+				<td width="75%" >
+					<select class="form-control" name="harfware_time" id="harfware_time"  style="width:150px;">
+						<option value="1" style="width:150px;">一年</option>
+						<option value="2" style="width:150px;">两年</option>
+						<option value="3" style="width:150px;">三年</option>
+						<option value="0" style="width:150px;">永久</option>
+					</select>
+				</td>
+			</tr>
+			<tr class="tr">
+				<td width="22%" align="right" > 软件服务周期：</td>
+				<td width="75%" >
+					<select class="form-control" name="software_time" id="software_time"  style="width:150px;">
+						<option value="1" style="width:150px;">一年</option>
+						<option value="2" style="width:150px;">两年</option>
+						<option value="3" style="width:150px;">三年</option>
+						<option value="0" style="width:150px;">永久</option>
+					</select>
+				</td>
+			</tr>-->
+		  
+		  <tr class="tr">
+		    <td align="right" >&nbsp;</td>
+		    <td ><input type="button" onclick="submitForm()" name="Submit" class="lostfocus" onFocus='this.className="getfocus";' onMouseOver='this.className="getfocus";' onBlur='this.className="lostfocus";' onMouseOut='this.className="lostfocus";'
+			value="更新">
+			<input type="button" value="返回" onclick="history.back();" />
+		  </tr>
+		</form>
+	</table>
+</div>
+<script type="text/javascript">
+
+function submitForm(){
+	if ($('#equipment_id').val() == ''){
+		alert('请输入盒子id！');
+		return;
+	}
+	if ($('#code').val() == ''){
+		alert('请输入盒子编码！');
+		return;
+	}
+	if ($('#platform_tag').val() == '-1|'){
+		alert('暂不能分配设备,前去添加代理商或商户！');
+		return;
+	}
+	$('#myform').submit();
+}
+
+
+</script>
+

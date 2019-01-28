@@ -1785,4 +1785,31 @@ class Equipment extends MY_Controller {
         }
         $this->showJson(['status'=>'success','data'=>$data]);
     }
+
+    public function fenpei()
+    {
+        $agent_level_list = $this->commercial_model->get_agent_level_list_pt($this->platform_id,1);
+        $platform_list    = $this->commercial_model->get_agent_level_list_pt($this->platform_id,2);
+        if($this->svip)
+        {
+            $this->_pagedata['is_svip'] = 1;
+            //代理商级别
+            $Agent = $this->agent_model->get_own_agents($this->platform_id);
+            $agent_level_list = $this->commercial_model->get_agent_level_list($Agent,2);
+            $platform_list = $this->commercial_model->get_agent_level_list($Agent,1);
+        }
+        foreach($agent_level_list as $key=>$val)
+        {
+            $agent_level_list[$key]['name'] = '代理商--'.$val['name'];
+            $agent_level_list[$key]['tag'] = '代理商';
+        }
+        foreach($platform_list as $key=>$val)
+        {
+            $platform_list[$key]['name'] = '商户--'.$val['name'];
+            $platform_list[$key]['tag'] = '商户';
+        }
+        $platform_agent = array_merge((array)$agent_level_list,(array)$platform_list);
+        $this->_pagedata['platform_agent']= $platform_agent;
+        $this->page('equipment/fenpei.html');
+    }
 }
