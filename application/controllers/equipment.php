@@ -114,7 +114,7 @@ class Equipment extends MY_Controller {
             $where['platform_id'] = $search_platform_id;
         }
         if ($id){
-            $where['platform_id'] = $id;
+            $where['last_agent_id'] = $id;
         }
         if ($search_status || $search_status == 0){
             $where['status'] = $search_status;
@@ -142,7 +142,6 @@ class Equipment extends MY_Controller {
         $agent_array = array_column($agent_level_list,'id');
         $platform_array = array_column($platform_list,'id');
         $array = $this->equipment_model->getEquipments("", $where, $offset, $limit, $platform_is_hidden,$agent_array,$platform_array);
-
         foreach ($array as $k=>$v){
             $array[$k]['qr_action'] = '';
             $array[$k]['platform_name'] = $v['platform_name'] ? $v['platform_name'] : '无';
@@ -167,8 +166,20 @@ class Equipment extends MY_Controller {
                 $array[$k]['banner_common_wechat'] = "<a target='_blank' href = '".$v['banner_common_wechat']."'>显示</a>";
             }
             $array[$k]['config'] = "<a target='_blank' href = '/sys_config/device/".$v['equipment_id']."'>个性配置</a>";
+            //获取代理商、商户
+            if($v['last_agent_id'])
+            {
+                $sql = " select name from p_agent WHERE id = '{$v['last_agent_id']}'";
+                $agent_rs = $this->db->query($sql)->row_array();
+                $array[$k]['agent_name'] = $agent_rs['name'];
+            }
+            if($v['platform_id'])
+            {
+                $sql = " select name from p_commercial WHERE id = '{$v['platform_id']}'";
+                $platform_rs = $this->db->query($sql)->row_array();
+                $array[$k]['commercial_name'] = $platform_rs['name'];
+            }
         }
-
         $total = (int)$this->equipment_model->getEquipments("count(*) as c",$where,'','','',$agent_array,$platform_array)[0]['c'];
 
         $result = array(
@@ -635,7 +646,7 @@ class Equipment extends MY_Controller {
         }elseif($equipment['last_agent_id'] != $agent_id)
         {
             $this->_pagedata["tips"] = "该设备您暂无分配权限！";
-        }elseif($equipment['type'] != $type)
+        }elseif($equipment['type'] != $type && !$assign)
         {
             $this->_pagedata["tips"] = "设备类型选择不正确！";
         }
@@ -1872,7 +1883,7 @@ class Equipment extends MY_Controller {
         //校验
         if(empty($equipment)|| $equipment['last_agent_id'] != $agent_id)
         {
-            $this->check_equipment($equipment,$codeEquipment,$agent_id,$type,'assign');
+            $this->check_equipment($equipment,'1',$agent_id,$type,'assign');
         }
         //更新equipment表
         //若为顶级代理需更新顶级代理字段
