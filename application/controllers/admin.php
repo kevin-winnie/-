@@ -16,6 +16,7 @@ class Admin extends MY_Controller {
     function __construct() {
         parent::__construct();
         $this->load->model("Admin_model");
+        $this->load->model('agent_model');
 //        $this->load->model("admin_equipment_model");
     }
 
@@ -363,6 +364,7 @@ class Admin extends MY_Controller {
         $platform_id = $this->platform_id;
         $this->title = '分组';
         $this->_pagedata ["list"] = $this->Admin_model->getGroupList($platform_id);
+        $this->_pagedata ["agent_id"] = $this->platform_id;
         $this->page('admin/listgroup.html');
     }
 
@@ -411,7 +413,8 @@ class Admin extends MY_Controller {
         if ($this->input->get("gid")) {
             $gid = $this->input->get("gid");
             $agent_id = $this->input->get("agent_id");
-
+            $agent_rs = $this->agent_model->dump(array('id'=>$agent_id));
+//            echo '<pre>';print_r($agent_rs);exit;
             if ($this->input->post("submit")) {
                 $flags = "";
                 if ($this->input->post("check")) {
@@ -437,16 +440,14 @@ class Admin extends MY_Controller {
                             'value' => $value
                         );
                         //过滤非上海鲜动、海星宝的添加设备权限
-
-                        if(!($this->svip))
+                        if(!in_array($agent_rs['high_level'],[0,1]) && ($moduleArr['nodeName'] == '设备管理'))
                         {
-                            unset($moduleArr['nodeValue'][1]);
+                            unset($moduleArr['nodeValue'][0]);
                         }
                     }
                 }
                 $modulesArr[] = $moduleArr;
             }
-
             $this->_pagedata ["modulesArr"] = $modulesArr;
             $this->_pagedata ["gid"] = $gid;
             $this->_pagedata ["flag"] = $this->Admin_model->getFlag($gid)->flag;

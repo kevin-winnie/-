@@ -146,7 +146,7 @@ class Agent extends MY_Controller {
                 $flag = $this->get_flag();
                 if(!in_array($rs['high_level'],[0,1]))
                 {
-                    $flag = str_replace('37','',$flag);
+                    $flag = str_replace('30','',$flag);
                 }
                 $data['flag'] = $flag;
                 $data['ctime'] = time();
