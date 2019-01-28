@@ -55,8 +55,14 @@ class Equipment extends MY_Controller {
 
     function index($id = '') {
         $where = ['is_hidden' => 0];
+        $type = $this->input->get('type');
+        $id = $this->input->get('id');
         if ($id){
             $this->_pagedata['id'] = $id;
+        }
+        if($type)
+        {
+            $this->_pagedata['type'] = $type;
         }
         $Agent = $this->agent_model->get_own_agents($this->platform_id);
         $agent_level_list = $this->commercial_model->get_agent_level_list_pt($this->platform_id,1);
@@ -82,14 +88,17 @@ class Equipment extends MY_Controller {
     }
 
     
-    public function table($id='')
+    public function table()
     {
+
         $limit = $this->input->get('limit') ? : 10;
         $offset = $this->input->get('offset') ? : 0;
         $search_code = $this->input->get('search_code') ? : '';
         $search_platform_id = $this->input->get('search_platform_id');
         $search_start_time = $this->input->get('search_start_time');
         $search_end_time = $this->input->get('search_end_time');
+        $type = $this->input->get('type');
+        $id = $this->input->get('id');
         if ($this->input->get('search_status') === '0'){
             $search_status = 0;
         } else {
@@ -113,8 +122,11 @@ class Equipment extends MY_Controller {
         if($search_platform_id && $search_platform_id!=-1) {
             $where['platform_id'] = $search_platform_id;
         }
-        if ($id){
+        if ($id && $type){
             $where['last_agent_id'] = $id;
+        }else
+        {
+            $where['platform_id'] = $id;
         }
         if ($search_status || $search_status == 0){
             $where['status'] = $search_status;

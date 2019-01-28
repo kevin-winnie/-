@@ -98,7 +98,7 @@
             <!--<a href='javascript:void(0)' onclick="refresh_cache()" role="button" class="btn btn-info btn-sm">刷新配置缓存</a>-->
         </div>
         <div id="config-body">
-        <table id="config-table" data-toggle="table" data-url="/equipment/table/<{$id}>" data-click-to-select="true" data-select-item-name="radioName" data-pagination="true" data-page-size="100" data-side-pagination="server" data-page-list="[5,10,15,20,50,100]">
+        <table id="config-table" data-toggle="table" data-url="/equipment/table/?id=<{$id}>&type=<{$type}>" data-click-to-select="true" data-select-item-name="radioName" data-pagination="true" data-page-size="100" data-side-pagination="server" data-page-list="[5,10,15,20,50,100]">
             <thead>
                 <tr>
                     <th data-field="state" data-radio="true"></th>

@@ -59,6 +59,9 @@ class Equipment_model extends CI_Model
         if ($where['last_agent_id']){
             $sql.= " and a.last_agent_id = ".$where['last_agent_id'];
         }
+        if ($where['platform_id']){
+            $sql.= " and a.platform_id = ".$where['platform_id'];
+        }
         if ($where['code']){
             $sql.= " and a.code = '".$where['code']."'";
         }
@@ -68,12 +71,13 @@ class Equipment_model extends CI_Model
         if ($where['end_time']){
             $sql.= " and a.created_time <= '".$where['end_time']."'";
         }
-        if(($agent_array ||$platform_array) && !$where['last_agent_id'])
+        if(!$where['last_agent_id'] && !$where['platform_id'])
         {
             $agent_string = implode("','",$agent_array);
             $agent_string = "'".$agent_string."'";
             $platform_string = implode("','",$platform_array);
             $platform_string = "'".$platform_string."'";
+
             if($agent_array && empty($platform_array))
             {
                 $sql.= " and a.last_agent_id in ({$agent_string})";
