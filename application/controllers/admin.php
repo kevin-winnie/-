@@ -407,6 +407,7 @@ class Admin extends MY_Controller {
             }
             $this->rbac($platform_id,$tips);
         }
+
         if ($this->input->get("gid")) {
             $gid = $this->input->get("gid");
 
@@ -434,6 +435,11 @@ class Admin extends MY_Controller {
                             'name' => $name,
                             'value' => $value
                         );
+                        //过滤非上海鲜动、海星宝的添加设备权限
+                        if(!($this->svip))
+                        {
+                            unset($moduleArr['nodeValue'][1]);
+                        }
                     }
                 }
                 $modulesArr[] = $moduleArr;
