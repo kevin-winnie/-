@@ -32,6 +32,8 @@ class CronReconciliation extends CI_Controller{
         {
             foreach($rs as $key=>$val)
             {
+                $other_sale = array();
+                $other_sale_ = array();
                 //数据源  商户的订单数据  已支付、退款中、退款完成、退款驳回
                 if($val['platform_rs_id'])
                 {
@@ -43,20 +45,26 @@ class CronReconciliation extends CI_Controller{
 	                      AND a.order_status IN (1, 3, 4, 5) GROUP BY a.refer";
 
                     $order_sale_data = $this->c_db->query($sql)->result_array();
-                    foreach($order_sale_data as $k=>$v)
+                    if(!empty($order_sale_data))
                     {
-                        if($v['refer'] == 'alipay')
+                        foreach($order_sale_data as $k=>$v)
                         {
-
-                        }elseif($v['refer'] == 'wechat')
-                        {
-
-                        }else
-                        {
-
+                            if(!in_array($v['refer'],['alipay','wechat']))
+                            {
+                                $other_sale['good_money'] += $v['good_money'];
+                                $other_sale['money'] += $v['money'];
+                                $other_sale['discounted_money'] += $v['discounted_money'];
+                                $order_sale_refer['other'] = $other_sale;
+                            }else
+                            {
+                                $order_sale_refer[$v['refer']] = $v;
+                            }
                         }
+                    }else
+                    {
+                        $order_sale_refer = array();
                     }
-                    $data[$val['platform_rs_id']]['order_sale'] = $order_sale_data;
+                    $data[$val['platform_rs_id']]['order_sale'] = $order_sale_refer;
                     //获取退款金额
                     $sql = " SELECT sum(b.really_money+b.yue) as refund_money,a.refer FROM cb_order AS a
                               LEFT JOIN cb_order_refund as b ON a.order_name = b.order_name
@@ -64,13 +72,29 @@ class CronReconciliation extends CI_Controller{
                               and b.admin_time >= '{$start}' and b.admin_time <= '{$end}' GROUP BY a.refer";
 
                     $order_refund_data = $this->c_db->query($sql)->result_array();
-                    $data[$val['platform_rs_id']]['order_refund'] = $order_refund_data;
+                    if(!empty($order_refund_data))
+                    {
+                        foreach($order_refund_data as $k=>$v)
+                        {
+                            if(!in_array($v['refer'],['alipay','wechat']))
+                            {
+                                $other_sale_['refund_money'] += $v['good_money'];
+                                $order_refund_refer['other'] = $other_sale_;
+                            }else
+                            {
+                                $order_refund_refer[$v['refer']] = $v;
+                            }
+                        }
+                    }else
+                    {
+                        $order_refund_refer = array();
+                    }
+                    $data[$val['platform_rs_id']]['order_refund'] = $order_refund_refer;
 
                 }
             }
         }
-        echo '<pre>';print_r($data);exit;
-        //根据代理商计算分成 销售额、退款金额、实际营收、出账金额、入账金额   入账金额>=出账金额
+        //根据代理商计算分成 销售额、退款金额、补贴金额 、实际营收、出账金额、入账金额   入账金额>=出账金额
         //获取每个代理商下面的代理商、商户数据
         $agent_sale_data = array();
         $sql = " select * from p_agent";
@@ -90,13 +114,17 @@ class CronReconciliation extends CI_Controller{
                     {
                         if(in_array($k,$commercial_array))
                         {
-                            $agent_sale_data[$agent_id][$k][] = $v;
+                            $agent_sale_data[$agent_id][$k] = $v;
                         }
                     }
+                }else
+                {
+                    $agent_sale_data[$agent_id] = array();
                 }
             }
         }
-        echo '<pre>';print_r($agent_sale_data);exit;
+        //获取到每个代理商的销售额、退款金额、补贴金额--计算实际营收、出账金额、入账金额
+        
     }
 
     /**
@@ -137,6 +165,7 @@ class CronReconciliation extends CI_Controller{
             }
         }
         $info = array_merge((array)$rs,(array)$info);
+        $info[]['id'] = $agent_id;
         //获取到该用户下所有的代理商id
         $agent_array = array_unique(array_column($info,'id'));
         return $agent_array;
