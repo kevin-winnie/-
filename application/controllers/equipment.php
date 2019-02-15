@@ -2005,26 +2005,14 @@ class Equipment extends MY_Controller {
         //对设备有分配给商户的操作才去同步Admin后台
         if ($insertBox && $platform_id){
             //done 打cityboxadmin接口 插入设备
-            $params = array(
-                'timestamp'=>time() . '000',
-                'source'    => 'program',
-                'code'=> $code,
-                'type'=> $type,
-                'platform_id'=>$platform_id,
-                'equipment_id'=>$equipment_id
-            );
-
-            $url = RBAC_URL."apiEquipment/addEquipment";
-
-            $params['sign'] = $this->create_platform_sign($params);
-
-            $options['timeout'] = 100;
-            $result = $this->http_curl->request($url, $params, 'POST', $options);
-            if(json_decode($result['response'],1)['code']==200){
-                echo '<head><meta http-equiv="Content-Type" content="text/html" charset="utf-8"><script>alert("'.json_decode($result['response'],1)['msg'].'");location.href = "/equipment/index";</script></head>';
+            $this->load->helper('admin_eq');
+            $code = $equipment_id;
+            $rs_admin = add_eq_for_admin($equipment_id,$code,$platform_id,$type);
+            if($rs_admin){
+                echo '<head><meta http-equiv="Content-Type" content="text/html" charset="utf-8"><script>alert("分配成功");location.href = "/equipment/index";</script></head>';
                 exit;
             } else {
-                echo '<head><meta http-equiv="Content-Type" content="text/html" charset="utf-8"><script>alert("'.json_decode($result['response'],1)['msg'].'");location.href = "/equipment/add";</script></head>';
+                echo '<head><meta http-equiv="Content-Type" content="text/html" charset="utf-8"><script>alert("分配失败");location.href = "/equipment/add";</script></head>';
                 exit;
             }
             exit;
