@@ -241,7 +241,6 @@ class Commercial extends MY_Controller {
                 $data['platform_id'] = $post['id'];
                 $data['config_ids'] = json_encode($post['config']);
                 $data['last_update'] = date('Y-m-d H:i:s');
-                $data['id'] = $post['config_id'];
                 $data['wechat_rate'] = $post['wechat_rate'];
                 $data['alipay_rate'] = $post['alipay_rate'];
                 $data['separate_account'] = $post['separate_account'];
