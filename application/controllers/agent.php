@@ -148,6 +148,7 @@ class Agent extends MY_Controller {
                 if(!in_array($rs['high_level'],[0,1]))
                 {
                     $flag = str_replace('30','',$flag);
+                    $flag = str_replace('32','',$flag);
                 }
                 $data['flag'] = $flag;
                 $data['ctime'] = time();
