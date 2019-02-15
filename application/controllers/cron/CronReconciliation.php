@@ -45,19 +45,27 @@ class CronReconciliation extends CI_Controller{
 	                      AND a.order_status IN (1, 3, 4, 5) GROUP BY a.refer";
 
                     $order_sale_data = $this->c_db->query($sql)->result_array();
+                    //此处需读取该商户配置的费率
+                    $commercial_rate = $this->get_commercial_rate($platform_id);
                     if(!empty($order_sale_data))
                     {
+                        //按来源分组 支付宝 微信
                         foreach($order_sale_data as $k=>$v)
                         {
-                            if(!in_array($v['refer'],['alipay','wechat']))
+                            if($v['refer'] == 'alipay')
+                            {
+                                $order_sale_refer[$v['refer']] = $v;
+                                $order_sale_refer[$v['refer']]['really_money'] = round($v['money']*(1-$commercial_rate['alipay_rate']),2);
+                            }elseif($v['refer'] == 'wechat')
+                            {
+                                $order_sale_refer[$v['refer']] = $v;
+                                $order_sale_refer[$v['refer']]['really_money'] = round($v['money']*(1-$commercial_rate['wechat_rate']),2);
+                            }else
                             {
                                 $other_sale['good_money'] += $v['good_money'];
                                 $other_sale['money'] += $v['money'];
                                 $other_sale['discounted_money'] += $v['discounted_money'];
                                 $order_sale_refer['other'] = $other_sale;
-                            }else
-                            {
-                                $order_sale_refer[$v['refer']] = $v;
                             }
                         }
                     }else
@@ -104,29 +112,177 @@ class CronReconciliation extends CI_Controller{
             foreach($agent_rs as $key=>$val)
             {
                 $agent_id = $val['id'];
-                //所有代理商id
+                //该代理商下所有代理商id
                 $agent_array = $this->get_all_agent_data($agent_id);
                 //满足条件的商户
-                if(!empty($agent_array))
-                {
                     $commercial_array = $this->get_all_commercial_data($agent_array);
-                    foreach($data as $k=>$v)
+                    if(!empty($commercial_array))
                     {
-                        if(in_array($k,$commercial_array))
+                        foreach($data as $k=>$v)
                         {
-                            $agent_sale_data[$agent_id][$k] = $v;
+                            if(in_array($k,$commercial_array))
+                            {
+                                $agent_sale_data[$agent_id][$k] = $v;
+                            }
+                        }
+                    }else
+                    {
+                        $agent_sale_data[$agent_id] = array();
+                    }
+
+            }
+        }
+        //获取到每个代理商的销售额、退款金额、优惠金额--计算实际营收、出账金额、入账金额
+        $data_money = array();
+        foreach($agent_sale_data as $key=>$val)
+        {
+            if($val)
+            {
+                foreach($val as $k=>$v)
+                {
+                    if(!empty($v['order_sale']))
+                    {
+                        foreach($v['order_sale'] as $k1=>$v1)
+                        {
+                            $data_money[$key]['money'] += $v1['money'];
+                            $data_money[$key]['discounted_money'] += $v1['discounted_money'];
+                            $data_money[$key]['really_money'] += $v1['really_money'];
+                        }
+                    }else
+                    {
+                        $data_money[$key]['money'] += 0;
+                        $data_money[$key]['discounted_money'] += 0;
+                        $data_money[$key]['really_money'] += 0;
+                    }
+
+                    if(!empty($v['order_refund']))
+                    {
+                        foreach($v['order_refund'] as $k2=>$v2)
+                        {
+                            $data_money[$key]['refund_money'] += $v2['refund_money'];
+                        }
+                    }else
+                    {
+                        $data_money[$key]['refund_money'] += 0;
+                    }
+                }
+            }else
+            {
+                $data_money[$key]['money'] = 0;
+                $data_money[$key]['discounted_money'] = 0;
+                $data_money[$key]['really_money'] = 0;
+            }
+            $sql = " select * from p_agent WHERE id = '{$key}'";
+            $res = $this->db->query($sql)->row_array();
+            $data_money[$key]['high_level'] =  $res['high_level'];
+            $data_money[$key]['high_agent_id'] =  $res['high_agent_id'];
+            $data_money[$key]['separate_rate'] =  $res['separate_rate'];
+        }
+        //计算代理商分成 按每级代理商的提成比例-->从顶级代理商开始
+        $all_moeny = array();
+        for ($x=0; $x<=5; $x++) {
+            foreach($data_money as $key=>$val)
+            {
+                //从1级到5级
+                if($val['high_level'] == $x)
+                {
+                    //1.先计算直营商户的分成
+                    $zhiying_commercial = $this->get_zhiying($key);
+                    foreach($zhiying_commercial as $k=>$v)
+                    {
+                        //此处需读取该商户配置的提成比例
+                        $commercial_rate = $this->get_commercial_rate($v);
+                        if(!empty($data[$v]['order_sale']))
+                        {
+                            foreach($data[$v]['order_sale'] as $k1=>$v1)
+                            {
+                                $all_moeny[$key]['com'][$v]['money'] += $v1['money'];
+                            }
+                        }else
+                        {
+                            $all_moeny[$key]['com'][$v]['money'] += 0;
+                        }
+
+                        if(!empty($data[$v]['order_refund']))
+                        {
+                            foreach($data[$v]['order_refund'] as $k2=>$v2)
+                            {
+                                $all_moeny[$key]['com'][$v]['refund_money'] += $v1['refund_money'];
+                            }
+                        }else
+                        {
+                            $all_moeny[$key]['com'][$v]['refund_money'] += 0;
+                        }
+                        $all_moeny[$key]['com'][$v]['rel_money'] = bcsub($all_moeny[$key]['com'][$v]['money'],$all_moeny[$key]['com'][$v]['refund_money'],2);
+                        $com_ticheng = $commercial_rate['separate_rate']?$commercial_rate['separate_rate']:1;
+                        $all_moeny[$key]['com'][$v]['ticheng_rel_money'] = $all_moeny[$key]['com'][$v]['rel_money']*$com_ticheng;
+                    }
+
+                    //2.计算下级代理分成
+                    $n = $x + 1;
+                    foreach($data_money as $k3=>$v3)
+                    {
+                        //下级代理并且上级代理商为该代理商
+                        if($v3['high_level'] == $n && $v3['high_agent_id'] == $key)
+                        {
+                            $all_moeny[$key]['agent'][$k3]['rel_money'] = bcsub($data_money[$k3]['really_money'],$data_money[$k3]['refund_money'],2);
+                            $agent_ticheng = $data_money[$k3]['separate_rate']?$data_money[$k3]['separate_rate']:1;
+                            $all_moeny[$key]['agent'][$k3]['ticheng_rel_money'] = $all_moeny[$key]['agent'][$k3]['rel_money']*$agent_ticheng;
                         }
                     }
-                }else
-                {
-                    $agent_sale_data[$agent_id] = array();
+
                 }
             }
         }
-        //获取到每个代理商的销售额、退款金额、补贴金额--计算实际营收、出账金额、入账金额
-        
+        //整理出入账金额
+        foreach($data_money as $key=>$val)
+        {
+            foreach($all_moeny[$key]['com'] as $k1=>$v1)
+            {
+                $data_money[$key]['chuzhang'] += $v1['ticheng_rel_money'];
+            }
+            foreach($all_moeny[$key]['agent'] as $k2=>$v2)
+            {
+                $data_money[$key]['chuzhang'] += $v2['ticheng_rel_money'];
+            }
+        }
+        echo '<pre>';print_r($data_money);exit;
     }
 
+    /**
+     * @param $commercial_id 商户id
+     * @return mixed
+     * 读取商户配置表
+     */
+    public function get_zhiying($key)
+    {
+        $sql = " select platform_rs_id from p_commercial WHERE high_agent_id = '{$key}'";
+        $rs = $this->db->query($sql)->result_array();
+        $platfrom = array_column($rs,'platform_rs_id');
+        return $platfrom;
+    }
+    /**
+     * @param $commercial_id 商户id
+     * @return mixed
+     * 读取商户配置表
+     */
+    public function get_commercial_rate($commercial_id)
+    {
+        $sql = " select a.id,b.* from p_commercial as a
+                LEFT JOIN p_config_device as b ON a.id = b.platform_id
+                WHERE a.platform_rs_id = '{$commercial_id}'";
+        return $this->db->query($sql)->row_array();
+    }
+    /**
+     * @param $commercial_id 商户id
+     * @return mixed
+     * 读取商户配置表
+     */
+    public function get_agent_rate($agent_id)
+    {
+        $sql = " select * from p_agent WHERE id = '{$agent_id}'";
+        return $this->db->query($sql)->row_array();
+    }
     /**
      * @param $array
      * @return mixed
