@@ -17,30 +17,29 @@
 				<td width="75%" >默认与设备id一致，装机时候管理员修改</td>
 			</tr>
 
-		  <tr class="tr">
-		    <td width="22%" align="right" > 盒子类型：</td>
-		    <td width="75%" >
-		    	<select class="form-control" name="type" id="type"  style="width:150px;">
-					<option value="rfid-1">rfid-1[蚂蚁盒子RFID]</option>
-					<option value="rfid-2">rfid-2[自己生产RFID]</option>
-                    <option value="rfid-3">rfid-3[数字RFID]</option>
-                    <option value="rfid-4">rfid-4[无膜RFID]</option>
-                    <option value="rfid-5">rfid-5[无膜RFID-数烨]</option>
-					<option value="rfid-6">rfid-6[数字RFID-数烨]</option>
-					<option value="scan-1">scan-1[扫码]</option>
-					<option value="vision-1">vision-1[视觉]</option>
-					<option value="vision-2">vision-2[视觉-数烨]</option>
-                    <option value="coffee-1">coffee-1[咖啡设备-沙丁鱼]</option>
-				 </select>
-		    </td>
-		  </tr>
+			<tr class="tr">
+				<td width="22%" align="right" > 盒子类型：</td>
+				<td width="75%" >
+					<select class="form-control" name="type" id="type"  style="width:200px;">
+						<{foreach $eq_type as $val}>
+							<option value="<{$val.code}>"><{$val.name}></option>
+						<{/foreach}>
+					</select>
+				</td>
+			</tr>
 
 			<tr class="tr">
-				<td width="22%" align="right" > 所属代理商：</td>
+				<td width="22%" align="right" > 分配代理商：</td>
 				<td width="75%" >
-					<select class="form-control" name="platform_id" id="platform_id"  style="width:150px;">
+					<select class="form-control" name="platform_tag" id="platform_tag"  style="width:150px;">
+						<{if $is_hidden eq '1'}>
+							<option value="0" style="width:150px;">不分配</option>
+						<{else}>
+						<{/if}>
 						<{foreach $platform_list as $val}>
-							<option value="<{$val.id}>" style="width:150px;"><{$val.name}></option>
+							<option value="<{$val.id}>|<{$val.tag}>" style="width:150px;">
+								<{$val.name}>
+							</option>
 						<{/foreach}>
 					</select>
 				</td>
@@ -78,13 +77,20 @@
 	</table>
 </div>
 <script type="text/javascript">
-
-function submitForm(){
-	if ($('#equipment_ids').val() == ''){
-		alert('请输入盒子id！');
-		return;
+	function submitForm(){
+		if ($('#equipment_id').val() == ''){
+			alert('请输入盒子id！');
+			return;
+		}
+		if ($('#code').val() == ''){
+			alert('请输入盒子编码！');
+			return;
+		}
+		if ($('#platform_tag').val() == '-1|'){
+			alert('暂不能分配设备,前去添加代理商或商户！');
+			return;
+		}
+		$('#myform').submit();
 	}
-	$('#myform').submit();
-}
 </script>
 

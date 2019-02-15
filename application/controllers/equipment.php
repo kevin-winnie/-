@@ -300,7 +300,6 @@ class Equipment extends MY_Controller {
     
     public function add(){
         //下级代理商及直推商户
-        $platform_id = $this->platform_id;
         $agent_level_list = $this->commercial_model->get_agent_level_list_pt($this->platform_id,1);
         $platform_list    = $this->commercial_model->get_agent_level_list_pt($this->platform_id,2);
         if($this->svip)
@@ -315,11 +314,13 @@ class Equipment extends MY_Controller {
         {
             $agent_list[$k]['name'] = '代理商---'.$v['name'];
             $agent_list[$k]['tag'] = 'agent';
+            $agent_list[$k]['id'] = $v['id'];
         }
         foreach($platform_list as $k=>$v)
         {
             $commercial_list[$k]['name'] = '商户---'.$v['name'];
             $commercial_list[$k]['tag'] = 'commercial';
+            $commercial_list[$k]['id'] = $v['id'];
         }
         $list = array_merge($agent_list,$commercial_list);
         if($this->svip)
@@ -451,75 +452,154 @@ class Equipment extends MY_Controller {
     }
 
     public function add_batch(){
-        $where = array();
-        $this->_pagedata['platform_list'] = $this->commercial_model->getList("*", $where);
+        //下级代理商及直推商户
+        $agent_level_list = $this->commercial_model->get_agent_level_list_pt($this->platform_id,1);
+        $platform_list    = $this->commercial_model->get_agent_level_list_pt($this->platform_id,2);
+        if($this->svip)
+        {
+            $this->_pagedata['is_svip'] = 1;
+            //代理商级别
+            $Agent = $this->agent_model->get_own_agents($this->platform_id);
+            $agent_level_list = $this->commercial_model->get_agent_level_list($Agent,2);
+            $platform_list = $this->commercial_model->get_agent_level_list($Agent,1);
+        }
+        foreach($agent_level_list as $k=>$v)
+        {
+            $agent_list[$k]['name'] = '代理商---'.$v['name'];
+            $agent_list[$k]['tag'] = 'agent';
+            $agent_list[$k]['id'] = $v['id'];
+        }
+        foreach($platform_list as $k=>$v)
+        {
+            $commercial_list[$k]['id'] = $v['id'];
+            $commercial_list[$k]['name'] = '商户---'.$v['name'];
+            $commercial_list[$k]['tag'] = 'commercial';
+        }
+        $list = array_merge($agent_list,$commercial_list);
+        if($this->svip)
+        {
+            $this->_pagedata['is_hidden'] = 1;
+        }
+        if(empty($agent_list))
+        {
+            $list = [['id'=>-1,'name'=>'暂无可选项']];
+        }
+        $this->_pagedata['platform_list'] = $list;
+        $this->_pagedata['eq_type'] = $this->eq_type;
         $this->page('equipment/add_batch.html');
     }
 
     public function add_save_batch(){
-        $where = array();
-        $this->_pagedata['platform_list'] = $this->commercial_model->getList("*", $where);
+        $platform_tag = $this->input->post('platform_tag');
+        $type = $this->input->post('type');
+        $software_time = $this->input->post('software_time');
+        $hardware_time = $this->input->post('hardware_time');
+        $agent_id = $this->platform_id;
+        //解析出商户id
+        $tag = explode('|',$platform_tag);
+        if($tag[1] == 'commercial')
+        {
+            $platform_id = $tag[0];
+        }else
+        {
+            $last_agent = $tag[0];
+        }
 
         $equipment_ids = $_POST['equipment_ids'];
         $equipment_ids = str_replace('，',',',$equipment_ids);//替换中文逗号
         $equipments_arr = explode(',',$equipment_ids);
-        $platform_id  =   isset($_POST['platform_id']) ? $_POST['platform_id'] : 0;
-        $type = $_POST['type'];
+
 
         $error = "";
         $succ = "";
-        foreach ($equipments_arr as $equipment_id){
-            $equipment_id = trim($equipment_id);
-            if(empty($equipment_id))
-                continue;
-            $equipment = $this->equipment_model->findByBoxId($equipment_id);
-            if ($equipment){
-                $error .= " {$equipment_id} 该盒子id已存在,";
-            } else {
-                $code = $equipment_id;
-                $data = array();
-                $data['code'] = $code;
-                $data['type'] = $type;
-                $data['equipment_id'] = $equipment_id;
-                $data['status'] = 1;
-                $data['platform_id'] = $platform_id;
-                $data['created_time'] = time();
-                $insertBox = $this->equipment_model->insertData($data);
-                if ($insertBox){
-                    $this->load->helper('admin_eq');
-                    $rs_admin = add_eq_for_admin($equipment_id,$code,$platform_id,$type);
+        //顶级代理商添加设备 上海鲜动、海星宝
+        if($this->svip && $platform_tag == 0)
+        {
 
-//                    //done 打cityboxadmin接口 插入设备
-//                    $params = array(
-//                        'timestamp'=>time() . '000',
-//                        'source'    => 'platform',
-//                        'code'=> $code,
-//                        'type'=> $type,
-//                        'platform_id'=>$platform_id,
-//                        'equipment_id'=>$equipment_id
-//                    );
-//                    $url = RBAC_URL."apiEquipment/addEquipment";
-//
-//                    $params['sign'] = $this->create_platform_sign($params);
-//
-//                    $options['timeout'] = 100;
-//                    $result = $this->http_curl->request($url, $params, 'POST', $options);
-//                    if(json_decode($result['response'],1)['code']==200){
-//                        $succ .= $equipment_id.',';
-//
-//                    } else {
-//                        $error .= $equipment_id.json_decode($result['response'],1)['msg'].",";
-////                        echo '<head><meta http-equiv="Content-Type" content="text/html" charset="utf-8"><script>alert("'.json_decode($result['response'],1)['msg'].'");</script></head>';
-//                    }
-//                    sleep(1);//curl 停留1s
-                    if($rs_admin){
-                        $succ .= $equipment_id.',';
-                    }else{
-                        $error .=$equipment_id.',';
-                    }
+            foreach ($equipments_arr as $equipment_id){
+                $equipment_id = trim($equipment_id);
+                if(empty($equipment_id))
+                    continue;
+                $equipment = $this->equipment_model->findByBoxId($equipment_id);
+                if ($equipment){
+                    $error .= " {$equipment_id} 该盒子id已存在,";
+                } else {
+                    $code = $equipment_id;
+                    $data = array();
+                    $data['code'] = $code;
+                    $data['type'] = $type;
+                    $data['equipment_id'] = $equipment_id;
+                    $data['status'] = 1;
+                    $data['platform_id'] = isset($platform_id)?$platform_id:'0';
+                    $data['created_time'] = time();
+                    $data['last_agent_id'] = $agent_id;
+                    $data['software_time'] = $software_time;
+                    $data['hardware_time'] = $hardware_time;
+                    $data['agent_config'] = json_encode(array($agent_id));
+                    $this->equipment_model->insertData($data);
                 }
             }
+        }else { //分配设备
+            foreach ($equipments_arr as $equipment_id)
+            {
+                $equipment_id = trim($equipment_id);
+                $equipment = $this->equipment_model->findByBoxId($equipment_id);
+                //校验
+                if($equipment)
+                {
+                    $error .= " {$equipment_id} 该盒子id已存在,";
+                }
+                //更新equipment表
+                //若为顶级代理需更新顶级代理字段
+                if($this->svip)
+                {
+                    $data['first_agent_id'] = $agent_id;
+                }
+                $code = $equipment_id;
+                if(!$platform_id)
+                {   //分配给代理商
+                    $agent_config = json_decode($equipment['agent_config'],true);
+                    $agent_config[] = $last_agent;
+                    $data['status'] = 1;
+                    $data['agent_config'] = json_encode($agent_config);
+                    $data['code'] = $code;
+                    $data['type'] = $type;
+                    $data['last_agent_id'] = $last_agent;
+                    $data['equipment_id'] = $equipment_id;
+                    $data['software_time'] = $software_time;
+                    $data['hardware_time'] = $hardware_time;
+                    $data['platform_id'] = 0;
+                    $data['created_time'] = time();
+                    $this->equipment_model->insertData($data);
+                }else
+                {//分配给商户
+                    $data['status'] = 1;
+                    $data['code'] = $code;
+                    $data['type'] = $type;
+                    $data['last_agent_id'] = $last_agent;
+                    $data['platform_id'] = $platform_id;
+                    $data['equipment_id'] = $equipment_id;
+                    $data['software_time'] = $software_time;
+                    $data['hardware_time'] = $hardware_time;
+                    $data['created_time'] = time();
+                    $insertBox = $this->equipment_model->insertData($data);
+                    //对设备有分配给商户的操作才去同步Admin后台
+                    if ($insertBox && $platform_id){
+                        $this->load->helper('admin_eq');
+                        $code = $equipment_id;
+                        $rs_admin = add_eq_for_admin($equipment_id,$code,$platform_id,$type);
+                        if($rs_admin){
+                            $succ .= $equipment_id.',';
+                        }else{
+                            $error .=$equipment_id.',';
+                        }
+                    }
+                }
+
+            }
+
         }
+
         if($error){
             $this->_pagedata["tips"] = $error;
             if($succ)
