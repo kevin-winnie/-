@@ -19,6 +19,7 @@ class Agent extends MY_Controller {
 
     function __construct() {
         parent::__construct();
+        $this->c_db = $this->load->database('citybox_master', TRUE);
         $this->load->model('admin_model');
         $this->load->model('commercial_model');
         $this->load->model('agent_model');
@@ -211,6 +212,52 @@ class Agent extends MY_Controller {
             echo json_encode(array('code'=>300,'msg'=>'错误的商户编号'));
         }
         exit;
+    }
+
+
+    function agentUpdate($id){
+//        var_dump($_POST);die;
+
+        if($this->input->post("submit")) {
+            $post = $this->input->post();
+            $data = array(
+                'name'=>$post['name'],
+                'short_name'=>$post['short_name'],
+                'contacts'=>$post['contacts'],
+                'phone'=>$post['phone'],
+                'province'=>$post['search_province'],
+                'city'=>$post['search_city'],
+                'area'=>$post['search_area'],
+                'address'=>$post['address'],
+                'wechat_rate'=>$post['wechat_rate'],
+                'alipay_rate'=>$post['alipay_rate'],
+                'separate_name'=>$post['separate_name'],
+                'separate_pid'=>$post['separate_pid'],
+                'separate_rate'=>$post['separate_rate'],
+                'separate_account'=>$post['separate_account'],
+            );
+            $rs = $this->agent_model->update($data,array('id'=>$post['agent_id']));
+            if($rs){
+                $this->_pagedata["tips"] = "修改成功";
+            }else{
+                $this->_pagedata["tips"] = "修改失败";
+            }
+            $id = $post['agent_id'];
+        }
+        $agentInfo = $this->agent_model->dump(array('id'=>$id));
+        //获取当前城市信息
+        $sql = " select * from cb_sys_regional WHERE AREAIDS = '{$agentInfo['province']}'";
+        $province = $this->c_db->query($sql)->row_array();
+        $sql = " select * from cb_sys_regional WHERE AREAIDS = '{$agentInfo['city']}'";
+        $city = $this->c_db->query($sql)->row_array();
+        $sql = " select * from cb_sys_regional WHERE AREAIDS = '{$agentInfo['area']}'";
+        $area = $this->c_db->query($sql)->row_array();
+        $this->_pagedata['province'] = $province;
+        $this->_pagedata['city'] = $city;
+        $this->_pagedata['area'] = $area;
+        $this->_pagedata['info'] = $agentInfo;
+        $this->_pagedata['agent_id'] = $id;
+        $this->page('agent/agentUpdate.html');
     }
 
 
