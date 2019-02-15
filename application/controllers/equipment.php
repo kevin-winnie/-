@@ -122,11 +122,12 @@ class Equipment extends MY_Controller {
         if($search_platform_id && $search_platform_id!=-1) {
             $where['platform_id'] = $search_platform_id;
         }
+
         if ($id && $type){
             $where['last_agent_id'] = $id;
         }else
         {
-            $where['platform_id'] = $id;
+            $where['last_agent_id'] = $this->platform_id;
         }
         if ($search_status || $search_status == 0){
             $where['status'] = $search_status;
@@ -141,12 +142,12 @@ class Equipment extends MY_Controller {
             $where['end_time'] = strtotime($search_end_time);
         }
         $where['admin_id'] = $this->adminid;
-        $Agent = $this->agent_model->get_own_agents($this->platform_id);
         $agent_level_list = $this->commercial_model->get_agent_level_list_pt($this->platform_id,1);
         $platform_list    = $this->commercial_model->get_agent_level_list_pt($this->platform_id,2);
         if($this->svip)
         {
             $this->_pagedata['is_super'] = 1;
+            $Agent = $this->agent_model->get_own_agents($this->platform_id);
             $agent_level_list = $this->commercial_model->get_agent_level_list($Agent,2);
             $platform_list = $this->commercial_model->get_agent_level_list($Agent,1);
         }
@@ -1299,6 +1300,7 @@ class Equipment extends MY_Controller {
                 if($log == true){
                     $params['admin_id'] = $this->session->userdata('sess_admin_data')["adminid"];
                     $params['create_time'] = date('Y-m-d H:i:s');
+                    $params['agent_id'] = $this->platform_id;
                     $row = $this->db->from('assemble_equipment')->where('equipment_id',$params['equipment_id'])->get()->row_array();
                     if($row){
                         redirect('equipment/add_assemble?message=添加失败');
@@ -1397,9 +1399,9 @@ class Equipment extends MY_Controller {
         if($end_time){
             $where .= ' and e.create_time <= "'.$end_time.'"';
         }
-
-
+        $where .= " and e.agent_id = '{$this->platform_id}'";
         $rows = $this->equipment_model->assemble_table($where,$sort,$order,$offset,$limit);
+
         $this->db->from('assemble_equipment');
         $sql="select count(*) as c from p_assemble_equipment as e".$where;
         $total =$this->db->query($sql)->row_array();;
@@ -1480,6 +1482,7 @@ class Equipment extends MY_Controller {
         if($search_pault_type){
             $where .= ' and p.pault_type = '.$search_pault_type;
         }
+        $where .= " and p.agent_id = '{$this->platform_id}'";
         $rows = $this->equipment_model->pault_table($where,$sort,$order,$offset,$limit);
         foreach($rows as $key=>$val) {
             //array_push($equipment_ids, $val['equipment_id']);
@@ -1537,8 +1540,9 @@ class Equipment extends MY_Controller {
         if(strtolower($_SERVER["REQUEST_METHOD"]) == 'post'){
             $params = $this->input->post();
             $row = $this->p_db->from('pault')->where('equipment_id',trim($params['equipment_id']))->where('pault_status !=',3)->where('is_del',0)->get()->row_array();
-            if(!$row){
 
+            if(!$row){
+                $params['agent_id'] = $this->platform_id;
                 $params['create_admin'] = $this->session->userdata('sess_admin_data')["adminid"];
                 $params['create_time'] = date('Y-m-d H:i:s');
                 $res = $this->equipment_model->add_assemble($params,'pault');

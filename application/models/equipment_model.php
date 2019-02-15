@@ -276,12 +276,11 @@ class Equipment_model extends CI_Model
         return $this->db->insert($table,$params);
     }
     function update_assemble($params,$id,$table='assemble_equipment'){
-        return $this->p_db->where('id',$id)->update($table,$params);
+        return $this->db->where('id',$id)->update($table,$params);
     }
     function assemble_table($where,$sort,$order,$offset,$limit){
         $sql = 'select e.*,a.alias as admin_name from p_assemble_equipment as e join s_admin as a on e.admin_id=a.id '.$where.' ORDER BY '.$sort.' '.$order.' LIMIT '.$offset.','.$limit;
-
-        return $this->p_db->query($sql)->result_array();
+        return $this->db->query($sql)->result_array();
     }
     public function pault_table($where,$sort,$order,$offset,$limit){
         $sql = 'select p.*,a.contacts,a.phone,d.code from p_pault as p
@@ -289,7 +288,7 @@ class Equipment_model extends CI_Model
                 LEFT JOIN p_clue as a on a.clue_id=c.clue_id
                 LEFT JOIN p_equipment as d ON p.equipment_id = d.equipment_id
                 '.$where.' ORDER BY '.$sort.' '.$order.' LIMIT '.$offset.','.$limit;
-        return $this->p_db->query($sql)->result_array();
+        return $this->db->query($sql)->result_array();
     }
 
     public function get_agent_commercial_name($equipment_id)
