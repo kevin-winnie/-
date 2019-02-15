@@ -19,6 +19,7 @@ class Commercial extends MY_Controller {
 
     function __construct() {
         parent::__construct();
+        $this->p_db = $this->load->database('platform_master', TRUE);
         $this->load->model('commercial_model');
         $this->load->model('icon_model');
         $this->load->library('phpredis');
@@ -414,9 +415,16 @@ class Commercial extends MY_Controller {
                 $data['separate_rate'] = $post['separate_rate'];
                 $this->db->insert('p_config_device',$data);
                 refresh_config_cache();
-                //去PLATFORM平台添加该商户
+                //去PLATFORM平台添加该商户  并且创建配置
+                unset($data['separate_account']);
+                unset($data['separate_rate']);
                 unset($datas['high_agent_id']);
                 $platform_rs_id = $this->commercial_model->platform_insert($datas);
+                $icon_info['platform_id'] = $platform_rs_id;
+                $data['platform_id'] = $platform_rs_id;
+                $this->p_db->insert('p_icon',$icon_info);
+                $this->p_db->insert('p_config_device',$data);
+
                 $this->db->set('platform_rs_id',$platform_rs_id);
                 $this->db->where('id', $rs);  //agent里面的商户id
                 $this->db->update('commercial');
@@ -426,8 +434,6 @@ class Commercial extends MY_Controller {
                 $this->_pagedata["tips"] = "新增失败";
             }
         }
-
-        //$this->_pagedata['common_pr'] = 'https://api.icitybox.cn/public/p.html?d=DEVICEID';
         $this->load->model('equipment_model');
         $this->_pagedata['qr_common_url'] = Equipment_model::QR_COMMON_URL;
         $this->_pagedata["open_refer"] = $this->open_refer;
