@@ -52,26 +52,35 @@ class Order_model extends MY_Model
     }
 
     //获取当天实时订单数
-    public function get_day_order($date = '', $end_date='', $platform_id=0){
+    public function get_day_order($date = '', $end_date='', $platform_id=0,$array=array()){
         $date = $date?$date:date('Y-m-d 00:00:00');
         $where = array('order_status >'=>0, 'order_time >'=>$date);
         if($end_date){
             $where['order_time <'] = $end_date;
         }
-        if($platform_id){
+        if($platform_id && empty($array)){
             $where['platform_id'] = $platform_id;
         }
         $this->c_db->select("count(id) as num,  SUM(money+yue) as money,SUM(good_money) as good_money, count(DISTINCT(uid)) as user_num, SUM(qty) as qty, SUM(discounted_money) as discounted_money");
         $this->c_db->from('order');
         $this->c_db->where($where);
+        if(!empty($array))
+        {
+            $this->c_db->where_in('platform_id', $array);
+        }
         return $this->c_db->get()->row_array();
     }
 
 
-    public function get_hour_data($date='', $end_date='', $platform_id=0){
+    public function get_hour_data($date='', $end_date='', $platform_id=0,$array=array()){
         $where = '';
-        if($platform_id){
+        if($platform_id && empty($array)){
             $where = ' and platform_id='.$platform_id.' ';
+        }
+        if(!empty($array))
+        {
+            $string = "'".implode("','",$array)."'";
+            $where = " and platform_id in ({$string})";
         }
         $end_date = $end_date?$end_date:$date;
         $sql = "  select sum(money) as total_money , time_hour from (   SELECT money,date_format(order_time, '%H') as time_hour from cb_order WHERE `order_status` > 0 AND `order_time` >= '{$date} 00:00:00' and `order_time` <= '{$end_date} 23:59:59' {$where} ) as tmp  group by time_hour";

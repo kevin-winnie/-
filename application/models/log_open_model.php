@@ -18,18 +18,22 @@ class Log_open_model extends MY_Model
     }
 
     //获取当天开门次数
-    function get_open_times($date = '', $end_date='', $platform_id=0){
+    function get_open_times($date = '', $end_date='', $platform_id=0,$array=array()){
         $date = $date?$date:date('Y-m-d 00:00:00');
         $where = array( 'open_time >'=>$date);
         if($end_date){
             $where['open_time <'] = $end_date;
         }
-        if($platform_id){
+        if($platform_id && empty($array)){
             $where['platform_id'] = $platform_id;
         }
         $this->c_db->select("count(id) as open_num, count(DISTINCT(uid)) as open_user_num");
         $this->c_db->from('log_open');
         $this->c_db->where($where);
+        if(!empty($array))
+        {
+            $this->c_db->where_in('platform_id', $array);
+        }
         return $this->c_db->get()->row_array();
     }
 

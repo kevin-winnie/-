@@ -23,18 +23,26 @@ class Order_refund_model extends MY_Model
     );
 
 
-    public function get_total($platform_id=0){
+    public function get_total($platform_id=0,$array=array()){
         $where1 = array('refund_status'=>1);
         $where2 = array('refund_status'=>1, 'create_time <='=>date('Y-m-d H:i:s', strtotime('-3 days')));
-        if($platform_id){
+        if($platform_id && empty($array)){
             $where1['platform_id'] = $platform_id;
             $where2['platform_id'] = $platform_id;
         }
         $this->c_db->from('order_refund');
         $this->c_db->where($where1);
+        if(!empty($array))
+        {
+            $this->c_db->where_in('platform_id', $array);
+        }
         $result['refund_num'] = $this->c_db->get()->num_rows();//总的申请
         $this->c_db->from('order_refund');
         $this->c_db->where($where2);
+        if(!empty($array))
+        {
+            $this->c_db->where_in('platform_id', $array);
+        }
         $result['three_refund_num'] = $this->c_db->get()->num_rows();//超过三天的申请
         return $result;
     }

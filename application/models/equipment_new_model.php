@@ -577,8 +577,8 @@ class Equipment_new_model extends CI_Model
      * @param $start_time 开始时间 时间戳
      * @param $end_time 结束时间 时间戳
      * */
-    function get_eq_num_first($start_time, $end_time, $platform_id=0){
-        if($platform_id){
+    function get_eq_num_first($start_time, $end_time, $platform_id=0,$array = array()){
+        if($platform_id && empty($array)){
             $where['platform_id'] = $platform_id;
         }
         $where['status'] = 1;
@@ -586,6 +586,10 @@ class Equipment_new_model extends CI_Model
         $where['firstordertime <='] = $end_time;
         $this->c_db->from('equipment');
         $this->c_db->where($where);
+        if(!empty($array))
+        {
+            $this->c_db->where_in('platform_id', $array);
+        }
         return $this->c_db->get()->num_rows();
     }
 
@@ -593,10 +597,15 @@ class Equipment_new_model extends CI_Model
      * @desc 当天 首次订单的盒子
      * @param
      * */
-    public function get_eq_curr($platform_id=0){
+    public function get_eq_curr($platform_id=0,$array=array()){
         $where = '';
-        if($platform_id){
+        if($platform_id && empty($array)){
             $where = ' and platform_id='.$platform_id.' ';
+        }
+        if(!empty($array))
+        {
+            $string = "'".implode("','",$array)."'";
+            $where = " and platform_id in ({$string})";
         }
         $date = date('Y-m-d 00:00:00');
         $sql = "select count(DISTINCT(`box_no`)) as new_eq from cb_order where box_no in(SELECT `equipment_id` FROM (`cb_equipment`) WHERE  `status` = 1 AND `firstordertime` is null) and order_time>'{$date}' {$where}";

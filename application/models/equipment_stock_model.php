@@ -19,17 +19,21 @@ class Equipment_stock_model extends CI_Model
     }
 
     //获取平台商品库存
-    public function get_platform_stock($platform_id=0){
+    public function get_platform_stock($platform_id=0,$array= array()){
         $this->c_db->select('sum(stock) as stock, count(DISTINCT(es.`product_id`)) as stock_p');
         $this->c_db->from('equipment_stock es');
         $this->c_db->join('equipment e', 'e.equipment_id=es.equipment_id');
 
-        if($platform_id){
+        if($platform_id && empty($array)){
             $where = array('e.platform_id'=>$this->platform_id);
         }else{
             $where = array('e.platform_id >'=>0);
         }
         $this->c_db->where($where);
+        if(!empty($array))
+        {
+            $this->c_db->where_in('platform_id', $array);
+        }
         return $this->c_db->get()->row_array();
     }
 

@@ -170,26 +170,39 @@ class User_model extends MY_Model
 
 
     //获取平台注册用户数
-    public function get_reg_by_pl($start_time='', $end_time='', $platform_id=0){
+    public function get_reg_by_pl($start_time='', $end_time='', $platform_id=0 , $array=array()){
         $where = array('reg_time >='=>$start_time, 'reg_time <='=>$end_time);
-        if($platform_id){
+        if($platform_id&&$array){
             $where['platform_id'] = $platform_id;
         }
         $this->c_db->select('count(id) as reg_user');
         $this->c_db->from('user');
         $this->c_db->where($where);
+        if(!empty($array))
+        {
+            $this->c_db->where_in('platform_id', $array);
+        }
         $rs = $this->c_db->get()->row_array();
         return intval($rs['reg_user']);
     }
     //获取当天新设备注册用户
-    public function get_req_by_new($platform_id=0){
+    public function get_req_by_new($platform_id=0,$array=array()){
         $date = date('Y-m-d 00:00:00');
         $time = strtotime($date);
         $where = "";
-        if($platform_id){
+        if($platform_id&&empty($array)){
             $where = " and u.platform_id=".$platform_id.' ';
         }
-        $sql = "select count(u.id) as reg_user from cb_user u join `cb_equipment` e on u.register_device_id=e.`equipment_id` where u.`reg_time`>='{$date}' {$where}  and (e.firstordertime is null or e.firstordertime >={$time})";
+        if(!empty($array))
+        {
+            $string = "'".implode("','",$array)."'";
+            $where = " and u.platform_id in ({$string})";
+        }
+
+        $sql = "select count(u.id) as reg_user from cb_user u
+                join `cb_equipment` e on u.register_device_id=e.`equipment_id`
+                where u.`reg_time`>='{$date}' {$where}  and (e.firstordertime is null or e.firstordertime >={$time})
+                ";
         $rs = $this->c_db->query($sql)->row_array();
         return intval($rs['reg_user']);
     }

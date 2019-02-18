@@ -135,8 +135,8 @@ class Deliver_model extends MY_Model
      * @param $end_time 结束时间
      * @param $type 类型 1.上架 2.下架
      * */
-    function get_product_num($start_time, $end_time, $type, $platform_id=0){
-        if($platform_id){
+    function get_product_num($start_time, $end_time, $type, $platform_id=0 ,$array=array()){
+        if($platform_id&&empty($array)){
             $where['d.platform_id'] = $platform_id;
         }
         $where['d.time >='] = $start_time;
@@ -146,6 +146,10 @@ class Deliver_model extends MY_Model
         $this->c_db->from('deliver d');
         $this->c_db->join('deliver_product dp', 'dp.deliver_id=d.id');
         $this->c_db->where($where);
+        if(!empty($array))
+        {
+            $this->c_db->where_in('platform_id', $array);
+        }
         $rs = $this->c_db->get()->row_array();
         return intval($rs['qty']);
     }

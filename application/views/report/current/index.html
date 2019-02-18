@@ -17,18 +17,18 @@
     <div class="panel-heading">
         <span class="panel-title" style="width: 50%; color: #777;font-size: 18px;"> 实时概况 </span>
         <select class="form-control" id="search_platform_id" name="search_platform_id" style="width: 200px;float: right;height: 30px;">
-            <option value="-1">选择商户</option>
+            <option value="-1" <{if $platform_id eq ''}> selected="selected"<{/if}>>选择商户</option>
             <{foreach key=key item=item from=$platform_list}>
             <option value="<{$item['platform_rs_id']}>" <{if $platform_id eq $item['platform_rs_id']}>selected="selected"<{/if}>><{$item['name']}></option>
             <{/foreach}>
         </select>
 
-        <{*<select class="form-control" id="search_agent_id" name="search_agent_id" style="width: 200px;float: right;height: 30px;">*}>
-            <{*<option value="-1">选择代理商</option>*}>
-            <{*<{foreach key=key item=item from=$agent_level_list}>*}>
-                <{*<option value="<{$item['id']}>" <{if $agent_id eq $item['id']}>selected="selected"<{/if}>><{$item['name']}></option>*}>
-            <{*<{/foreach}>*}>
-        <{*</select>*}>
+        <select class="form-control" id="search_agent_id" name="search_agent_id" style="width: 200px;float: right;height: 30px;">
+            <option value="-1">选择代理商</option>
+            <{foreach key=key item=item from=$agent_level_list}>
+                <option value="<{$item['id']}>" <{if $agent_id eq $item['id']}>selected="selected"<{/if}>><{$item['name']}></option>
+            <{/foreach}>
+        </select>
         <span style="float: right;color: #777;margin-right: 20px">更新时间： <{$order['time']}></span>
     </div>
 
@@ -312,10 +312,10 @@
         });
 
         $('#search_platform_id').change(function(){
-            location.href='/report/current?platform_id='+$(this).val();
+            location.href='/report/current?platform_id='+$(this).val()+'&agent_id=-1';
         })
         $('#search_agent_id').change(function(){
-            location.href='/report/current?agent_id='+$(this).val();
+            location.href='/report/current?agent_id='+$(this).val()+'&platform_id=-1';
         })
 
     });

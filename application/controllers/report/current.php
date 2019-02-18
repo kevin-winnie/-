@@ -33,14 +33,15 @@ class Current extends MY_Controller
         $this->load->library('phpredis');
         $this->c_db = $this->load->database('citybox_master', TRUE);
         $this->redis = $this->phpredis->getConn();
-        $this->platform_id = $this->input->get('platform_id')>0?$this->input->get('platform_id'):0;
-//        $this->agent_id = $this->input->get('agent_id')>0?$this->input->get('agent_id'):$this->platform_id;
+        $this->platform_id = $this->input->get('platform_id');
+        $this->agent_id = $this->input->get('agent_id');
     }
 
     public function index()
     {
         ini_set('memory_limit', '500M');
         @set_time_limit(60);
+        $agent_id = $this->agent_id;
         $agent_level_list = $this->commercial_model->get_agent_level_list_pt($this->platform_id,1);
         $platform_list    = $this->commercial_model->get_agent_level_list_pt($this->platform_id,2);
         if($this->svip)
@@ -53,16 +54,31 @@ class Current extends MY_Controller
         }
         $this->_pagedata['agent_level_list'] = $agent_level_list;
         $this->_pagedata['agent_id']  = $this->agent_id;
-        $this->_pagedata['platform_id']  = $this->platform_id;
+        $this->_pagedata['platform_id']  = 1;
         $this->_pagedata['platform_list']= $platform_list;
+        //代理商模式数据
+        if($agent_id >0)
+        {
+            $commercial_list = $this->commercial_model->get_commercial_list_by_agent($agent_id);
+            if(!empty($commercial_list))
+            {
+                foreach($commercial_list as $key=>$val)
+                {
+                    if(!$val['platform_rs_id'])
+                    {
+                        unset($commercial_list[$key]);
+                    }
+                }
+            }
+            $commercial_array = array_column($commercial_list,'platform_rs_id');
+        }
+        $this->_pagedata['order'] = $this->get_today_data($commercial_array);
+        $this->_pagedata['yesterday_order'] = $this->get_yesterday_data('',$commercial_array);
+        $this->_pagedata['last_order'] = $this->get_yesterday_data('-7',$commercial_array);
 
-        $this->_pagedata['order'] = $this->get_today_data();
-        $this->_pagedata['yesterday_order'] = $this->get_yesterday_data();
-        $this->_pagedata['last_order'] = $this->get_yesterday_data('-7');
-
-        $hour_data = $this->get_today_hour_data();
-        $yes_hour_data = $this->get_yes_hour_data();
-        $week_hour_data = $this->get_week_hour_data();
+        $hour_data = $this->get_today_hour_data($commercial_array);
+        $yes_hour_data = $this->get_yes_hour_data($commercial_array);
+        $week_hour_data = $this->get_week_hour_data($commercial_array);
         $this->_pagedata['hour'] = json_encode($yes_hour_data['key']);
         $param[0]['name'] = '实时单小时统计';
         $param[0]['type'] = 'line';
@@ -111,63 +127,71 @@ class Current extends MY_Controller
     }
 
     //获取今天的实时数据
-    public function get_today_data(){
-        $key = self::TODAY_DATA_KEY.':'.$this->platform_id;
+    public function get_today_data($array){
+        $key = self::TODAY_DATA_KEY.'_platform_id:'.$this->platform_id;
+        if(!empty($array))
+        {
+            $key = self::TODAY_DATA_KEY.'_agent_id:'.$this->agent_id;
+        }
         $tmp = $this->redis->get($key);
         if($tmp){
             return json_decode($tmp, true);
         }
-        $order = $this->order_model->get_day_order(null, null, $this->platform_id);//获取当前订单数和人数
+        $order = $this->order_model->get_day_order(null, null, $this->platform_id,$array);//获取当前订单数和人数
         $order['money'] = floatval($order['money']);
         $order['discounted_money'] = floatval($order['discounted_money']);
         $order['qty'] = intval($order['qty']);
         $order['user_avg'] = floatval(bcdiv($order['money'], $order['user_num'], 2));//客单价
         $order['after_user_avg'] = floatval(bcdiv($order['good_money'], $order['user_num'], 2));//折前客单价
         $order['num_avg']  = floatval(bcdiv($order['money'], $order['num'], 2));//笔单价
-        $open_log =  $this->log_open_model->get_open_times(null, null, $this->platform_id);//获取开门次数
+        $open_log =  $this->log_open_model->get_open_times(null, null, $this->platform_id,$array);//获取开门次数
         $order = array_merge($order, $open_log);
         $order['time'] =  date('Y-m-d H:i:s');
         //库存
-        $stock = $this->equipment_stock_model->get_platform_stock($this->platform_id);
+        $stock = $this->equipment_stock_model->get_platform_stock($this->platform_id,$array);
         $order['stock']   = intval($stock['stock']);
         $order['stock_p'] = intval($stock['stock_p']);
         $order['stock_avg'] = floatval(bcdiv($order['qty'], ($order['qty']+$order['stock']), 4) * 100).'%';
-        $order['reg_user']  = $this->user_model->get_reg_by_pl(date('Y-m-d 00:00:00'), date('Y-m-d 23:59:59'), $this->platform_id);
-        $order['reg_user_new']  = $this->user_model->get_req_by_new($this->platform_id);
-        $refund = $this->order_refund_model->get_total($this->platform_id);
+        $order['reg_user']  = $this->user_model->get_reg_by_pl(date('Y-m-d 00:00:00'), date('Y-m-d 23:59:59'), $this->platform_id,$array);
+        $order['reg_user_new']  = $this->user_model->get_req_by_new($this->platform_id,$array);
+        $refund = $this->order_refund_model->get_total($this->platform_id,$array);
         $order['refund_num'] = intval($refund['refund_num']);
         $order['three_refund_num'] = intval($refund['three_refund_num']);
-        $order['deliver_up']   = $this->deliver_model->get_product_num(date('Y-m-d 00:00:00'), date('Y-m-d 23:59:59'), 1, $this->platform_id);
-        $order['deliver_down'] = $this->deliver_model->get_product_num(date('Y-m-d 00:00:00'), date('Y-m-d 23:59:59'), 2, $this->platform_id);
-        $eq_new = $this->equipment_new_model->get_eq_num_first(strtotime(date('Y-m-d 00:00:00')), strtotime(date('Y-m-d 23:59:59')), $this->platform_id);//设备表查找
-        $order_eq =  $this->equipment_new_model->get_eq_curr($this->platform_id);//从订单里面查找
+        $order['deliver_up']   = $this->deliver_model->get_product_num(date('Y-m-d 00:00:00'), date('Y-m-d 23:59:59'), 1, $this->platform_id,$array);
+        $order['deliver_down'] = $this->deliver_model->get_product_num(date('Y-m-d 00:00:00'), date('Y-m-d 23:59:59'), 2, $this->platform_id,$array);
+        $eq_new = $this->equipment_new_model->get_eq_num_first(strtotime(date('Y-m-d 00:00:00')), strtotime(date('Y-m-d 23:59:59')), $this->platform_id,$array);//设备表查找
+        $order_eq =  $this->equipment_new_model->get_eq_curr($this->platform_id,$array);//从订单里面查找
         $order['new_eq'] = intval($order_eq+$eq_new);
         $this->redis->set($key, json_encode($order), self::CACHE_TIME);
         return $order;
     }
 
     //获取昨天的订单数据
-    public function get_yesterday_data($days = '-1'){
-        $key = self::YESTERDAY_DATA_KEY.$days.':'.$this->platform_id;
+    public function get_yesterday_data($days = '-1',$array){
+        $key = self::YESTERDAY_DATA_KEY.$days.'_platform_id:'.$this->platform_id;
+        if(!empty($array))
+        {
+            $key = self::YESTERDAY_DATA_KEY.$days.'_agent_id:'.$this->platform_id;
+        }
         $tmp = $this->redis->get($key);
         if($tmp){
             return json_decode($tmp, true);
         }
-        $order = $this->order_model->get_day_order(date('Y-m-d 00:00:00', strtotime($days.' days')), date('Y-m-d 23:59:59', strtotime($days.' days')), $this->platform_id);//获取当前订单数和人数
+        $order = $this->order_model->get_day_order(date('Y-m-d 00:00:00', strtotime($days.' days')), date('Y-m-d 23:59:59', strtotime($days.' days')), $this->platform_id,$array);//获取当前订单数和人数
         $order['money'] = floatval($order['money']);
         $order['discounted_money'] = floatval($order['discounted_money']);
         $order['qty']   = intval($order['qty']);
         $order['user_avg'] = floatval(bcdiv($order['money'], $order['user_num'], 2));//客单价
         $order['after_user_avg'] = floatval(bcdiv($order['good_money'], $order['user_num'], 2));//客单价
         $order['num_avg'] = floatval(bcdiv($order['money'], $order['num'], 2));//笔单价
-        $open_log =  $this->log_open_model->get_open_times(date('Y-m-d 00:00:00', strtotime($days.' days')), date('Y-m-d 23:59:59', strtotime($days.' days')), $this->platform_id);//获取开门次数
+        $open_log =  $this->log_open_model->get_open_times(date('Y-m-d 00:00:00', strtotime($days.' days')), date('Y-m-d 23:59:59', strtotime($days.' days')), $this->platform_id,$array);//获取开门次数
         $order = array_merge($order, $open_log);
-        $order['reg_user']  = $this->user_model->get_reg_by_pl(date('Y-m-d 00:00:00', strtotime($days.' days')), date('Y-m-d 23:59:59', strtotime($days.' days')), $this->platform_id);
-        $stock = $this->order_model->get_platform_stock(date('Y-m-d', strtotime($days.' days')), $this->platform_id);
+        $order['reg_user']  = $this->user_model->get_reg_by_pl(date('Y-m-d 00:00:00', strtotime($days.' days')), date('Y-m-d 23:59:59', strtotime($days.' days')), $this->platform_id,$array);
+        $stock = $this->order_model->get_platform_stock(date('Y-m-d', strtotime($days.' days')), $this->platform_id,$array);
         $order['stock_avg'] = floatval(bcdiv($order['qty'], ($order['qty']+$stock), 4) * 100).'%';
-        $order['deliver_up']   = $this->deliver_model->get_product_num(date('Y-m-d 00:00:00', strtotime($days.' days')), date('Y-m-d 23:59:59', strtotime($days.' days')), 1, $this->platform_id);
-        $order['deliver_down'] = $this->deliver_model->get_product_num(date('Y-m-d 00:00:00', strtotime($days.' days')), date('Y-m-d 23:59:59', strtotime($days.' days')), 2, $this->platform_id);
-        $order['new_eq'] = $this->equipment_new_model->get_eq_num_first(strtotime(date('Y-m-d 00:00:00', strtotime($days.' days'))), strtotime(date('Y-m-d 23:59:59', strtotime($days.' days'))), $this->platform_id);
+        $order['deliver_up']   = $this->deliver_model->get_product_num(date('Y-m-d 00:00:00', strtotime($days.' days')), date('Y-m-d 23:59:59', strtotime($days.' days')), 1, $this->platform_id,$array);
+        $order['deliver_down'] = $this->deliver_model->get_product_num(date('Y-m-d 00:00:00', strtotime($days.' days')), date('Y-m-d 23:59:59', strtotime($days.' days')), 2, $this->platform_id,$array);
+        $order['new_eq'] = $this->equipment_new_model->get_eq_num_first(strtotime(date('Y-m-d 00:00:00', strtotime($days.' days'))), strtotime(date('Y-m-d 23:59:59', strtotime($days.' days'))), $this->platform_id,$array);
         if(time()>strtotime(date('Y-m-d 08:00:00'))){//超过8点钟，则缓存剩余时间
             $time = $this->get_next_time();
         }else{
@@ -182,13 +206,17 @@ class Current extends MY_Controller
     }
 
     //获取今天按小时的数据
-    public function get_today_hour_data(){
-        $key = self::HOUR_YES_DATA_KEY.':'.date('Y-m-d').':'.$this->platform_id;
+    public function get_today_hour_data($array){
+        $key = self::HOUR_YES_DATA_KEY.':'.date('Y-m-d').'_platform_id:'.$this->platform_id;
+        if(!empty($array))
+        {
+            $key = self::HOUR_YES_DATA_KEY.':'.date('Y-m-d').'_agent_id:'.$this->platform_id;
+        }
         $cache = $this->redis->get($key);
         if($cache){
             return json_decode($cache, true);
         }
-        $rs = $this->order_model->get_hour_data(date('Y-m-d'), null, $this->platform_id);
+        $rs = $this->order_model->get_hour_data(date('Y-m-d'), null, $this->platform_id,$array);
         $hour = date('H');
         $result = $total_result = array();
         $tmp = 0;
@@ -207,14 +235,18 @@ class Current extends MY_Controller
     }
 
     ///获取昨天按小时的数据
-    public function get_yes_hour_data(){
+    public function get_yes_hour_data($array){
         $m_date = date('Y-m-d', strtotime('-1 days'));
-        $key = self::HOUR_YES_DATA_KEY.':'.$m_date.':'.$this->platform_id;
+        $key = self::HOUR_YES_DATA_KEY.'_platform_id:'.$m_date.':'.$this->platform_id;
+        if(!empty($array))
+        {
+            $key = self::HOUR_YES_DATA_KEY.'_agent_id:'.$m_date.':'.$this->platform_id;
+        }
         $tmp = $this->redis->get($key);
         if($tmp){
             return json_decode($tmp, true);
         }else{
-            $rs = $this->order_model->get_hour_data($m_date, null, $this->platform_id);
+            $rs = $this->order_model->get_hour_data($m_date, null, $this->platform_id , $array);
             $result = $total_result = array();
             $tmp = 0;
             for($i=0; $i<24; $i++){
@@ -230,7 +262,7 @@ class Current extends MY_Controller
     }
 
     //获取上周按小时计算的数据
-    public function get_week_hour_data(){
+    public function get_week_hour_data($array){
         $week = date('N');
         if ($week == 1) {
             $m_date = date('Y-m-d',strtotime('-1 monday'));
@@ -238,12 +270,16 @@ class Current extends MY_Controller
             $m_date = date('Y-m-d',strtotime('-2 monday'));
         }
         $f_date = date('Y-m-d',strtotime($m_date.' +4 days'));
-        $key = self::HOUR_WEEK_DATA_KEY.':'.$m_date.":".$this->platform_id;
+        $key = self::HOUR_WEEK_DATA_KEY.':'.$m_date."_platform_id:".$this->platform_id;
+        if(!empty($array))
+        {
+            $key = self::HOUR_WEEK_DATA_KEY.':'.$m_date."_agent_id:".$this->platform_id;
+        }
         $tmp = $this->redis->get($key);
         if($tmp){
             return json_decode($tmp, true);
         }else{
-            $rs = $this->order_model->get_hour_data($m_date, $f_date, $this->platform_id);
+            $rs = $this->order_model->get_hour_data($m_date, $f_date, $this->platform_id, $array);
             $result = $total_result = array();
             $tmp = 0;
             for($i=0; $i<24; $i++){

@@ -194,7 +194,7 @@
                 <div for="need_product" class="form-group">
                     <label class="col-sm-2 control-label">所属集团：</label>
                     <div class="col-sm-2">
-                        <select class="form-control" name="group_code" id="group_code" datatype="*" nullmsg="请至少选择一个！">
+                        <select class="form-control" name="group_code" id="group_code">
                             <{foreach key=key1 item=item1 from=$groups}>
                             <option value="<{$item1.code}>"> <{$item1.name}> </option>
                             <{/foreach}>
