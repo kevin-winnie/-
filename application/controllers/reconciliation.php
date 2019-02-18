@@ -124,8 +124,38 @@ class Reconciliation extends MY_Controller
     //对账单列表
     public function table(){
         //读取当前代理商下的所有对账列表
-        $reconciliation_list = $this->reconciliation_model->get_list();
-        echo json_encode($reconciliation_list);
+        $agent_level_list = $this->commercial_model->get_agent_level_list_pt($this->platform_id,1);
+        $platform_list    = $this->commercial_model->get_agent_level_list_pt($this->platform_id,2);
+        if($this->svip)
+        {
+            //超级代理商级别
+            $Agent = $this->agent_model->get_own_agents($this->platform_id);
+            $agent_level_list = $this->commercial_model->get_agent_level_list($Agent,2);
+            $platform_list = $this->commercial_model->get_agent_level_list($Agent,1);
+        }
+        $string_platform = $string_agent = array();
+        if(!empty($platform_list))
+        {
+            foreach($platform_list as $key=>$val)
+            {
+                if(!$val['platform_rs_id'])
+                {
+                    unset($platform_list[$key]);
+                }
+            }
+            $platform_array = array_column($platform_list,'platform_rs_id');
+        }
+        if(!empty($agent_level_list))
+        {
+            $agent_array = array_column($agent_level_list,'id');
+        }
+
+        //商户
+        $reconciliation_list = $this->reconciliation_model->get_list($platform_array,2);
+        //代理商
+        $agent_list = $this->reconciliation_model->get_list($agent_array,1);
+        $data_list = array_merge($reconciliation_list,$agent_list);
+        echo json_encode($data_list);
     }
 
 

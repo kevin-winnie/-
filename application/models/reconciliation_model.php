@@ -123,9 +123,14 @@ class Reconciliation_model extends MY_Model
         return $regions[$field];
     }
 
-    public function get_list()
+    public function get_list($array,$type)
     {
-
+        $this->db->select('*');
+        $this->db->from('reconciliation');
+        $this->db->where('type', $type);
+        $this->db->where_in('agent_commer_id', $array);
+        $rs = $this->db->get()->result_array();
+        return $rs;
     }
 
 }

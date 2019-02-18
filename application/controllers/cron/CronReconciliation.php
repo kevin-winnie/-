@@ -234,7 +234,9 @@ class CronReconciliation extends CI_Controller{
                 }
             }
         }
-        //整理出入账金额
+        $msg = '';
+
+        //整理出入账金额  收款账户数据 组装数据 插入
         foreach($data_money as $key=>$val)
         {
             foreach($all_moeny[$key]['com'] as $k1=>$v1)
@@ -245,8 +247,33 @@ class CronReconciliation extends CI_Controller{
             {
                 $data_money[$key]['chuzhang'] += $v2['ticheng_rel_money'];
             }
+            //获取收款数据
+            $sql = " select * from p_agent WHERE id = '{$key}'";
+            $agent = $this->db->query($sql)->row_array();
+            $insert_data = array
+            (
+                'type'=>1,
+                'start_time'=>$start,
+                'end_time'=>$end,
+                'acount_id'=>$agent['separate_account'],
+                'acount_name'=>$agent['separate_name'],
+                'money'=>$val['money'],
+                'refund_money'=>$val['refund_money'],
+                'dis_money'=>$val['discounted_money'],
+                'agent_commer_id'=>$key,
+                'realy_money'=>$val['really_money'],
+                'separate_rate'=>$val['separate_rate'],
+                'wechat_rate'=>$agent['wechat_rate'],
+                'alipay_rate'=>$agent['alipay_rate'],
+                'out_money'=>$data_money[$key]['chuzhang'],
+                'in_money'=>$val['refund_money']
+            );
+            $rs = $this->db->insert('reconciliation', $insert_data);
+            $msg .= $rs;
+            echo $msg;
         }
-        echo '<pre>';print_r($data_money);exit;
+
+
     }
 
     /**

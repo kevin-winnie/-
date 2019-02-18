@@ -222,4 +222,14 @@ class Commercial_model extends MY_Model
         return $rs;
     }
 
+    /**
+     * 获取代理商下直营商户
+     */
+    public function get_commercial_list_by_agent($agent_id)
+    {
+        $sql = " select * from p_commercial WHERE high_agent_id = '{$agent_id}'";
+        $rs = $this->db->query($sql)->result_array();
+        return $rs;
+    }
+
 }

@@ -12,19 +12,19 @@
 </style>
 <div class="panel panel-default">
     <div class="panel-heading">
-        <h3 class="panel-title">订单管理</h3>
+        <h3 class="panel-title">对账管理</h3>
     </div>
     <div class="panel-body">
         <div class="form-horizontal" id="search">
             <div class="form-group">
                 <div class="col-sm-2">
-                    <select class="form-control" name="search_order_status">
+                    <select class="form-control" name="search_type">
                         <option value="-1">出账</option>
                         <option value="0">入账</option>
                     </select>
                 </div>
                 <div class="col-sm-2">
-                    <select class="form-control" name="search_refer">
+                    <select class="form-control" name="search_agent">
                         <option value="">选择代理商</option>
                         <{foreach key=key item=item from=$agent_level_list}>
                         <option value="<{$item.id}>"><{$item.name}></option>
@@ -32,7 +32,7 @@
                     </select>
                 </div>
                 <div class="col-sm-2">
-                    <select class="form-control" name="search_refer">
+                    <select class="form-control" name="search_platform">
                         <option value="">选择商户</option>
                         <{foreach key=key item=item from=$platform_list}>
                             <option value="<{$item.id}>"><{$item.name}></option>
@@ -43,26 +43,27 @@
                     <button type="button" class="btn btn-default" id="search-btn">查找</button>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                     <button type="button" class="btn btn-info" id="explore-btn">导出</button>
                 </div>
-                <input type="hidden" id="origin_url" value="/order/table">
+                <input type="hidden" id="origin_url" value="/reconciliation/table">
             </div>
         </div>
     </div>
     <div class="panel-body">
         <div id="config-body">
-            <table id="config-table" data-toggle="table" data-url="/reconciliation/table?uid=<{$uid}>&search_start_time=<{$start_time}>&search_end_time=<{$end_time}>" data-pagination="true" data-side-pagination="server"  data-page-size="50" >
+            <table id="config-table" data-toggle="table" data-url="/reconciliation/table" data-pagination="true" data-side-pagination="server"  data-page-size="50" >
                 <thead>
                 <tr>
-                    <th data-field="order_name" data-align="left">代理商/商户</th>
-                    <th data-field="name" data-align="left">结算日期</th>
-                    <th data-field="product" data-align="left">收款账号</th>
-                    <th data-field="money" data-align="left">收款账户名</th>
-                    <th data-field="yue" data-align="left">销售额</th>
-                    <th data-field="dis" data-align="left">退款金额</th>
-                    <th data-field="refer" data-align="left">优惠金额</th>
-                    <th data-field="order_status" data-align="left">实际营收</th>
-                    <th data-field="order_time" data-align="left">分成比例</th>
-                    <th data-field="order_status" data-align="left">代扣费率</th>
-                    <th data-field="order_time" data-align="left">出账金额</th>
+                    <th data-field="agent_commer_id" data-align="left">代理商/商户</th>
+                    <th data-field="start_end" data-align="left">结算日期</th>
+                    <th data-field="acount_id" data-align="left">收款账号</th>
+                    <th data-field="acount_name" data-align="left">收款账户名</th>
+                    <th data-field="money" data-align="left">销售额</th>
+                    <th data-field="refund_money" data-align="left">退款金额</th>
+                    <th data-field="dis_money" data-align="left">优惠金额</th>
+                    <th data-field="realy_money" data-align="left">实际营收</th>
+                    <th data-field="separate_rate" data-align="left">分成比例</th>
+                    <th data-field="wechat_rate" data-align="left">代扣费率</th>
+                    <th data-field="out_money" data-align="left">出账金额</th>
+                    <th data-field="in_money" data-align="left">入账金额</th>
                     <th data-field="detail" data-align="left">详情</th>
                 </tr>
                 </thead>

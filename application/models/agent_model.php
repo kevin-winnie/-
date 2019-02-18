@@ -202,7 +202,12 @@ class Agent_model extends MY_Model
 
         return $Teams;
     }
-//    $member = 1;
-//    $res=GetTeamMember($member ,1);
+
+
+    public function get_agent_list_by_agent($agent_id)
+    {
+        $sql = " select * from p_agent WHERE high_agent_id = '{$agent_id}'";
+        return $this->db->query($sql)->result_array();
+    }
 
 }
