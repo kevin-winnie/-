@@ -125,10 +125,6 @@ class Reconciliation extends MY_Controller
     public function table(){
         //读取当前代理商下的所有对账列表
         $reconciliation_list = $this->reconciliation_model->get_list();
-        if($this->svip)
-        {
-            $reconciliation_list = $this->reconciliation_model->get_list();
-        }
         echo json_encode($reconciliation_list);
     }
 

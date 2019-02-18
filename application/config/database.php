@@ -52,9 +52,9 @@ $_master_slave_relation = array(
 
     'default_master'=>array(),
 );
-$db['default_master']['hostname'] = 'localhost';//'test.czxocis9har7.rds.cn-north-1.amazonaws.com.cn';//'test.czxocis9har7.rds.cn-north-1.amazonaws.com.cn';
+$db['default_master']['hostname'] = 'test.czxocis9har7.rds.cn-north-1.amazonaws.com.cn';//'test.czxocis9har7.rds.cn-north-1.amazonaws.com.cn';//'test.czxocis9har7.rds.cn-north-1.amazonaws.com.cn';
 $db['default_master']['username'] = 'root';
-$db['default_master']['password'] = 'abc23';//'30XkkaR&FNYjkWL7Z';//'30XkkaR&FNYjkWL7Z';
+$db['default_master']['password'] = '30XkkaR&FNYjkWL7Z';//'30XkkaR&FNYjkWL7Z';//'30XkkaR&FNYjkWL7Z';
 $db['default_master']['database'] = 'agent';
 $db['default_master']['dbdriver'] = 'mysqli';
 $db['default_master']['dbprefix'] = 'p_';
@@ -68,9 +68,9 @@ $db['default_master']['swap_pre'] = '';
 $db['default_master']['autoinit'] = FALSE;
 $db['default_master']['stricton'] = FALSE;
 
-$db['citybox_master']['hostname'] = 'localhost';//'test.czxocis9har7.rds.cn-north-1.amazonaws.com.cn';//'test.czxocis9har7.rds.cn-north-1.amazonaws.com.cn';
+$db['citybox_master']['hostname'] = 'test.czxocis9har7.rds.cn-north-1.amazonaws.com.cn';//'test.czxocis9har7.rds.cn-north-1.amazonaws.com.cn';//'test.czxocis9har7.rds.cn-north-1.amazonaws.com.cn';
 $db['citybox_master']['username'] = 'root';
-$db['citybox_master']['password'] = 'abc23';//'30XkkaR&FNYjkWL7Z';//'30XkkaR&FNYjkWL7Z';
+$db['citybox_master']['password'] = '30XkkaR&FNYjkWL7Z';//'30XkkaR&FNYjkWL7Z';//'30XkkaR&FNYjkWL7Z';
 $db['citybox_master']['database'] = 'citybox';
 $db['citybox_master']['dbdriver'] = 'mysqli';
 $db['citybox_master']['dbprefix'] = 'cb_';
@@ -84,9 +84,9 @@ $db['citybox_master']['swap_pre'] = '';
 $db['citybox_master']['autoinit'] = FALSE;
 $db['citybox_master']['stricton'] = FALSE;
 
-$db['platform_master']['hostname'] = 'localhost';//'test.czxocis9har7.rds.cn-north-1.amazonaws.com.cn';//'test.czxocis9har7.rds.cn-north-1.amazonaws.com.cn';
+$db['platform_master']['hostname'] = 'test.czxocis9har7.rds.cn-north-1.amazonaws.com.cn';//'test.czxocis9har7.rds.cn-north-1.amazonaws.com.cn';//'test.czxocis9har7.rds.cn-north-1.amazonaws.com.cn';
 $db['platform_master']['username'] = 'root';
-$db['platform_master']['password'] = 'abc23';//'30XkkaR&FNYjkWL7Z';//'30XkkaR&FNYjkWL7Z';
+$db['platform_master']['password'] = '30XkkaR&FNYjkWL7Z';//'30XkkaR&FNYjkWL7Z';//'30XkkaR&FNYjkWL7Z';
 $db['platform_master']['database'] = 'platform';
 $db['platform_master']['dbdriver'] = 'mysqli';
 $db['platform_master']['dbprefix'] = 'p_';

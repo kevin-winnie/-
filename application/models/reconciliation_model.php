@@ -7,7 +7,7 @@ class Reconciliation_model extends MY_Model
     }
     public function table_name()
     {
-        return 'sys_regional';
+        return 'reconciliation';
     }
 
     /**
@@ -121,6 +121,11 @@ class Reconciliation_model extends MY_Model
             ->get()
             ->row_array();
         return $regions[$field];
+    }
+
+    public function get_list()
+    {
+
     }
 
 }
