@@ -133,7 +133,7 @@ class Agent extends MY_Controller {
         if(!empty($rs)){
             $params = array(
                 'name'        => 'agent_'.mt_rand(10,999).date('Ymdhis'),
-                'pwd' => 'agent_'.mt_rand(100,999).date('Ymdhis'),
+                'pwd' => 'agent123456',
                 'groupid'=>0,
                 'grade'=>1,
                 'platform_id'=>$id
