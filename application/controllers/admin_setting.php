@@ -59,25 +59,24 @@ class Admin_setting extends MY_Controller
     }
 
     public function add($platform_id)
-    {
-        if (empty($platform_id)) {
-            echo '非法操作';
-            die;
-        }
+    { if (empty($platform_id)) {
+        echo '非法操作';
+        die;
+    }
         $this->load->model("commercial_model");
         $commercial = $this->commercial_model->get_platform((int)$platform_id);
         if (empty($commercial)) {
             echo '商户不存在';
             die;
         }
-
         $this->title = 'rbac后台权限设置: ' . $commercial['name'];
         $this->load->library('curl', null, 'http_curl');
         $params = array(
             'timestamp' => time() . '000',
             'source' => 'platform',
-            'platform_id' => (int)$platform_id
+            'platform_id' => (int)$commercial['platform_rs_id']
         );
+
         $url = RBAC_URL . "apiAdminSetting/getSettingOpts";
 
         $params['sign'] = $this->create_platform_sign($params);
@@ -90,7 +89,7 @@ class Admin_setting extends MY_Controller
             }
         }
         $this->_pagedata['opts'] = $opts;
-        $this->_pagedata['platform_id'] = (int)$platform_id;
+        $this->_pagedata['platform_id'] = (int)$commercial['platform_rs_id'];
         $this->page('admin_setting/add.html');
     }
 

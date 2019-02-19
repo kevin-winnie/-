@@ -644,4 +644,12 @@ class Commercial extends MY_Controller {
         }
     }
 
+    /**
+     * 在Admin平台为商户分配权限
+     */
+    public function commercial_rbac($platform_id)
+    {
+
+    }
+
 }
