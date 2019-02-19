@@ -408,7 +408,7 @@ class Admin extends MY_Controller {
                     $tips = "分配成功";
                 }
             }
-            $this->rbac($platform_id,$tips);
+            redirect('commercial/commercialList');
         }
 
         if ($this->input->get("gid")) {
@@ -534,11 +534,11 @@ class Admin extends MY_Controller {
 
         //读取当前商户主账号的身份权限
         $admin = $this->Admin_model->get_master_admin($id);
-        if(empty($admin))
+        if(!$admin['id'])
         {
             $this->load->model('commercial_model');
             $where['high_agent_id'] = $this->platform_id;
-            $this->_pagedata ["tips"] = '请先创建商户主账号';
+            $this->_pagedata ["tips"] = '请先生成商户平台主账号';
             $this->_pagedata ["list"] = $this->commercial_model->getList("*", $where);
             $this->page('commercial/commercialList.html');exit;
         }
