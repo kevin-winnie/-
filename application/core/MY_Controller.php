@@ -227,6 +227,12 @@ class MY_Controller extends CI_Controller
 
 		$data ["menuArr"] = $menuArr;
 		$data ["adminalias"] = $this->session->userdata('sess_admin_data')["adminalias"];
+		//拼接代理商名称
+		$agent_id = $this->session->userdata('sess_admin_data')["platform_id"];
+		$sql = " select * from p_agent WHERE id = '{$agent_id}'";
+		$rs = $this->db->query($sql)->row_array();
+		$name = isset($rs['short_name'])?$rs['short_name']:$rs['name'];
+		$data['adminalias'] = $name.'-'.$data ["adminalias"];
 		return $data;
 	}
 
