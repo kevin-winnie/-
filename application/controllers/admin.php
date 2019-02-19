@@ -217,6 +217,7 @@ class Admin extends MY_Controller {
                     $this->_pagedata["tips"] = "用户名已存在";
                 }
             }
+            redirect('admin/getuserlist');
         }
 
         $this->page('admin/adduser.html');

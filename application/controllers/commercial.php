@@ -432,6 +432,7 @@ class Commercial extends MY_Controller {
             }else{
                 $this->_pagedata["tips"] = "新增失败";
             }
+            redirect('commercial/commercialList');
         }
         $this->load->model('equipment_model');
         $this->_pagedata['qr_common_url'] = Equipment_model::QR_COMMON_URL;

@@ -86,6 +86,7 @@ class Agent extends MY_Controller {
             }else{
                 $this->_pagedata["tips"] = "新增失败";
             }
+            redirect('agent/agentList');
         }
         $this->page('agent/agentAdd.html');
     }
