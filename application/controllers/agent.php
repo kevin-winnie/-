@@ -99,6 +99,7 @@ class Agent extends MY_Controller {
             $this->_pagedata['is_svip'] = 1;
             //代理商级别
             $Agent = $this->agent_model->get_own_agents($this->platform_id);
+            $agent_level = $this->agent_model->get_agent_level_list($Agent);
             $agent_level_list = $this->commercial_model->get_agent_level_list($Agent,2);
         }
         $this->_pagedata['agent_level_list'] = $agent_level_list;
@@ -119,11 +120,26 @@ class Agent extends MY_Controller {
         {
             $where['id'] = trim($search['agent_name']);
         }
-//        echo '<pre>';print_r($where);exit;
         $where['high_agent_id'] = $this->platform_id;
         $this->title = '代理商列表';
         $this->_pagedata['search'] = $search;
-        $this->_pagedata ["list"] = $this->agent_model->getList("*", $where);
+        $agent_list = $this->agent_model->getList("*", $where);
+        foreach($agent_list as $key=>$val)
+        {
+            if($val['high_level'] >=2)
+            {
+                $agent_list[$key]['level_name'] = bcsub($val['high_level'],1).'级代理';
+            }elseif($val['high_level'] == 1)
+            {
+                $agent_list[$key]['level_name'] = '顶级代理';
+            }elseif($val['high_level'] == 0)
+            {
+                $agent_list[$key]['level_name'] = '超级代理';
+            }
+        }
+
+        $this->_pagedata ["list"] = $agent_list;
+        $this->_pagedata['agent_level'] = $agent_level;
         $this->page('agent/agentList.html');
     }
 
