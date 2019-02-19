@@ -82,19 +82,7 @@ class Commercial extends MY_Controller {
         redirect('/commercial/group');
     }
     function commercialList(){
-        $search = $this->input->post();
-            if (isset($search['search_need_deliver'])) {
-                if ($search['search_need_deliver'] !== '-1') {
-                    $where['need_deliver'] = $search['search_need_deliver'];
-                }
-            }
-
-            if (isset($search['search_need_product'])) {
-                if ($search['search_need_product'] !== '-1') {
-                    $where['need_product'] = $search['search_need_product'];
-                }
-            }
-
+            $search = $this->input->post();
             if (!empty($search['name'])) {
                 $where['name like '] = '%'.trim($search['name'].'%');
             }
@@ -106,6 +94,7 @@ class Commercial extends MY_Controller {
             $this->title = '商户列表';
             $this->_pagedata['search'] = $search;
             $this->_pagedata ["list"] = $this->commercial_model->getList("*", $where);
+            //需要看到所有商户及下级代理的商户数据
             $this->page('commercial/commercialList.html');
     }
 
@@ -488,23 +477,14 @@ class Commercial extends MY_Controller {
     function ajaxResetPwd(){   //demo  接口
         $id = $this->input->post('id');
         $rs = $this->commercial_model->dump(array('id'=>$id));
+
         if(!empty($rs)){
-            $params = array(
-                'timestamp'         => time() . '000',
-                'source'    => 'platform',
-                'name'        => $rs['admin_name'],
-                'platform_id'=>$rs['id'],
-                'alisa'=>$rs['contacts'],
-                'mobile' =>$rs['phone']
-            );
-            $url = RBAC_URL."apiAdmin/resetPwd";
-
-            $params['sign'] = $this->create_platform_sign($params);
-
-            $options['timeout'] = 100;
-            $result = $this->http_curl->request($url, $params, 'POST', $options);
-            if(json_decode($result['response'],1)['code']==200){
-                echo $result['response'];
+            $pwd = md5('abc12345##!');
+            $this->c_db = $this->load->database('citybox_master',true);
+            $sql = " update s_admin set pwd = '{$pwd}' WHERE name = '{$rs['admin_name']}' and platform_id = '{$rs['platform_rs_id']}'";
+            $rs = $this->c_db->query($sql);
+            if($rs){
+                echo json_encode(array('code'=>200,'msg'=>'重置成功'));
             }
         }else{
             echo json_encode(array('code'=>300,'msg'=>'错误的商户编号'));
