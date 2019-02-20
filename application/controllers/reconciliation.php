@@ -124,6 +124,10 @@ class Reconciliation extends MY_Controller
     //对账单列表
     public function table(){
         //读取当前代理商下的所有对账列表
+        $limit = $this->input->get('limit') ? : 10;
+        $offset = $this->input->get('offset') ? : 0;
+        $search_type = $this->input->get('search_type');
+
         $agent_level_list = $this->commercial_model->get_agent_level_list_pt($this->platform_id,1);
         $platform_list    = $this->commercial_model->get_agent_level_list_pt($this->platform_id,2);
         if($this->svip)
@@ -143,7 +147,7 @@ class Reconciliation extends MY_Controller
                     unset($platform_list[$key]);
                 }
             }
-            $platform_array = array_column($platform_list,'platform_rs_id');
+            $platform_array = array_column($platform_list,'id');
         }
         if(!empty($agent_level_list))
         {
@@ -154,8 +158,29 @@ class Reconciliation extends MY_Controller
         $reconciliation_list = $this->reconciliation_model->get_list($platform_array,2);
         //代理商
         $agent_list = $this->reconciliation_model->get_list($agent_array,1);
-        $data_list = array_merge($reconciliation_list,$agent_list);
-        echo json_encode($data_list);
+        $data_list = array_merge((array)$reconciliation_list,(array)$agent_list);
+        foreach($data_list as $key=>$val)
+        {
+            if($val['type'] == 1)
+            {
+                $owns = $this->agent_model->get_own_agents($val['agent_commer_id']);
+                $owns['name'] = '代理商--'.$owns['name'];
+            }else
+            {
+                $owns = $this->commercial_model->get_own_commercial($val['agent_commer_id']);
+                $owns['name'] = '商户--'.$owns['name'];
+            }
+            $data_list[$key]['agent_commer_name'] = $owns['name'];
+            $data_list[$key]['start_end'] = $val['start_time'].'---'.$val['end_time'];
+        }
+
+        $total = count($data_list);
+
+        $result = array(
+            'total' => $total,
+            'rows' => $data_list,
+        );
+        echo json_encode($result);
     }
 
 

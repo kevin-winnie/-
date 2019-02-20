@@ -246,4 +246,11 @@ class Commercial_model extends MY_Model
         return $rs;
     }
 
+    public function get_own_commercial($platform_id)
+    {
+        $sql = " select * from p_commercial WHERE id = '{$platform_id}'";
+        $rs = $this->db->query($sql)->row_array();
+        return $rs;
+    }
+
 }

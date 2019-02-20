@@ -1,13 +1,6 @@
-<style type="text/css">
-    .ui-autocomplete{
-        border: 1px solid #aaa;
-        -webkit-border-radius: 5px;
-        -moz-border-radius: 5px;
-        border-radius: 5px;
-        background-color: #FFFFFF;
-    }
-    table{
-        font-size: 13px;
+<style>
+    .hide-th{
+        display:none;
     }
 </style>
 <div class="panel panel-default">
@@ -18,8 +11,8 @@
         <div class="form-horizontal" id="search">
             <div class="form-group">
                 <div class="col-sm-2">
-                    <select class="form-control" name="search_type">
-                        <option value="-1">出账</option>
+                    <select class="form-control" name="search_type" id="checkout_type">
+                        <option value="1">出账</option>
                         <option value="0">入账</option>
                     </select>
                 </div>
@@ -27,7 +20,7 @@
                     <select class="form-control" name="search_agent">
                         <option value="">选择代理商</option>
                         <{foreach key=key item=item from=$agent_level_list}>
-                        <option value="<{$item.id}>"><{$item.name}></option>
+                            <option value="<{$item.id}>"><{$item.name}></option>
                         <{/foreach}>
                     </select>
                 </div>
@@ -52,7 +45,7 @@
             <table id="config-table" data-toggle="table" data-url="/reconciliation/table" data-pagination="true" data-side-pagination="server"  data-page-size="50" >
                 <thead>
                 <tr>
-                    <th data-field="agent_commer_id" data-align="left">代理商/商户</th>
+                    <th data-field="agent_commer_name" data-align="left">代理商/商户</th>
                     <th data-field="start_end" data-align="left">结算日期</th>
                     <th data-field="acount_id" data-align="left">收款账号</th>
                     <th data-field="acount_name" data-align="left">收款账户名</th>
@@ -71,176 +64,39 @@
         </div>
     </div>
 </div>
-
-<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-    <div class="modal-dialog" style="width: 90%">
-        <div class="modal-content">
-
-        </div><!-- /.modal-content -->
-    </div><!-- /.modal -->
-</div>
-
-<div class="modal fade" id="my_label" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-    <div class="modal-dialog" style="width: 90%">
-        <div class="modal-content">
-
-        </div><!-- /.modal-content -->
-    </div><!-- /.modal -->
-</div>
-<div class="modal fade" id="download_label" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-    <div class="modal-dialog" style="width: 50%">
-        <div class="modal-content">
-
-        </div><!-- /.modal-content -->
-    </div><!-- /.modal -->
-</div>
-
 <script type="text/javascript">
-    //获取当前日期
-    function get_now_day(){
-        var date = new Date();
-        var year = date.getFullYear();
-        var month = date.getMonth()+1;
-        month = month<10?'0'+month:month;
-        var day = date.getDate();
-        day = day<10?'0'+day:day;
-        return year+'-'+month+'-'+day;
-    }
-    //获取前一天日期
-    function GetDateStr(curr_day, AddDayCount) {
-        if(curr_day == ''){
-            curr_day = get_now_day();
-        }
-        var dd = new Date(curr_day);
-        dd.setDate(dd.getDate()+AddDayCount);//获取AddDayCount天后的日期
-        var year = dd.getFullYear();
-        var month = dd.getMonth()+1;//获取当前月份的日期
-        month = month<10?'0'+month:month;
-        var day = dd.getDate();
-        day = day<10?'0'+day:day;
-        return year+"-"+month+"-"+day;
-    }
 
-    var curr_day = get_now_day();//当前搜索句柄的时间
-
-    function show_model(order_name){
-        $.get("/order/order_detail/"+order_name,{ },function(respData){
-            if(respData.status=='success'){
-                $(".modal-content").html(respData.html);
-                $('#myModal').modal('show')
-            }
-        },'json');
-    }
-
-    function show_label(order_name){
-        $.get("/order/order_label/"+order_name,{ },function(respData){
-            if(respData.status=='success'){
-                $(".modal-content").html(respData.html);
-                $('#my_label').modal('show')
-            }
-        },'json');
-    }
-
-    function go_pay(order_name){
-        if(confirm('是否确认手动为订单:'+order_name+'发起支付')){
-            $.post("/order/pay_api/"+order_name,{ },function(respData){
-                if(respData['code'] == 200){
-                    alert(order_name+'发起成功,请稍后刷新');
-                }else{
-                    alert(order_name+'支付失败：'+respData['message']);
-                }
-                console.log(respData);
-            },'json');
-        }
-    }
-
-    function download_order(obj, serverUrl){
-        var filterData = "";
-        $.each($("[name^='search_']"), function() {
-            field = $(this).attr('name');
-            data = $(this).val();
-            if(data!=-1 && data!=""){
-                filterData += field+"="+data+"&";
-            }
-        });
-        if(filterData==""){
-            var url = serverUrl;
+    function ckRadio(){
+        var curr_id = $("input[type=radio]:checked").parent().next().html();
+        if(typeof(curr_id) == "undefined"){
+            $("#curr_id").val(0);
         }else{
-            var url = serverUrl +'&'+filterData;
+            $("#curr_id").val(curr_id);
         }
-        $(obj).css('color', '#aaa');
-        location.href=url;
     }
-    //查看昨天的订单
-    function yesterday_order(day){
-        if(curr_day >= get_now_day() && day>0){
-            return false;
-        }
-        curr_day = GetDateStr(curr_day, day);
-        if(curr_day >= get_now_day()){
-            $('.page-last').css('color', '#000000');
-        }else{
-            $('.page-last').css('color', '#337ab7');
-        }
-        $('input[name="search_start_time"]').val(curr_day + ' 00:00:00');
-        $('input[name="search_end_time"]').val(curr_day + ' 23:59:59');
-        var serverUrl = $('#origin_url').val();
-        var filterData = "";
-        $.each($("[name^='search_']"), function() {
-            field = $(this).attr('name');
-            data = $(this).val();
-            if(data!=-1 && data!=""){
-                filterData += field+"="+data+"&";
-            }
-        });
-        serverUrl += '?day='+curr_day;
-        if(filterData==""){
-            var url = serverUrl;
-        }else{
-            var url = serverUrl +'&'+filterData;
-        }
-        $('#config-table').bootstrapTable('refresh', {url: url}).on('load-success.bs.table', function (e,data) {
-            $('.order_total').text(data.total);
-            $('.order_money').text(data.money);
-            $('.user_total').text(data.user);
-            $('.qty').text(data.qty);
-            $('.user_avg').text(data.user_avg);
-            $('.total_avg').text(data.total_avg);
-        });
-    }
+
     $(function(){
-        $('#config-table').bootstrapTable({
-        }).on('click-row.bs.table', function (e, row, $element) {
-            $("#curr_id").val(row.id);
-        }).on('load-success.bs.table', function (e,data) {
-            $('.order_total').text(data.total);
-            $('.order_money').text(data.money);
-            $('.user_total').text(data.user);
-            $('.qty').text(data.qty);
-            $('.user_avg').text(data.user_avg);
-            $('.total_avg').text(data.total_avg);
+        $('.datetime_input').each(function(){
+            $(this).datetimepicker({
+                language: 'zh', //汉化
+                autoclose: 1,
+                format: 'yyyy-mm-dd hh:ii:00',
+                timepicker:false    //关闭时间选项
+            });
+        });
 
+        $('#config-table').bootstrapTable({
+        }).on('check.bs.table', function (e, row, $element) {
+            $("#curr_id").val(row.id);
+            $("#device_id").val(row.equipment_id);
         });
         $("#config-body").delegate(".show_img","click",function(){
             MessageBox.alert($(this).attr('data-content'));
         });
-        $('#time').datetimepicker({
-            language: 'zh', //汉化
-            autoclose: 1,
-            format: 'yyyy-mm-dd hh:00:00',
-            minView: 'day',
-            minuteStep:1
-        });
-        $('#time2').datetimepicker({
-            language: 'zh', //汉化
-            autoclose: 1,
-            format: 'yyyy-mm-dd hh:00:00',
-            minView: 'day',
-            minuteStep:1
-        });
+
         $("#search-btn").on('click', function(){
             var serverUrl = $('#origin_url').val();
-            var filterData = "js=is_bug&";
+            var filterData = "";
             $.each($("[name^='search_']"), function() {
                 field = $(this).attr('name');
                 data = $(this).val();
@@ -248,52 +104,16 @@
                     filterData += field+"="+data+"&";
                 }
             });
-            console.log(filterData);
             if(filterData==""){
                 var url = serverUrl;
             }else{
                 var url = serverUrl +'?'+filterData;
             }
-            $('#config-table').bootstrapTable('refresh', {url: url}).on('load-success.bs.table', function (e,data) {
-                $('.order_total').text(data.total);
-                $('.order_money').text(data.money);
-                $('.user_total').text(data.user);
-                $('.qty').text(data.qty);
-                $('.user_avg').text(data.user_avg);
-                $('.total_avg').text(data.total_avg);
-            });
+            $('#config-table').bootstrapTable('refresh', {url: url});
         });
 
-        $("#explore-btn").on('click', function(){
 
-            $.get("/order/download_html/"+$('.order_total').text(),{ },function(respData){
-                if(respData.status=='success'){
-                    $("#download_label").find('.modal-content').html(respData.html);
-                    $('#download_label').modal('show')
-                }
-            },'json');
-            return false;
-        });
 
-        $('#search_product_name').autocomplete({
-            source:function(query,process){
-                var matchCount = this.options.items;//返回结果集最大数量
-                $.get("/order/get_product",{"matchInfo":query['term'],"matchCount":matchCount},function(respData){
-                    respData = $.parseJSON(respData);//解析返回的数据
-
-                    return process(respData);
-                });
-            }
-        });
-
-        $('input[name="search_start_time"]').change(function(){
-            curr_day = $(this).val().substr(0,10);
-            if(curr_day >= get_now_day()){
-                $('.page-last').css('color', '#000000');
-            }else{
-                $('.page-last').css('color', '#337ab7');
-            }
-        });
 
     });
 </script>
