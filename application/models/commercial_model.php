@@ -211,6 +211,7 @@ class Commercial_model extends MY_Model
         $rs = $this->db->query($sql)->result_array();
         if($type == 1)
         {
+            $rs[]['id'] = $agent_id;
             return $rs;
         }
         $all_agent = array_unique(array_column($rs,'id'));
