@@ -305,14 +305,19 @@ class Current extends MY_Controller
         $order      = $this->input->get('order')?$this->input->get('order'):'desc';
         $limit      = $this->input->get('limit')?$this->input->get('limit'):30;
         $offset     = $this->input->get('offset')?$this->input->get('offset'):0;
-        $key = self::TODAY_EQ_DATA_KEY.":".$this->platform_id;
+        $key = self::TODAY_EQ_DATA_KEY."_platform_id:".$this->platform_id;
+        $commercial_array = $this->check_is_agent();
+        if(!empty($commercial_array))
+        {
+            $key = self::TODAY_EQ_DATA_KEY."_agent_id:".$this->agent_id;
+        }
         $tmp = $this->redis->get($key);
         if($tmp){
             $open_list = json_decode($tmp, true);
         }else{
-            $order_list = $this->order_model->get_order_by_eq(null, 'box_no', $this->platform_id);
-            $open_list  = $this->log_open_model->get_open_times_eq(null, 'box_no', $this->platform_id);
-            $stock      = $this->equipment_stock_model->get_platform_eq_stock($this->platform_id);
+            $order_list = $this->order_model->get_order_by_eq(null, 'box_no', $this->platform_id,$commercial_array);
+            $open_list  = $this->log_open_model->get_open_times_eq(null, 'box_no', $this->platform_id,$commercial_array);
+            $stock      = $this->equipment_stock_model->get_platform_eq_stock($this->platform_id,$commercial_array);
             $all_name   = $this->equipment_new_model->get_eq_name_all();
             foreach($open_list as $k=>$v){
                 $open_list[$k]['num']   = intval($order_list[$k]['num']);//订单数
@@ -360,9 +365,10 @@ class Current extends MY_Controller
         $date1      = $this->input->get('date1');
         $date2      = $this->input->get('date2');
         $platform_id      = $this->input->get('platform_id');
-        $order_list = $this->order_model->get_order_by_eq_day($date1,$date2, 'box_no', $platform_id);
-        $open_list  = $this->log_open_model->get_open_times_eq_day($date1,$date2, 'box_no', $platform_id);
-        $stock      = $this->equipment_stock_model->get_platform_eq_stock($platform_id);
+        $commercial_array = $this->check_is_agent();
+        $order_list = $this->order_model->get_order_by_eq_day($date1,$date2, 'box_no', $platform_id ,$commercial_array);
+        $open_list  = $this->log_open_model->get_open_times_eq_day($date1,$date2, 'box_no', $platform_id ,$commercial_array);
+        $stock      = $this->equipment_stock_model->get_platform_eq_stock($platform_id ,$commercial_array);
         $all_name   = $this->equipment_new_model->get_eq_name_all();
         foreach($open_list as $k=>$v){
             $open_list[$k]['num']   = intval($order_list[$k]['num']);//订单数
@@ -431,7 +437,27 @@ class Current extends MY_Controller
         }
         return $arr;
     }
-
+    function check_is_agent()
+    {
+        //代理商模式数据
+        $agent_id = $this->agent_id;
+        if($agent_id >0 && $this->platform_id == -1)
+        {
+            $commercial_list = $this->commercial_model->get_commercial_list_by_agent($agent_id);
+            if(!empty($commercial_list))
+            {
+                foreach($commercial_list as $key=>$val)
+                {
+                    if(!$val['platform_rs_id'])
+                    {
+                        unset($commercial_list[$key]);
+                    }
+                }
+            }
+            $commercial_array = array_column($commercial_list,'platform_rs_id');
+        }
+        return $commercial_array;
+    }
     //商品销量排行
     public function product_table(){
         session_write_close();
@@ -439,11 +465,16 @@ class Current extends MY_Controller
         $order = $this->input->get('order')?$this->input->get('order'):'desc';
         $limit      = $this->input->get('limit')?$this->input->get('limit'):30;
         $offset     = $this->input->get('offset')?$this->input->get('offset'):0;
-        $cache_key  = self::TODAY_PRODUCT_DATA_KEY.':'.$this->platform_id;
+        $cache_key  = self::TODAY_PRODUCT_DATA_KEY.'_platform_id:'.$this->platform_id;
+        $commercial_array = $this->check_is_agent();
+        if(!empty($commercial_array))
+        {
+            $cache_key  = self::TODAY_PRODUCT_DATA_KEY.'_agent_id:'.$this->agent_id;
+        }
         $tmp = $this->redis->get($cache_key);
         $where['o.order_status >'] = 0;
         $where['o.order_time >'] = date('Y-m-d 00:00:00');
-        if($this->platform_id){
+        if($this->platform_id &&empty($commercial_array)){
             $where['o.platform_id'] = $this->platform_id;
         }
         if($tmp){
@@ -454,9 +485,13 @@ class Current extends MY_Controller
             $this->c_db->join("order o", 'op.order_name = o.order_name');
             $this->c_db->join("product p", 'p.id = op.product_id');
             $this->c_db->where($where);
+            if(!empty($commercial_array))
+            {
+                $this->c_db->where_in('platform_id', $commercial_array);
+            }
             $this->c_db->group_by('op.product_id');
             $list = $this->c_db->get()->result_array();
-            $stock = $this->equipment_stock_model->get_stock_product($this->platform_id);
+            $stock = $this->equipment_stock_model->get_stock_product($this->platform_id,$commercial_array);
             foreach($list as $k=>$v){
                 $list[$k]['img_url'] = '//fdaycdn.fruitday.com/'.$v['img_url'];
                 $list[$k]['stock_avg']  = floatval(bcdiv($v['sale_num'], ($v['sale_num']+$stock[$v['product_id']]), 4) * 100);
@@ -500,13 +535,14 @@ class Current extends MY_Controller
     public function show_refer(){
         $platform_id = $this->platform_id;
         $this->load->model('log_open_model');
-        $today = $this->log_open_model->get_open_times_refer(null, null,$platform_id);
+        $commercial_array = $this->check_is_agent();
+        $today = $this->log_open_model->get_open_times_refer(null, null,$platform_id,$commercial_array);
         $start= date('Y-m-d 00:00:00', strtotime(' -1 days'));
         $end   = date('Y-m-d 23:59:59', strtotime(' -1 days'));
-        $yesday = $this->log_open_model->get_open_times_refer($start, $end,$platform_id);
+        $yesday = $this->log_open_model->get_open_times_refer($start, $end,$platform_id,$commercial_array);
         $start_w = date("Y-m-d",strtotime("-7 days"));
         $end_w = date('Y-m-d 23:59:59', strtotime(' -7 days'));
-        $yeswek = $this->log_open_model->get_open_times_refer($start_w, $end_w,$platform_id);
+        $yeswek = $this->log_open_model->get_open_times_refer($start_w, $end_w,$platform_id,$commercial_array);
         $count['today'] = $today['total'];
         $count['yesday'] = $yesday['total'];
         $count['yeswek'] = $yeswek['total'];

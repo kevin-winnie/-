@@ -93,15 +93,19 @@ class Order_model extends MY_Model
     }
 
     //获取盒子当天的订单
-    public function get_order_by_eq($date = '', $group_by='', $platform_id=0){
+    public function get_order_by_eq($date = '', $group_by='', $platform_id=0,$array=array()){
         $date = $date?$date:date('Y-m-d 00:00:00');
         $where = array('order_status >'=>0, 'order_time >'=>$date);
-        if($platform_id){
+        if($platform_id && empty($array)){
             $where['platform_id']=$platform_id;
         }
         $this->c_db->select("count(id) as num,  SUM(money+yue) as money,SUM(good_money) as good_money, count(DISTINCT(uid)) as user_num, box_no");
         $this->c_db->from('order');
         $this->c_db->where($where);
+        if(!empty($array))
+        {
+            $this->c_db->where_in('platform_id', $array);
+        }
         if($group_by){
             $this->c_db->group_by($group_by);
         }
@@ -114,16 +118,20 @@ class Order_model extends MY_Model
     }
 
     //获取盒子当天的订单
-    public function get_order_by_eq_day($date1 = '',$date2 = '', $group_by='', $platform_id=0){
+    public function get_order_by_eq_day($date1 = '',$date2 = '', $group_by='', $platform_id=0 ,$array=array()){
       //  $date = $date?$date:date('Y-m-d 00:00:00');
       //  $where = array('order_status >'=>0, 'order_time >'=>$date);
         $where = array( 'order_status >'=>0,'order_time >= ' => $date1,'order_time <= ' => $date2 );
-        if($platform_id){
+        if($platform_id && empty($array)){
             $where['platform_id']=$platform_id;
         }
         $this->c_db->select("count(id) as num,  SUM(money+yue) as money, count(DISTINCT(uid)) as user_num, box_no");
         $this->c_db->from('order');
         $this->c_db->where($where);
+        if(!empty($array))
+        {
+            $this->c_db->where_in('platform_id', $array);
+        }
         if($group_by){
             $this->c_db->group_by($group_by);
         }

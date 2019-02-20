@@ -38,15 +38,19 @@ class Log_open_model extends MY_Model
     }
 
     //获取当天开门次数
-    function get_open_times_eq($date = '', $group_by='', $platform_id=0){
+    function get_open_times_eq($date = '', $group_by='', $platform_id=0 ,$array = array()){
         $date = $date?$date:date('Y-m-d 00:00:00');
         $where = array( 'open_time >'=>$date);
-        if($platform_id){
+        if($platform_id && empty($array)){
             $where['platform_id'] = $platform_id;
         }
         $this->c_db->select("count(id) as open_num, count(DISTINCT(uid)) as open_user, box_no");
         $this->c_db->from('log_open');
         $this->c_db->where($where);
+        if(!empty($array))
+        {
+            $this->c_db->where_in('platform_id', $array);
+        }
         if($group_by){
             $this->c_db->group_by($group_by);
         }
@@ -58,14 +62,18 @@ class Log_open_model extends MY_Model
         return $result;
     }
     //获取当天开门次数
-    function get_open_times_eq_day($date1 = '',$date2 = '', $group_by='', $platform_id=0){
+    function get_open_times_eq_day($date1 = '',$date2 = '', $group_by='', $platform_id=0 ,$array=array()){
         $where = array( 'open_time >='=>$date1,'open_time <='=>$date2);
-        if($platform_id){
+        if($platform_id && empty($array)){
             $where['platform_id'] = $platform_id;
         }
         $this->c_db->select("count(id) as open_num, count(DISTINCT(uid)) as open_user, box_no");
         $this->c_db->from('log_open');
         $this->c_db->where($where);
+        if(!empty($array))
+        {
+            $this->c_db->where_in('platform_id', $array);
+        }
         if($group_by){
             $this->c_db->group_by($group_by);
         }
@@ -95,14 +103,19 @@ class Log_open_model extends MY_Model
     }
 
     //获取当天开门次数 区分来源
-    function get_open_times_refer($date = '', $end_date='',$platform_id){
+    function get_open_times_refer($date = '', $end_date='',$platform_id ,$array=array()){
         $date = $date?$date:date('Y-m-d 00:00:00');
         $where = " operation_id = 1 and open_time >= '{$date}' ";
-        if($platform_id){
+        if($platform_id && empty($array)){
             $where .= " and cb_log_open.platform_id = {$platform_id}";
         }
         if($end_date){
             $where .= " and open_time <='{$end_date}'";
+        }
+        if(!empty($array))
+        {
+            $string = "'".implode("','",$array)."'";
+            $where = " and platform_id in ({$string})";
         }
         $sql = "select count(*) as open_num,if(refer!='wechat' and refer!='alipay', 'xother', refer) as refer_t from cb_log_open where $where group by refer_t";
         $count_sql = "select count(*) as total from cb_log_open where $where ";

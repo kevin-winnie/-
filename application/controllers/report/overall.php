@@ -57,27 +57,7 @@ class Overall extends MY_Controller
         $this->page('report/overall/index.html');
     }
 
-    function check_is_agent()
-    {
-        //代理商模式数据
-        $agent_id = $this->agent_id;
-        if($agent_id >0 && $this->platform_id == -1)
-        {
-            $commercial_list = $this->commercial_model->get_commercial_list_by_agent($agent_id);
-            if(!empty($commercial_list))
-            {
-                foreach($commercial_list as $key=>$val)
-                {
-                    if(!$val['platform_rs_id'])
-                    {
-                        unset($commercial_list[$key]);
-                    }
-                }
-            }
-            $commercial_array = array_column($commercial_list,'platform_rs_id');
-        }
-        return $commercial_array;
-    }
+
     function ajax_data(){
         $pd     = $this->input->post('pd');//按日搜索数据
         $s_type = $this->input->post('s_type');//0:按天， 1:按周, 2:按月
@@ -227,7 +207,27 @@ class Overall extends MY_Controller
 
         $this->showJson($result);
     }
-
+    function check_is_agent()
+    {
+        //代理商模式数据
+        $agent_id = $this->agent_id;
+        if($agent_id >0 && $this->platform_id == -1)
+        {
+            $commercial_list = $this->commercial_model->get_commercial_list_by_agent($agent_id);
+            if(!empty($commercial_list))
+            {
+                foreach($commercial_list as $key=>$val)
+                {
+                    if(!$val['platform_rs_id'])
+                    {
+                        unset($commercial_list[$key]);
+                    }
+                }
+            }
+            $commercial_array = array_column($commercial_list,'platform_rs_id');
+        }
+        return $commercial_array;
+    }
 
     public function eq_table(){
         session_write_close();
