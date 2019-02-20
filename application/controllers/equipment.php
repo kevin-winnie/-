@@ -97,6 +97,9 @@ class Equipment extends MY_Controller {
         $search_platform_id = $this->input->get('search_platform_id');
         $search_start_time = $this->input->get('search_start_time');
         $search_end_time = $this->input->get('search_end_time');
+        $search_equipment_type = $this->input->get('search_equipment_type');
+        $search_agent_name = $this->input->get('search_agent_name');
+        $search_agent_level = $this->input->get('search_agent_level');
         $type = $this->input->get('type');
         $id = $this->input->get('id');
         if ($this->input->get('search_status') === '0'){
@@ -122,12 +125,17 @@ class Equipment extends MY_Controller {
         if($search_platform_id && $search_platform_id!=-1) {
             $where['platform_id'] = $search_platform_id;
         }
-
-        if ($id && $type){
-            $where['last_agent_id'] = $id;
-        }else
+        if($search_equipment_type)
         {
-            $where['last_agent_id'] = $this->platform_id;
+            $where['type'] = $search_equipment_type;
+        }
+        $platform_id = $this->platform_id;
+        if($search_agent_name)
+        {
+            $platform_id = $search_agent_name;
+        }
+        if ($id && $type==1){
+            $where['last_agent_id'] = $id;
         }
         if ($search_status || $search_status == 0){
             $where['status'] = $search_status;
@@ -142,19 +150,28 @@ class Equipment extends MY_Controller {
             $where['end_time'] = strtotime($search_end_time);
         }
         $where['admin_id'] = $this->adminid;
-        $agent_level_list = $this->commercial_model->get_agent_level_list_pt($this->platform_id,1);
-        $platform_list    = $this->commercial_model->get_agent_level_list_pt($this->platform_id,2);
-        if($this->svip)
+        $agent_level_list = $this->commercial_model->get_agent_level_list_pt($platform_id,1);
+        $platform_list    = $this->commercial_model->get_agent_level_list_pt($platform_id,2);
+        //校验代理商是否为超级
+        $sql = " select * from p_agent WHERE id= '{$platform_id}'";
+        $agent_ls = $this->db->query($sql)->row_array();
+        if(in_array($agent_ls['high_level'],[0,1]))
         {
             $this->_pagedata['is_super'] = 1;
-            $Agent = $this->agent_model->get_own_agents($this->platform_id);
+            $Agent = $this->agent_model->get_own_agents($platform_id);
             $agent_level_list = $this->commercial_model->get_agent_level_list($Agent,2);
             $platform_list = $this->commercial_model->get_agent_level_list($Agent,1);
         }
         //满足条件的所有platform和agent
         $agent_array = array_column($agent_level_list,'id');
         $platform_array = array_column($platform_list,'id');
-        $array = $this->equipment_model->getEquipments("", $where, $offset, $limit, $platform_is_hidden,$agent_array,$platform_array);
+        if(empty($agent_array) && empty($platform_array))
+        {
+            $array = array();
+        }else
+        {
+            $array = $this->equipment_model->getEquipments("", $where, $offset, $limit, $platform_is_hidden,$agent_array,$platform_array);
+        }
         foreach ($array as $k=>$v){
             $array[$k]['qr_action'] = '';
             $array[$k]['platform_name'] = $v['platform_name'] ? $v['platform_name'] : '无';
@@ -193,7 +210,12 @@ class Equipment extends MY_Controller {
                 $array[$k]['commercial_name'] = $platform_rs['name'];
             }
         }
-        $total = (int)$this->equipment_model->getEquipments("count(*) as c",$where,'','','',$agent_array,$platform_array)[0]['c'];
+        if(empty($agent_array) && empty($platform_array)){
+            $total = 0;
+        }else
+        {
+            $total = (int)$this->equipment_model->getEquipments("count(*) as c",$where,'','','',$agent_array,$platform_array)[0]['c'];
+        }
 
         $result = array(
             'total' => $total,
@@ -662,13 +684,8 @@ class Equipment extends MY_Controller {
             $data['hardware_time'] = $hardware_time;
             $data['agent_config'] = json_encode(array($agent_id));
             $insertBox = $this->equipment_model->insertData($data);
-        }else { //分配设备
-                //校验
-                if(empty($equipment) || empty($codeEquipment) || $equipment['last_agent_id'] != $agent_id ||$equipment['type'] != $type)
-                {
-                    $this->check_equipment($equipment,$codeEquipment,$agent_id,$type);
-                }
-                //更新equipment表
+        }else {
+                //分配设备 （并添加）更新equipment表
                 //若为顶级代理需更新顶级代理字段
                 if($this->svip)
                 {
@@ -676,21 +693,45 @@ class Equipment extends MY_Controller {
                 }
                 if(!$platform_id)
                 {   //分配给代理商
-                    $agent_config = json_decode($equipment['agent_config'],true);
-                    $agent_config[] = $last_agent;
-                    $data['agent_config'] = json_encode($agent_config);
                     $data['last_agent_id'] = $last_agent;
                     $data['software_time'] = $software_time;
                     $data['hardware_time'] = $hardware_time;
                     $data['platform_id'] = 0;
-                    $insertBox = $this->db->update('equipment',$data,array('equipment_id'=>$equipment['equipment_id']));
+                    if($equipment)
+                    {
+                        $agent_config = json_decode($equipment['agent_config'],true);
+                        $agent_config[] = $last_agent;
+                        $data['agent_config'] = json_encode($agent_config);
+                        $insertBox = $this->db->update('equipment',$data,array('equipment_id'=>$equipment['equipment_id']));
+                    }else
+                    {
+                        $data['agent_config'] = json_encode(array($agent_id));
+                        $data['code'] = $code;
+                        $data['type'] = $type;
+                        $data['equipment_id'] = $equipment_id;
+                        $data['status'] = 1;
+                        $data['platform_id'] = 0;
+                        $data['created_time'] = time();
+                        $insertBox = $this->equipment_model->insertData($data);
+                    }
                 }else
                 {//分配给商户
                     $data['last_agent_id'] = $last_agent;
                     $data['platform_id'] = $platform_id;
                     $data['software_time'] = $software_time;
                     $data['hardware_time'] = $hardware_time;
-                    $insertBox = $this->db->update('equipment',$data,array('equipment_id'=>$equipment['equipment_id']));
+                    if($equipment)
+                    {
+                        $insertBox = $this->db->update('equipment',$data,array('equipment_id'=>$equipment['equipment_id']));
+                    }else
+                    { $data['agent_config'] = json_encode(array($agent_id));
+                        $data['code'] = $code;
+                        $data['type'] = $type;
+                        $data['equipment_id'] = $equipment_id;
+                        $data['status'] = 1;
+                        $data['created_time'] = time();
+                        $insertBox = $this->equipment_model->insertData($data);
+                    }
                 }
         }
         //对设备有分配给商户的操作才去同步Admin后台
@@ -728,29 +769,7 @@ class Equipment extends MY_Controller {
         }
         
 
-    private function check_equipment($equipment,$codeEquipment,$agent_id,$type,$assign='')
-    {
-        if(empty($equipment))
-        {
-            $this->_pagedata["tips"] = "该设备id未添加！";
-        }elseif(empty($codeEquipment))
-        {
-            $this->_pagedata["tips"] = "该设备code未添加！";
-        }elseif($equipment['last_agent_id'] != $agent_id)
-        {
-            $this->_pagedata["tips"] = "该设备您暂无分配权限！";
-        }elseif($equipment['type'] != $type && !$assign)
-        {
-            $this->_pagedata["tips"] = "设备类型选择不正确！";
-        }
-        if($assign = 'assign')
-        {
-            $this->fenpei();
-            exit;
-        }
-        $this->add();
-        exit;
-    }
+
     public function add_noclue_save(){
         $where = array();
         $this->_pagedata['platform_list'] = $this->commercial_model->getList("*", $where);

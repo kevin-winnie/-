@@ -11,14 +11,14 @@
         <div class="form-horizontal" id="search">
             <div class="form-group">
                 <div class="col-sm-2">
-                    <select class="form-control" name="agent_platform" id="agent_platform">
+                    <select class="form-control" name="search_agent_platform" id="agent_platform">
                         <option value="1">代理商</option>
                         <option value="0">商户</option>
                     </select>
                 </div>
                 <{if $is_super eq '1'}>
                     <div class="col-sm-2">
-                        <select class="form-control" name="agent_level" id="agent_level">
+                        <select class="form-control" name="search_agent_level" id="agent_level">
                             <option value="-1">代理商级别</option>
                             <{foreach $agent_level as $val}>
                                 <option value="<{$val['id']}>"><{$val['name']}></option>
@@ -27,7 +27,7 @@
                     </div>
                 <{/if}>
                 <div class="col-sm-2">
-                    <select class="form-control" name="agent_name" id="agent_name">
+                    <select class="form-control" name="search_agent_name" id="agent_name">
                         <option value="-1">代理商名称</option>
                         <{foreach $agent_level_list as $val}>
                             <option value="<{$val['id']}>"><{$val['name']}></option>
@@ -35,7 +35,7 @@
                     </select>
                 </div>
                 <div class="col-sm-2">
-                    <select class="form-control" name="equipment_type">
+                    <select class="form-control" name="search_equipment_type">
                         <option value="">设备类型</option>
                         <option value="rfid-1">蚂蚁盒子RFID</option>
                         <option value="rfid-2">魔盒生产RFID</option>
@@ -49,16 +49,16 @@
                     </select>
                 </div>
                 <div class="col-sm-2">
-                    <select class="form-control" name="equipment_status">
+                    <select class="form-control" name="search_status">
                         <option value="-1">设备状态</option>
-                        <option value="0">启用</option>
-                        <option value="1">禁用</option>
-                        <option value="2">报废</option>
+                        <option value="1">启用</option>
+                        <option value="0">禁用</option>
+                        <option value="99">报废</option>
                         <option value="2">维修中</option>
                     </select>
                 </div>
                 <div class="col-sm-2">
-                    <input type="text" class="form-control" name="search_product_name" id="search_product_name" placeholder="设备ID">
+                    <input type="text" class="form-control" name="search_equipment_id" id="search_equipment_id" placeholder="设备ID">
                 </div>
 
                 <input type="hidden" id="origin_url" value="/equipment/table">

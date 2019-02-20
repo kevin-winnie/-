@@ -141,7 +141,7 @@ class Agent_model extends MY_Model
                     $info[] = $v;
                 }
             }
-            $info = array_merge($rs,$info);
+            $info = array_merge((array)$rs,(array)$info);
             $level = array_unique(array_column($info,'high_level'));
         }
         $data_level = array();

@@ -65,19 +65,22 @@ class Equipment_model extends CI_Model
         if ($where['code']){
             $sql.= " and a.code = '".$where['code']."'";
         }
+        if ($where['type']){
+            $sql.= " and a.type = '".$where['type']."'";
+        }
         if ($where['start_time']){
             $sql.= " and a.created_time >= '".$where['start_time']."'";
         }
         if ($where['end_time']){
             $sql.= " and a.created_time <= '".$where['end_time']."'";
         }
+
         if(!$where['last_agent_id'] && !$where['platform_id'])
         {
             $agent_string = implode("','",$agent_array);
             $agent_string = "'".$agent_string."'";
             $platform_string = implode("','",$platform_array);
             $platform_string = "'".$platform_string."'";
-
             if($agent_array && empty($platform_array))
             {
                 $sql.= " and a.last_agent_id in ({$agent_string})";
