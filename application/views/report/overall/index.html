@@ -79,7 +79,7 @@
         <select class="form-control" id="search_platform_id" name="search_platform_id" style="width: 200px;float: right;height: 30px;">
             <option value="-1">选择商户</option>
             <{foreach key=key item=item from=$platform_list}>
-            <option value="<{$item['platform_rs_id']}>" <{if $platform_id eq $item['platform_rs_id']}>selected="selected"<{/if}>><{$item['platform_rs_id']}><{$item['name']}></option>
+            <option value="<{$item['platform_rs_id']}>" <{if $platform_id eq $item['platform_rs_id']}>selected="selected"<{/if}>><{$item['name']}></option>
             <{/foreach}>
         </select>
         <select class="form-control" id="search_agent_id" name="search_agent_id" style="width: 200px;float: right;height: 30px;">

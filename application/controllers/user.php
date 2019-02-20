@@ -19,7 +19,15 @@ class User extends MY_Controller
     public function user_list(){
         $this->_pagedata['acount_id']    = $this->input->get('acount_id')?$this->input->get('acount_id'):0;
         $this->_pagedata['store_list']   = $this->equipment_new_model->get_store_list();
-        $this->_pagedata['platform_list']= $this->commercial_model->get_commercial_list($this->platform_id,1);
+        $platform_list    = $this->commercial_model->get_agent_level_list_pt($this->platform_id,2);
+        if($this->svip)
+        {
+            $this->_pagedata['is_svip'] = 1;
+            //代理商级别
+            $Agent = $this->agent_model->get_own_agents($this->platform_id);
+            $platform_list = $this->commercial_model->get_agent_level_list($Agent,1);
+        }
+        $this->_pagedata['platform_list']= $platform_list;
         $this->page('user/user_list.html');
     }
 
