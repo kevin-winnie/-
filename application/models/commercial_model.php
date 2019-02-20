@@ -232,4 +232,11 @@ class Commercial_model extends MY_Model
         return $rs;
     }
 
+    public function get_agent_by_commercial($high_agent_id)
+    {
+        $sql = " select * from p_agent WHERE id = '{$high_agent_id}'";
+        $rs = $this->db->query($sql)->row_array();
+        return $rs;
+    }
+
 }

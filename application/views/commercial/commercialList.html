@@ -16,7 +16,16 @@
 						<option value="2" <{if $search['search_need_deliver'] eq 2}>selected<{/if}>>否</option>
 					 </select>
 				  </div>
-
+				  <{if $is_svip eq '1'}>
+					  <div class="col-sm-2">
+						  <select class="form-control" name="search_need_deliver" id="search_need_deliver">
+							  <option value="-1">直属代理商</option>
+							  <{foreach  $agent_list as $val}>
+								  <option value="<{$val['id']}>" ><{$val['name']}></option>
+							  <{/foreach}>
+						  </select>
+					  </div>
+				  <{/if}>
 				  <div class="col-sm-2">
 					 <input type='text' class="form-control" name='name' placeholder="姓名" value="<{$search['name']}>">
 				  </div>
@@ -36,6 +45,9 @@
             <th>ID</th>
 			<th>商户主账号</th>
 			<th>商户名称</th>
+			<{if $is_svip eq '1'}>
+				<th>直属代理商</th>
+				<{/if}>
 			<th>联系地址</th>
 			<th>联系人</th>
 			<th>联系手机</th>
@@ -50,6 +62,9 @@
             <td><{$val['id']}></td>
 			<td><{$val['admin_name']}></td>
 			<td><{$val['name']}></td>
+			<{if $is_svip eq '1'}>
+				<td><{$val['agent_name']}></td>
+			<{/if}>
 			<td><{$val['address']}></td>
 			<td><{$val['contacts']}></td>
 			<td><{$val['phone']}></td>
