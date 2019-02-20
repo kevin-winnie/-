@@ -137,14 +137,18 @@ class Order_model extends MY_Model
 
 
     //获取订单用户数
-    public function get_order_user($start_time, $end_time, $platform_id=0){
+    public function get_order_user($start_time, $end_time, $platform_id=0,$array=array()){
         $where = array('order_status >'=>0, 'order_time >='=>$start_time, "order_time <="=>$end_time );
-        if($platform_id){
+        if($platform_id && empty($array)){
             $where['platform_id'] = $platform_id;
         }
         $this->c_db->select(" count(DISTINCT(uid)) as user_num");
         $this->c_db->from('order');
         $this->c_db->where($where);
+        if(!empty($array))
+        {
+            $this->c_db->where_in('platform_id', $array);
+        }
         $rs = $this->c_db->get()->row_array();
         return $rs['user_num'];
     }

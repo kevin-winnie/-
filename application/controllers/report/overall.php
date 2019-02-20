@@ -28,34 +28,72 @@ class Overall extends MY_Controller
         $this->load->model('equipment_stock_model');
         $this->load->library('phpredis');
         $this->redis = $this->phpredis->getConn();
-        $this->platform_id = $this->input->get('platform_id')>0?$this->input->get('platform_id'):0;
-
+        $this->platform_id = $this->input->get('platform_id')?$this->input->get('platform_id'):-1;
+        $this->agent_id = $this->input->get('agent_id')?$this->input->get('agent_id'):1;
     }
 
     public function index(){
+        $agent_id = $this->agent_id;
+        $agent_level_list = $this->commercial_model->get_agent_level_list_pt($this->platform_id,1);
+        $platform_list    = $this->commercial_model->get_agent_level_list_pt($this->platform_id,2);
+        if($this->svip)
+        {
+            $this->_pagedata['is_svip'] = 1;
+            //代理商级别
+            $Agent = $this->agent_model->get_own_agents($this->platform_id);
+            $agent_level_list = $this->commercial_model->get_agent_level_list($Agent,2);
+            $platform_list = $this->commercial_model->get_agent_level_list($Agent,1);
+        }
+        $this->_pagedata['agent_level_list'] = $agent_level_list;
+        if($this->platform_id>0)
+        {
+            $agent_id = -1;
+        }
+        $this->_pagedata['agent_id']  = $agent_id;
         $this->_pagedata['platform_id']  = $this->platform_id;
-        $this->_pagedata['platform_list']= $this->commercial_model->get_all_platforms();
+        $this->_pagedata['platform_list']= $platform_list;
         $this->_pagedata['pd'] = date('Y-m-d', strtotime('-1 days'));//默认按日搜索数据
         $this->_pagedata['s_type'] = 0;//0:按天， 1:按周, 2:按月
         $this->page('report/overall/index.html');
     }
 
-
+    function check_is_agent()
+    {
+        //代理商模式数据
+        $agent_id = $this->agent_id;
+        if($agent_id >0 && $this->platform_id == -1)
+        {
+            $commercial_list = $this->commercial_model->get_commercial_list_by_agent($agent_id);
+            if(!empty($commercial_list))
+            {
+                foreach($commercial_list as $key=>$val)
+                {
+                    if(!$val['platform_rs_id'])
+                    {
+                        unset($commercial_list[$key]);
+                    }
+                }
+            }
+            $commercial_array = array_column($commercial_list,'platform_rs_id');
+        }
+        return $commercial_array;
+    }
     function ajax_data(){
         $pd     = $this->input->post('pd');//按日搜索数据
         $s_type = $this->input->post('s_type');//0:按天， 1:按周, 2:按月
-        $this->platform_id = $this->input->post('platform_id');
+        $this->platform_id = $this->input->post('platform_id')?$this->input->post('platform_id'):-1;
+        $commercial_array = $this->check_is_agent();
         if(!$pd && !$s_type){
             $this->showJson(array('status'=>'error', 'msg'=>'参数不全'));
         }
         $result['status'] = 'success';
         if($s_type==0){//按天
-            $result['cu_data'] = $cu_data = $this->bi_overall_model->get_day_data($pd, $this->platform_id);
+            $result['cu_data'] = $cu_data = $this->bi_overall_model->get_day_data($pd, $this->platform_id,$commercial_array);
             $last_day = date('Y-m-d', strtotime($pd) - 86400); //上一日
             $tong_day = date('Y-m-d', strtotime($pd) - 86400*7);//上周同期
 
-            $last_data = $this->bi_overall_model->get_day_data($last_day, $this->platform_id);
-            $tong_data = $this->bi_overall_model->get_day_data($tong_day, $this->platform_id);
+            $last_data = $this->bi_overall_model->get_day_data($last_day, $this->platform_id,$commercial_array);
+            $tong_data = $this->bi_overall_model->get_day_data($tong_day, $this->platform_id,$commercial_array);
             foreach($result['cu_data'] as $k=>$v){//如果分母是0，分子大于0 则直接100%
                 $result['last_data'][$k] =    (intval($last_data[$k]) == 0 && $v>0)?100:bcdiv(($v-$last_data[$k]), $last_data[$k], 4)*100;//上一日
                 $result['tong_data'][$k] =    (intval($tong_data[$k]) == 0 && $v>0)?100:bcdiv(($v-$tong_data[$k]), $tong_data[$k], 4)*100;//上周同期
@@ -67,22 +105,22 @@ class Overall extends MY_Controller
             $param = array();
             for($i=21; $i>=0; $i--){
                 $t_day = date('Y-m-d', strtotime($pd) - 86400*$i); //倒推30天数据
-                $param[date('m-d', strtotime($t_day))] = $this->bi_overall_model->get_day_data($t_day, $this->platform_id);
+                $param[date('m-d', strtotime($t_day))] = $this->bi_overall_model->get_day_data($t_day, $this->platform_id,$commercial_array);
             }
 
         }elseif($s_type==1){//按周
-            $result['cu_data'] = $cu_data = $this->bi_overall_model->get_week_data($pd, $this->platform_id);
+            $result['cu_data'] = $cu_data = $this->bi_overall_model->get_week_data($pd, $this->platform_id,$commercial_array);
             $tmp = str_replace('周', '', $pd);
             $tmp = explode('第', $tmp);
             $tmp[1] = intval($tmp[1]);
             $year_week = $this->bi_overall_model->get_week($tmp[0]);
             $start_date = $year_week[$tmp[1]][0];
             $last_week = date('Y第W周', strtotime($start_date) - 86400*7); //上一周
-            $last_data = $this->bi_overall_model->get_week_data($last_week, $this->platform_id);
+            $last_data = $this->bi_overall_model->get_week_data($last_week, $this->platform_id,$commercial_array);
 
 
             $tong_week = intval($tmp[0]-1).'第'.$tmp[1].'周';//去年同期
-            $tong_data = $this->bi_overall_model->get_week_data($tong_week, $this->platform_id);
+            $tong_data = $this->bi_overall_model->get_week_data($tong_week, $this->platform_id,$commercial_array);
 
             foreach($result['cu_data'] as $k=>$v){//如果分母是0，分子大于0 则直接100%
                 $result['last_data'][$k] =    (intval($last_data[$k]) == 0 && $v>0)?100:bcdiv(($v-$last_data[$k]), $last_data[$k], 4)*100;//上一日
@@ -95,19 +133,19 @@ class Overall extends MY_Controller
             $param = array();
             for($i=11; $i>=0; $i--){
                 $t_week = date('Y第W周', strtotime($start_date) - 86400*7*$i); //倒推12周数据
-                $param[$t_week] = $this->bi_overall_model->get_week_data($t_week, $this->platform_id);
+                $param[$t_week] = $this->bi_overall_model->get_week_data($t_week, $this->platform_id,$commercial_array);
             }
 
         }elseif($s_type==2){
 
-            $result['cu_data'] = $cu_data = $this->bi_overall_model->get_month_data($pd, $this->platform_id);
+            $result['cu_data'] = $cu_data = $this->bi_overall_model->get_month_data($pd, $this->platform_id,$commercial_array);
 
             $last_month = date('Y-m', strtotime("$pd -1 months")); //上一月
-            $last_data = $this->bi_overall_model->get_month_data($last_month, $this->platform_id);
+            $last_data = $this->bi_overall_model->get_month_data($last_month, $this->platform_id,$commercial_array);
 
 
             $tong_month = date('Y-m', strtotime("$pd -12 months")); //去年同期
-            $tong_data = $this->bi_overall_model->get_month_data($tong_month, $this->platform_id);
+            $tong_data = $this->bi_overall_model->get_month_data($tong_month, $this->platform_id,$commercial_array);
 
             foreach($result['cu_data'] as $k=>$v){//如果分母是0，分子大于0 则直接100%
                 $result['last_data'][$k] =    (intval($last_data[$k]) == 0 && $v>0)?100:bcdiv(($v-$last_data[$k]), $last_data[$k], 4)*100;//上一日
@@ -120,7 +158,7 @@ class Overall extends MY_Controller
             $param = array();
             for($i=11; $i>=0; $i--){
                 $t_month = date('Y-m', strtotime("$pd -$i months")); //上一月; //倒推12月数据
-                $param[$t_month] = $this->bi_overall_model->get_month_data($t_month, $this->platform_id);
+                $param[$t_month] = $this->bi_overall_model->get_month_data($t_month, $this->platform_id,$commercial_array);
             }
 
 
@@ -200,12 +238,17 @@ class Overall extends MY_Controller
         $offset     = $this->input->get('offset')?$this->input->get('offset'):0;
         $start_date = $this->input->get('start_date')?$this->input->get('start_date'):date('Y-m-d', strtotime('-1 days'));
         $end_date   = $this->input->get('end_date')?$this->input->get('end_date'):date('Y-m-d', strtotime('-1 days'));
-        $key = self::OVERALL_EQ_DATA_KEY.$start_date.':'.$end_date.':'.$this->platform_id;
+        $key = self::OVERALL_EQ_DATA_KEY.$start_date.':'.$end_date.'_platform_id:'.$this->platform_id;
+        $commercial_array = $this->check_is_agent();
+        if(!empty($commercial_array))
+        {
+            $key = self::OVERALL_EQ_DATA_KEY.$start_date.':'.$end_date.'_agent_id:'.$this->agent_id;
+        }
         $tmp = $this->redis->get($key);
         if($tmp){
             $list = json_decode($tmp, true);
         }else{
-            $list = $this->bi_overall_model->get_date_data($start_date, $end_date, $this->platform_id);
+            $list = $this->bi_overall_model->get_date_data($start_date, $end_date, $this->platform_id,$commercial_array);
             $this->redis->set($key, json_encode($list), self::CACHE_TIME);
         }
         $list = $this->array_sort($list, $sort, $order);
@@ -243,12 +286,17 @@ class Overall extends MY_Controller
         $offset     = $this->input->get('offset')?$this->input->get('offset'):0;
         $start_date = $this->input->get('start_date')?$this->input->get('start_date'):date('Y-m-d', strtotime('-1 days'));
         $end_date   = $this->input->get('end_date')?$this->input->get('end_date'):date('Y-m-d', strtotime('-1 days'));
-        $key = self::OVERALL_P_DATA_KEY.$start_date.':'.$end_date.':'.$this->platform_id;
+        $key = self::OVERALL_P_DATA_KEY.$start_date.':'.$end_date.'_platform_id:'.$this->platform_id;
+        $commercial_array = $this->check_is_agent();
+        if(!empty($commercial_array))
+        {
+            $key = self::OVERALL_P_DATA_KEY.$start_date.'_agent_id:'.$end_date.':'.$this->agent_id;
+        }
         $tmp = $this->redis->get($key);
         if($tmp){
             $list = json_decode($tmp, true);
         }else{
-            $list = $this->bi_overall_model->get_date_p_data($start_date, $end_date, $this->platform_id);
+            $list = $this->bi_overall_model->get_date_p_data($start_date, $end_date, $this->platform_id,$commercial_array);
             $product_ids = array();
             foreach($list as $k=>$v){
                 $product_ids[] = $v['product_id'];

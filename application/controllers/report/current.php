@@ -33,8 +33,8 @@ class Current extends MY_Controller
         $this->load->library('phpredis');
         $this->c_db = $this->load->database('citybox_master', TRUE);
         $this->redis = $this->phpredis->getConn();
-        $this->platform_id = $this->input->get('platform_id');
-        $this->agent_id = $this->input->get('agent_id');
+        $this->platform_id = $this->input->get('platform_id')?$this->input->get('platform_id'):-1;
+        $this->agent_id = $this->input->get('agent_id')?$this->input->get('agent_id'):1;
     }
 
     public function index()
@@ -53,8 +53,12 @@ class Current extends MY_Controller
             $platform_list = $this->commercial_model->get_agent_level_list($Agent,1);
         }
         $this->_pagedata['agent_level_list'] = $agent_level_list;
-        $this->_pagedata['agent_id']  = $this->agent_id;
-        $this->_pagedata['platform_id']  = 1;
+        if($this->platform_id>0)
+        {
+            $agent_id = -1;
+        }
+        $this->_pagedata['agent_id']  = $agent_id;
+        $this->_pagedata['platform_id']  = $this->platform_id;
         $this->_pagedata['platform_list']= $platform_list;
         //代理商模式数据
         if($agent_id >0)
@@ -171,7 +175,7 @@ class Current extends MY_Controller
         $key = self::YESTERDAY_DATA_KEY.$days.'_platform_id:'.$this->platform_id;
         if(!empty($array))
         {
-            $key = self::YESTERDAY_DATA_KEY.$days.'_agent_id:'.$this->platform_id;
+            $key = self::YESTERDAY_DATA_KEY.$days.'_agent_id:'.$this->agent_id;
         }
         $tmp = $this->redis->get($key);
         if($tmp){
@@ -210,7 +214,7 @@ class Current extends MY_Controller
         $key = self::HOUR_YES_DATA_KEY.':'.date('Y-m-d').'_platform_id:'.$this->platform_id;
         if(!empty($array))
         {
-            $key = self::HOUR_YES_DATA_KEY.':'.date('Y-m-d').'_agent_id:'.$this->platform_id;
+            $key = self::HOUR_YES_DATA_KEY.':'.date('Y-m-d').'_agent_id:'.$this->agent_id;
         }
         $cache = $this->redis->get($key);
         if($cache){
@@ -240,7 +244,7 @@ class Current extends MY_Controller
         $key = self::HOUR_YES_DATA_KEY.'_platform_id:'.$m_date.':'.$this->platform_id;
         if(!empty($array))
         {
-            $key = self::HOUR_YES_DATA_KEY.'_agent_id:'.$m_date.':'.$this->platform_id;
+            $key = self::HOUR_YES_DATA_KEY.'_agent_id:'.$m_date.':'.$this->agent_id;
         }
         $tmp = $this->redis->get($key);
         if($tmp){
@@ -273,7 +277,7 @@ class Current extends MY_Controller
         $key = self::HOUR_WEEK_DATA_KEY.':'.$m_date."_platform_id:".$this->platform_id;
         if(!empty($array))
         {
-            $key = self::HOUR_WEEK_DATA_KEY.':'.$m_date."_agent_id:".$this->platform_id;
+            $key = self::HOUR_WEEK_DATA_KEY.':'.$m_date."_agent_id:".$this->agent_id;
         }
         $tmp = $this->redis->get($key);
         if($tmp){

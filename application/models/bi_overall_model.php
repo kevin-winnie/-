@@ -11,14 +11,18 @@ class Bi_overall_model extends MY_Model
     }
 
     //获取天数据
-    public function get_day_data($date, $platform_id=0){
+    public function get_day_data($date, $platform_id=0 ,$array=array()){
         $where = array('bi_date'=>$date);
-        if($platform_id){
+        if($platform_id && empty($array)){
             $where['platform_id'] = $platform_id;
         }
         $this->c_db->select("SUM(order_money) as order_money ,SUM(good_money) as good_money , SUM(order_num) as order_num, SUM(open_num) as open_num,SUM(alipay_open_num) as alipay_open_num,SUM(wechat_open_num) as wechat_open_num,SUM(other_open_num) as other_open_num, SUM(refund_money) as refund_money, SUM(refund_num) as refund_num, SUM(order_unpaid) as order_unpaid, SUM(card_money) as card_money, SUM(modou) as modou, SUM(discounted_money) as discounted_money, SUM(good_money) as good_money");
         $this->c_db->from('bi_overall');
         $this->c_db->where($where);
+        if(!empty($array))
+        {
+            $this->c_db->where_in('platform_id', $array);
+        }
         $rs = $this->c_db->get()->row_array();
 
         $rs['order_money'] = $rs['order_money']>0?$rs['order_money']:0;
@@ -35,7 +39,7 @@ class Bi_overall_model extends MY_Model
         $rs['modou']       = $rs['modou']>0?$rs['modou']:0;
         $rs['discounted_money']= $rs['discounted_money']>0?$rs['discounted_money']:0;
         $rs['good_money']  = $rs['good_money']>0?$rs['good_money']:0;
-        $user_num = $this->order_model->get_order_user($date.' 00:00:00', $date.' 23:59:59', $platform_id);//订单用户数
+        $user_num = $this->order_model->get_order_user($date.' 00:00:00', $date.' 23:59:59', $platform_id,$array);//订单用户数
         $rs['order_user_avg'] = floatval(bcdiv($rs['order_money'], $user_num, 2));//客单价
         $rs['after_order_user_avg'] = floatval(bcdiv($rs['good_money'], $user_num, 2));//折前客单价
         $rs['pay_avg'] = bcdiv($rs['order_num'], $rs['open_num'], 4)*100;//支付转化率  订单除未支付数 除以 开门次数
@@ -45,14 +49,18 @@ class Bi_overall_model extends MY_Model
 
 
     //根据周来获取数据
-    public function get_week_data($week, $platform_id=0){
+    public function get_week_data($week, $platform_id=0,$array=array()){
         $where = array('bi_week'=>$week);
-        if($platform_id){
+        if($platform_id && empty($array)){
             $where['platform_id'] = $platform_id;
         }
         $this->c_db->select("SUM(order_money) as order_money,SUM(good_money) as good_money, SUM(order_num) as order_num, SUM(open_num) as open_num,SUM(alipay_open_num) as alipay_open_num,SUM(wechat_open_num) as wechat_open_num,SUM(other_open_num) as other_open_num, SUM(refund_money) as refund_money, SUM(refund_num) as refund_num, SUM(order_unpaid) as order_unpaid, SUM(card_money) as card_money, SUM(modou) as modou, SUM(discounted_money) as discounted_money, SUM(good_money) as good_money");
         $this->c_db->from('bi_overall');
         $this->c_db->where($where);
+        if(!empty($array))
+        {
+            $this->c_db->where_in('platform_id', $array);
+        }
         $rs = $this->c_db->get()->row_array();
         foreach($rs as $k=>$v){
             $rs[$k] = $v?$v:0;
@@ -73,14 +81,18 @@ class Bi_overall_model extends MY_Model
     }
 
     //根据月来获取数据
-    public function get_month_data($month, $platform_id=0){
+    public function get_month_data($month, $platform_id=0,$array=array()){
         $where = array('bi_month'=>$month);
-        if($platform_id){
+        if($platform_id && empty($array)){
             $where['platform_id'] = $platform_id;
         }
         $this->c_db->select("SUM(order_money) as order_money,SUM(good_money) as good_money, SUM(order_num) as order_num, SUM(open_num) as open_num,SUM(alipay_open_num) as alipay_open_num,SUM(wechat_open_num) as wechat_open_num,SUM(other_open_num) as other_open_num, SUM(refund_money) as refund_money, SUM(refund_num) as refund_num, SUM(order_unpaid) as order_unpaid, SUM(card_money) as card_money, SUM(modou) as modou, SUM(discounted_money) as discounted_money, SUM(good_money) as good_money");
         $this->c_db->from('bi_overall');
         $this->c_db->where($where);
+        if(!empty($array))
+        {
+            $this->c_db->where_in('platform_id', $array);
+        }
         $rs = $this->c_db->get()->row_array();
         foreach($rs as $k=>$v){
             $rs[$k] = $v?$v:0;
@@ -124,11 +136,11 @@ class Bi_overall_model extends MY_Model
     }
 
     //通过统计表获取订单数据
-    function get_date_data($start_date, $end_date, $platform_id=0){
+    function get_date_data($start_date, $end_date, $platform_id=0,$array=array()){
         $where = array('sale_date >='=>$start_date, 'sale_date <='=>$end_date);
         $where_user = array('sale_date'=>date('Y-m-d', strtotime('-1 days')));
         $eq_where = '';
-        if($platform_id){
+        if($platform_id&&empty($array)){
             $where['platform_id'] = $platform_id;
             $where_user['platform_id'] = $platform_id;
             $eq_where = ' and platform_id='.$platform_id;
@@ -137,6 +149,10 @@ class Bi_overall_model extends MY_Model
         $this->c_db->select("SUM(sale_money) as sale_money,SUM(good_money) as good_money, avg(sale_money) as avg_money, SUM(sale_qty) as sale_qty, SUM(open_num) as open_num, SUM(order_num) as order_num, SUM(refund_num) as refund_num, SUM(refund_money) as refund_money,SUM(user_num) as user_num, SUM(total_user_num) as total_user_num, SUM(card_money) as card_money, SUM(modou) as modou, SUM(discounted_money) as discounted_money, avg(good_money) as avg_good_money, box_no");
         $this->c_db->from('order_sale');
         $this->c_db->where($where);
+        if(!empty($array))
+        {
+            $this->c_db->where_in('platform_id', $array);
+        }
         $this->c_db->group_by('box_no');
         $tmp = $this->c_db->get()->result_array();
         $order = array();
@@ -148,6 +164,10 @@ class Bi_overall_model extends MY_Model
         $this->c_db->select(" total_user_num, box_no");
         $this->c_db->from('order_sale');
         $this->c_db->where($where_user);
+        if(!empty($array))
+        {
+            $this->c_db->where_in('platform_id', $array);
+        }
         $this->c_db->group_by('box_no');
         $tmp = $this->c_db->get()->result_array();
         $now_user = array();
@@ -161,6 +181,12 @@ class Bi_overall_model extends MY_Model
         $admin_list = array();
         foreach($tmp_list as $k=>$v){
             $admin_list[$v['id']] = $v['alias'];
+        }
+
+        if(!empty($array))
+        {
+            $string = "'".implode("','",$array)."'";
+            $eq_where = " and platform_id in ({$string})";
         }
         //盒子列表
         $sql = 'select `equipment_id`,`platform_id`,`name`, admin_id, firstordertime,status,enterprise_scene,`level` from cb_equipment where status > 0 '.$eq_where;
@@ -213,14 +239,18 @@ class Bi_overall_model extends MY_Model
     }
 
     //统计获取商品排行
-    function get_date_p_data($start_date, $end_date, $platform_id=0){
+    function get_date_p_data($start_date, $end_date, $platform_id=0,$array=array()){
         $where = array('bi_date >='=>$start_date, 'bi_date <='=>$end_date);
-        if($platform_id){
+        if($platform_id&&empty($array)){
             $where['platform_id'] = $platform_id;
         }
         $this->c_db->select("SUM(sale_money) as sale_money, SUM(sale_qty) as sale_qty, SUM(order_num) as order_num, SUM(stock) as stock, product_id");
         $this->c_db->from('bi_overall_product');
         $this->c_db->where($where);
+        if(!empty($array))
+        {
+            $this->c_db->where_in('platform_id', $array);
+        }
         $this->c_db->group_by('product_id');
         $tmp = $this->c_db->get()->result_array();
         $result = array();
