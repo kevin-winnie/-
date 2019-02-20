@@ -37,7 +37,7 @@ class Equipment_model extends CI_Model
         return $res;
     }
     
-    function getEquipments($field = "",$where = "",$offset = 0, $limit = 0, $joinWhere_is_hidden = null,$agent_array,$platform_array)
+    function getEquipments($field = "",$where = "",$offset = 0, $limit = 0, $joinWhere_is_hidden = null,$agent_array,$platform_array,$agent_id)
     {
         $sql_fields = $field ? : "a.*,b.name as platform_name ";
     
@@ -86,7 +86,7 @@ class Equipment_model extends CI_Model
                 $sql.= " and a.last_agent_id in ({$agent_string})";
             }elseif(empty(($agent_array)) && $platform_array)
             {
-                $sql.= " and a.platform_id in ({$platform_string}) ";
+                $sql.= " and (a.platform_id in ({$platform_string}) or a.last_agent_id = '{$agent_id}') ";
             }elseif($agent_array && $platform_array)
             {
                 $sql.= " and (a.last_agent_id in ({$agent_string}) or a.platform_id in ({$platform_string})) ";

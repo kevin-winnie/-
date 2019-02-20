@@ -170,7 +170,7 @@ class Equipment extends MY_Controller {
             $array = array();
         }else
         {
-            $array = $this->equipment_model->getEquipments("", $where, $offset, $limit, $platform_is_hidden,$agent_array,$platform_array);
+            $array = $this->equipment_model->getEquipments("", $where, $offset, $limit, $platform_is_hidden,$agent_array,$platform_array,$platform_id);
         }
         foreach ($array as $k=>$v){
             $array[$k]['qr_action'] = '';
