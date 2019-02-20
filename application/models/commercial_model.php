@@ -157,8 +157,12 @@ class Commercial_model extends MY_Model
                 }
             }
             $t_info = array_merge((array)$rs,(array)$info);
+
             if($type == 2)
             {
+                $array['id'] = $agent['id'];
+                $array['name'] = $agent['name'];
+                $t_info[] = $array;
                 return $t_info;
             }
 
@@ -205,13 +209,15 @@ class Commercial_model extends MY_Model
      * 普通代理商查看自己下级代理商
      * $type = 1代理商 2商户
      */
-    public function get_agent_level_list_pt($agent_id,$type=1)
+    public function get_agent_level_list_pt($agent_id,$type=1,$agent='')
     {
         $sql = " select * from p_agent as a WHERE  a.high_agent_id = '{$agent_id}'";
         $rs = $this->db->query($sql)->result_array();
         if($type == 1)
         {
-            $rs[]['id'] = $agent_id;
+            $own_array['id'] =  $agent_id;
+            $own_array['name'] =  $agent['name'];;
+            $rs[]=$own_array;
             return $rs;
         }
         $all_agent = array_unique(array_column($rs,'id'));

@@ -65,8 +65,8 @@ class Equipment extends MY_Controller {
             $this->_pagedata['type'] = $type;
         }
         $Agent = $this->agent_model->get_own_agents($this->platform_id);
-        $agent_level_list = $this->commercial_model->get_agent_level_list_pt($this->platform_id,1);
-        $platform_list    = $this->commercial_model->get_agent_level_list_pt($this->platform_id,2);
+        $agent_level_list = $this->commercial_model->get_agent_level_list_pt($this->platform_id,1,$Agent);
+        $platform_list    = $this->commercial_model->get_agent_level_list_pt($this->platform_id,2,$Agent);
         if($this->svip)
         {
             $this->_pagedata['is_super'] = 1;
