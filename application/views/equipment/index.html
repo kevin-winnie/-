@@ -308,11 +308,16 @@
                     $("#agent_name").find("option").remove();
                     var data_arr = JSON.parse( data );
                     var data_s = data_arr.data;
+                    var data_type = data_arr.type;
+                    console.log(data_type);
                     if(data_s.length >0)
                     {
-                        if(type_id = 1)
+                        if(data_type == 0)
                         {
                             $("#agent_name").append("<option value='-1'>商户名称</option>");
+                        }else if(data_type == 1)
+                        {
+                            $("#agent_name").append("<option value='-1'>代理商名称</option>");
                         }
                         for(var i= 0;i< data_s.length;i++)
                         {
@@ -321,7 +326,7 @@
                         }
                     }else
                     {
-                        $("#agent_name").append("<option value=''>--暂无可选商户--</option>");
+                        $("#agent_name").append("<option value=''>--暂无可选项--</option>");
                     }
                 },
                 error: function () {

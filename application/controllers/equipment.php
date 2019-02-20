@@ -100,6 +100,7 @@ class Equipment extends MY_Controller {
         $search_equipment_type = $this->input->get('search_equipment_type');
         $search_agent_name = $this->input->get('search_agent_name');
         $search_agent_level = $this->input->get('search_agent_level');
+        $search_agent_platform = $this->input->get('search_agent_platform');
         $type = $this->input->get('type');
         $id = $this->input->get('id');
         if ($this->input->get('search_status') === '0'){
@@ -122,17 +123,18 @@ class Equipment extends MY_Controller {
         if ($search_code){
             $where['code'] = $search_code;
         }
-        if($search_platform_id && $search_platform_id!=-1) {
-            $where['platform_id'] = $search_platform_id;
+
+        if($search_agent_name && $search_agent_name!=-1 && $search_agent_platform == 0) {
+            $where['platform_id'] = $search_agent_name;
         }
         if($search_equipment_type)
         {
             $where['type'] = $search_equipment_type;
         }
-        $platform_id = $this->platform_id;
-        if($search_agent_name)
+        $agent_id = $this->platform_id;
+        if($search_agent_name && $search_agent_platform == 1)
         {
-            $platform_id = $search_agent_name;
+            $agent_id = $search_agent_name;
         }
         if ($id && $type==1){
             $where['last_agent_id'] = $id;
@@ -150,15 +152,15 @@ class Equipment extends MY_Controller {
             $where['end_time'] = strtotime($search_end_time);
         }
         $where['admin_id'] = $this->adminid;
-        $agent_level_list = $this->commercial_model->get_agent_level_list_pt($platform_id,1);
-        $platform_list    = $this->commercial_model->get_agent_level_list_pt($platform_id,2);
+        $agent_level_list = $this->commercial_model->get_agent_level_list_pt($agent_id,1);
+        $platform_list    = $this->commercial_model->get_agent_level_list_pt($agent_id,2);
         //校验代理商是否为超级
-        $sql = " select * from p_agent WHERE id= '{$platform_id}'";
+        $sql = " select * from p_agent WHERE id= '{$agent_id}'";
         $agent_ls = $this->db->query($sql)->row_array();
         if(in_array($agent_ls['high_level'],[0,1]))
         {
             $this->_pagedata['is_super'] = 1;
-            $Agent = $this->agent_model->get_own_agents($platform_id);
+            $Agent = $this->agent_model->get_own_agents($agent_id);
             $agent_level_list = $this->commercial_model->get_agent_level_list($Agent,2);
             $platform_list = $this->commercial_model->get_agent_level_list($Agent,1);
         }
@@ -1935,10 +1937,13 @@ class Equipment extends MY_Controller {
             $id_string .= $agent_id."'";
             $data = $this->agent_model->change_platform($id_string);
         }else
-        {//获取代理商
+        {
+            //获取代理商
+            $Agent = $this->agent_model->get_own_agents($agent_id);
             $data = $this->agent_model->get_all_agents($agent_id);
+            $data[] = $Agent;
         }
-        $this->showJson(['status'=>'success','data'=>$data]);
+        $this->showJson(['status'=>'success','data'=>$data,'type'=>$type_id]);
     }
 
     public function fenpei()
