@@ -72,7 +72,7 @@ class Equipment extends MY_Controller {
             $this->_pagedata['is_super'] = 1;
             //代理商级别
             $agent_level = $this->agent_model->get_agent_level_list($Agent);
-            $agent_level_list = $this->commercial_model->get_agent_level_list($Agent,2);
+            $agent_level_list = $this->commercial_model->get_agent_level_list($Agent,3);
             $platform_list = $this->commercial_model->get_agent_level_list($Agent,1);
         }
         $this->_pagedata['platform_list'] = $this->commercial_model->getList("*", $where);
@@ -1924,26 +1924,26 @@ class Equipment extends MY_Controller {
         $agent_id = $this->input->post('agent_id')?$this->input->post('agent_id'):$this->platform_id;
         $type_id = $this->input->post('type_id');
         $id_string = "'";
+
+        $Agent = $this->agent_model->get_own_agents($agent_id);
+        $agent_level_list = $this->commercial_model->get_agent_level_list_pt($this->platform_id,1,$Agent);
+        if(in_array($Agent['high_level'],[0,1]))
+        {
+            $agent_level_list = $this->commercial_model->get_agent_level_list($Agent,3);
+        }
         //获取商户
         if($type_id == 0)
         {
-            if($this->svip)
-            {
-                $high_agent_list = $this->agent_model->high_agent_list($agent_id);
-                if(!empty($high_agent_list))
+                if(!empty($agent_level_list))
                 {
-                    $ids = array_column($high_agent_list, 'id');
-                    $id_string .= implode("','",$ids)."','";
+                    $ids = array_column($agent_level_list, 'id');
+                    $id_string .= implode("','",$ids)."'";
                 }
-            }
-            $id_string .= $agent_id."'";
             $data = $this->agent_model->change_platform($id_string);
         }else
-        {
-            //获取代理商
-            $Agent = $this->agent_model->get_own_agents($agent_id);
-            $data = $this->agent_model->get_all_agents($agent_id);
-            $data[] = $Agent;
+        { //获取代理商
+            $agent_array = array_column($agent_level_list,'id');
+            $data = $this->agent_model->get_all_agents($agent_id,$Agent,$agent_array);
         }
         $this->showJson(['status'=>'success','data'=>$data,'type'=>$type_id]);
     }

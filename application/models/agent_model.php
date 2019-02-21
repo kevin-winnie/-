@@ -77,10 +77,19 @@ class Agent_model extends MY_Model
         return $rs;
     }
 
-    public function get_all_agents($id){
+    public function get_all_agents($id,$agent,$array){
         $this->db->select('*');
         $this->db->from('agent');
-        $this->db->where(array('high_agent_id'=>$id));
+        if($agent['high_level'] == 0)
+        {
+            $this->db->where(array('id !='=>$id));
+        }elseif($agent['high_level'] == 1 && !empty($array))
+        {
+            $this->db->where_in('id', $array);
+        }else
+        {
+            $this->db->where(array('high_agent_id'=>$id));
+        }
         $rs = $this->db->get()->result_array();
         return $rs;
     }

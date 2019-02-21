@@ -138,6 +138,12 @@ class Commercial_model extends MY_Model
             if($type == 2)
             {
                 return $rs;
+            }elseif($type == 3)
+            {
+                $array1['id'] = $agent['id'];
+                $array1['name'] = $agent['name'];
+                $rs[] = $array1;
+                return $rs;
             }
             $all_agent = array_unique(array_column($rs,'id'));
             if(!$high_level)
@@ -169,6 +175,9 @@ class Commercial_model extends MY_Model
             $t_info = array_merge((array)$rs,(array)$info);
 
             if($type == 2)
+            {
+                return $t_info;
+            }elseif($type == 3)
             {
                 if(!$high_level)
                 {
@@ -248,10 +257,12 @@ class Commercial_model extends MY_Model
             return $rs;
         }
         $all_agent = array_unique(array_column($rs,'id'));
+
         if(!$high_level)
         {
             $all_agent[] = $agent_id;
         }
+
         if(empty($all_agent))
         {
             return array();
