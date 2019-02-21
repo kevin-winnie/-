@@ -210,4 +210,46 @@ class Agent_model extends MY_Model
         return $this->db->query($sql)->result_array();
     }
 
+    public function getList($where,$agent,$agent_array = array())
+    {
+        $sql = "SELECT *
+        FROM p_agent AS a ";
+        $sql .= " WHERE 1 = 1 ";
+        if ($where['name']) {
+            $sql .= " and name like '%'.'{$where['name']}.'&'";
+        }
+        if($where['is_frozen'] == 1)
+        {
+            $sql .= " and status = 0";
+        }elseif($where['is_frozen'] == 0)
+        {
+            $sql .= " and status = 1";
+        }
+        if ($where['mobile']) {
+            $sql .= " and phone = '{$where['mobile']}'";
+        }
+        if($where['agent_name'])
+        {
+            $sql .= " and id = '{$where['agent_name']}'";
+        }
+
+        if($where['svip'] == -1)
+        {
+            $sql .= " and high_agent_id = '{$agent['id']}'";
+        }
+        $agent['high_level'] = 1;
+        if($agent['high_level'] == 0)
+        {
+            $sql .= " and id != '{$agent['id']}'";
+        }
+        if($agent['high_level'] == 1)
+        {
+            $string = "'".implode("','",$agent_array)."'";
+            $sql .= " and  id in ($string)";
+        }
+        $res = $this->db->query($sql);
+        $array = $res->result_array();
+        return $array;
+    }
+
 }

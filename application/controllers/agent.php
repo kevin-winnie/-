@@ -94,17 +94,17 @@ class Agent extends MY_Controller {
     function agentList(){
         $search = $this->input->post();
         $agent_level_list = $this->commercial_model->get_agent_level_list_pt($this->platform_id,1);
+        $Agent = $this->agent_model->get_own_agents($this->platform_id);
         if($this->svip)
         {
             $this->_pagedata['is_svip'] = 1;
             //代理商级别
-            $Agent = $this->agent_model->get_own_agents($this->platform_id);
             $agent_level = $this->agent_model->get_agent_level_list($Agent);
             $agent_level_list = $this->commercial_model->get_agent_level_list($Agent,2);
         }
         $this->_pagedata['agent_level_list'] = $agent_level_list;
         if (!empty($search['name'])) {
-            $where['name like '] = '%'.trim($search['name'].'%');
+            $where['name'] = trim($search['name']);
         }
         if($search['is_frozen'] == 1)
         {
@@ -120,10 +120,21 @@ class Agent extends MY_Controller {
         {
             $where['id'] = trim($search['agent_name']);
         }
-        $where['high_agent_id'] = $this->platform_id;
+        if(!($this->svip))
+        {
+            $where['svip'] = -1;
+        }
+        $agent_array = array_column($agent_level_list,'id');
         $this->title = '代理商列表';
         $this->_pagedata['search'] = $search;
-        $agent_list = $this->agent_model->getList("*", $where);
+        if(empty($agent_array))
+        {
+            $agent_list = array();
+        }else
+        {
+            $agent_list = $this->agent_model->getList($where,$Agent,$agent_array);
+        }
+
         foreach($agent_list as $key=>$val)
         {
             if($val['high_level'] >=2)
