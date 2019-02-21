@@ -173,7 +173,6 @@ class Commercial_model extends MY_Model
                 }
             }
             $t_info = array_merge((array)$rs,(array)$info);
-
             if($type == 2)
             {
                 return $t_info;
@@ -188,7 +187,7 @@ class Commercial_model extends MY_Model
                 return $t_info;
             }
 
-            $all_agent = array_unique(array_column($info,'id'));
+            $all_agent = array_unique(array_column($t_info,'id'));
             if(!$high_level)
             {
                 $all_agent[] = $agent['id'];
@@ -257,12 +256,10 @@ class Commercial_model extends MY_Model
             return $rs;
         }
         $all_agent = array_unique(array_column($rs,'id'));
-
         if(!$high_level)
         {
             $all_agent[] = $agent_id;
         }
-
         if(empty($all_agent))
         {
             return array();

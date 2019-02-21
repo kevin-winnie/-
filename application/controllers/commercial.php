@@ -94,7 +94,6 @@ class Commercial extends MY_Controller {
             $platform_list    = $this->commercial_model->get_agent_level_list_pt($this->platform_id,2);
             if($this->svip)
             {
-
                 $this->_pagedata['is_svip'] = 1;
                 //代理商级别
                 $Agent = $this->agent_model->get_own_agents($this->platform_id);
@@ -106,6 +105,7 @@ class Commercial extends MY_Controller {
                 $res = $this->commercial_model->get_agent_by_commercial($val['high_agent_id']);
                 $platform_list[$key]['agent_name'] = $res['name'];
             }
+
             $this->title = '商户列表';
             $this->_pagedata['search'] = $search;
             $this->_pagedata ["list"] = $platform_list;
