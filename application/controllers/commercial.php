@@ -462,7 +462,8 @@ class Commercial extends MY_Controller {
                 'name'        => 'box_'.mt_rand(100,999).date('Ymdhis'),
                 'alisa' =>$rs['contacts'],
                 'mobile' =>$rs['phone'],
-                'platform_id'=>$rs['platform_rs_id']
+                'platform_id'=>$rs['platform_rs_id'],
+                'level'=>3,
             );
             $url = RBAC_URL."apiAdmin/addSuperOne";
 
