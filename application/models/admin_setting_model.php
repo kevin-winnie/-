@@ -5,6 +5,7 @@ class Admin_setting_model extends MY_Model
     function __construct()
     {
         parent::__construct();
+        $this->c_db = $this->load->database('citybox_master',true);
     }
 
     private function db_where($where = [])
@@ -44,5 +45,23 @@ class Admin_setting_model extends MY_Model
             $this->db->order_by($params['order_by']);
         }
         return $this->db->get()->result_array();
+    }
+    public function is_exits($platform_id)
+    {
+        $sql = " select * from s_group WHERE platform_id = '{$platform_id}'";
+        return $this->c_db->query($sql)->row_array();
+    }
+
+    public function get_admin_id($name)
+    {
+        $sql = " select * from s_admin WHERE name = '{$name}' ";
+        $rs = $this->c_db->query($sql)->row_array();
+        return $rs['id'];
+    }
+
+    public function is_admin_exits($admin_id)
+    {
+        $sql = " select * from cb_s_admin_group WHERE admin_id = '{$admin_id}'";
+        return $this->c_db->query($sql)->row_array();
     }
 }

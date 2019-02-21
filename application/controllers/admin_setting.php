@@ -10,6 +10,8 @@ class Admin_setting extends MY_Controller
     {
         parent::__construct();
         $this->load->model("admin_setting_model");
+        $this->load->model("commercial_model");
+        $this->c_db = $this->load->database('citybox_master',true);
     }
 
     public function index()
@@ -59,15 +61,20 @@ class Admin_setting extends MY_Controller
     }
 
     public function add($platform_id)
-    { if (empty($platform_id)) {
+    {
+        if (empty($platform_id))
+        {
         echo '非法操作';
         die;
-    }
-        $this->load->model("commercial_model");
+         }
         $commercial = $this->commercial_model->get_platform((int)$platform_id);
         if (empty($commercial)) {
             echo '商户不存在';
             die;
+        }
+        if(!$commercial['admin_name'])
+        {
+            echo '请先生成商户平台主账号';die;
         }
         $this->title = 'rbac后台权限设置: ' . $commercial['name'];
         $this->load->library('curl', null, 'http_curl');
@@ -97,6 +104,11 @@ class Admin_setting extends MY_Controller
     {
         $params = $this->input->post();
         $params = $params ? json_encode($params) : '';
+        $menus = json_decode($params,true);
+        $menus_string = implode(",",$menus['menu']);
+        //获取主账号id
+        $commercial = $this->commercial_model->get_platform_commercial((int)$platform_id);
+        $admin_id = $this->admin_setting_model->get_admin_id($commercial['admin_name']);
         $this->load->library('curl', null, 'http_curl');
         $params = array(
             'timestamp' => time() . '000',
@@ -111,6 +123,33 @@ class Admin_setting extends MY_Controller
         if ($result['response']) {
             $resp = json_decode($result['response'], true);
             if (json_last_error() === JSON_ERROR_NONE && $resp['code'] == 200) {
+                //同时为主账号更新该权限
+                $data['flag'] = $menus_string;
+                $is_exits = $this->admin_setting_model->is_exits($platform_id);
+                $this->c_db->set_dbprefix('s_');
+                if($is_exits)
+                {
+                    $this->c_db->update('group',$data,array('platform_id'=>$platform_id));
+                    $id = $is_exits['id'];
+                }else
+                {
+                    $data['name'] = '管理员';
+                    $data['ctime'] = time();
+                    $data['platform_id'] = $platform_id;
+                    $this->c_db->insert('group', $data);
+                    $id = $this->c_db->insert_id();
+                }
+                $admin_group['group_id'] = $id;
+                $is_admin_exits = $this->admin_setting_model->is_admin_exits($admin_id);
+                $this->c_db->set_dbprefix('cb_');
+                if($is_admin_exits)
+                {
+                    $this->c_db->update('s_admin_group',$admin_group,array('admin_id'=>$admin_id));
+                }else
+                {
+                    $admin_group['admin_id'] = $admin_id?$admin_id:9999;
+                    $this->c_db->insert('s_admin_group', $admin_group);
+                }
                 $this->output(['status' => 'y', 'msg' => '保存成功']);
             }
         }

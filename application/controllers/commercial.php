@@ -471,16 +471,6 @@ class Commercial extends MY_Controller {
             $options['timeout'] = 100;
             $result = $this->http_curl->request($url, $params, 'POST', $options);
             if(json_decode($result['response'],1)['code']==200){
-                //插入一条记录到s_admin供权限分配
-                $data = array(
-                    'name'        => $params['name'],
-                    'pwd' => 'admin123456',
-                    'groupid'=>0,
-                    'grade'=>99,
-                    'platform_id'=>$params['platform_id']
-                );
-                $this->load->model('admin_model');
-                $this->admin_model->insertAdmin($data['name'], $data['pwd'], $data['alias'], $data['mobile'], '', $data['email'] ,$data['grade'],$data['platform_id']);
                 $this->commercial_model->update(array('admin_name'=>$params['name']),array('id'=>$id));
                 echo $result['response'];
             }

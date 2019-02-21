@@ -98,6 +98,15 @@ class Commercial_model extends MY_Model
         return $rs;
     }
 
+    public function get_platform_commercial($id)
+    {
+        $this->p_db->select('*');
+        $this->p_db->from('commercial');
+        $this->p_db->where(array('status'=>1,"id"=>$id));
+        $rs = $this->p_db->get()->row_array();
+        return $rs;
+    }
+
     public function platform_insert($data)
     {
         $this->p_db->insert('commercial',$data);
