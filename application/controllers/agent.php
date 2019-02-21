@@ -101,6 +101,7 @@ class Agent extends MY_Controller {
             $Agent = $this->agent_model->get_own_agents($this->platform_id);
             $agent_level = $this->agent_model->get_agent_level_list($Agent);
             $agent_level_list = $this->commercial_model->get_agent_level_list($Agent,2);
+            $where['id'] = $this->platform_id;
         }
         $this->_pagedata['agent_level_list'] = $agent_level_list;
         if (!empty($search['name'])) {
@@ -120,7 +121,10 @@ class Agent extends MY_Controller {
         {
             $where['id'] = trim($search['agent_name']);
         }
-        $where['high_agent_id'] = $this->platform_id;
+        if(!$this->svip)
+        {
+            $where['high_agent_id'] = $this->platform_id;
+        }
         $this->title = '代理商列表';
         $this->_pagedata['search'] = $search;
         $agent_list = $this->agent_model->getList("*", $where);
