@@ -93,14 +93,18 @@ class Agent extends MY_Controller {
 
     function agentList(){
         $search = $this->input->post();
-        $agent_level_list = $this->commercial_model->get_agent_level_list_pt($this->platform_id,1);
+        if($search['agent_level'])
+        {
+            $high_level = $search['agent_level'];
+        }
+        $agent_level_list = $this->commercial_model->get_agent_level_list_pt($this->platform_id,1,'',$high_level);
         $Agent = $this->agent_model->get_own_agents($this->platform_id);
         if($this->svip)
         {
             $this->_pagedata['is_svip'] = 1;
             //代理商级别
             $agent_level = $this->agent_model->get_agent_level_list($Agent);
-            $agent_level_list = $this->commercial_model->get_agent_level_list($Agent,2);
+            $agent_level_list = $this->commercial_model->get_agent_level_list($Agent,2,$high_level);
         }
         $this->_pagedata['agent_level_list'] = $agent_level_list;
         if (!empty($search['name'])) {
@@ -151,6 +155,7 @@ class Agent extends MY_Controller {
 
         $this->_pagedata ["list"] = $agent_list;
         $this->_pagedata['agent_level'] = $agent_level;
+        $this->_pagedata['search_agent_level'] = $search['agent_level'];
         $this->page('agent/agentList.html');
     }
 

@@ -136,6 +136,7 @@ class Order extends MY_Controller
         $order_name = $this->input->get('search_order_name');
         $agent_name = $this->input->get('search_agent_name');
         $commercial_name = $this->input->get('search_commercial_name');
+        $agent_level = $this->input->get('search_agent_level');
         $equipment_id = $this->input->get('search_equipment_id');
         $order_status = $this->input->get('search_order_status');
         $start_time = $this->input->get('search_start_time');
@@ -173,10 +174,10 @@ class Order extends MY_Controller
         if($this->svip)
         {
             //超级 代理商 订单设备要该代理商下所有下级代理发展的商户和自己发展的商户
-            $box_list_next = $this->order_model->get_box_list_by_next_agent($this->platform_id,'equipment_id',1);
+            $box_list_next = $this->order_model->get_box_list_by_next_agent($this->platform_id,'equipment_id',1,$agent_level);
         }else
         {
-            $box_list_next = $this->order_model->get_box_list_by_next_agent($this->platform_id,'equipment_id');
+            $box_list_next = $this->order_model->get_box_list_by_next_agent($this->platform_id,'equipment_id','',$agent_level);
         }
         $box_list = array_merge($box_list_zhitui,$box_list_next);
         $this->c_db->from('order');

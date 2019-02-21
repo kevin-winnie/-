@@ -15,7 +15,7 @@
 						<select class="form-control" name="agent_level" id="agent_level">
 							<option value="-1">代理商级别</option>
 							<{foreach $agent_level as $val}>
-								<option value="<{$val['id']}>"><{$val['name']}></option>
+								<option value="<{$val['id']}>" <{if $search_agent_level eq $val['id']}>selected="selected"<{/if}>><{$val['name']}></option>
 							<{/foreach}>
 						</select>
 					</div>

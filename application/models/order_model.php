@@ -293,10 +293,14 @@ class Order_model extends MY_Model
      * @param $agent_id
      * @return array
      */
-    public function get_box_list_by_next_agent($agent_id,$field = null,$type=0)
+    public function get_box_list_by_next_agent($agent_id,$field = null,$type=0,$high_level)
     {
         //该代理商下级代理
         $sql = " select * from p_agent as a WHERE a.high_agent_id = '{$agent_id}'";
+        if($high_level)
+        {
+            $sql .= " and high_level = '{$high_level}'";
+        }
         $rs = $this->db->query($sql)->result_array();
         if($type == 0)
         {

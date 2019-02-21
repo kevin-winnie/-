@@ -56,7 +56,7 @@
             <div class="form-group">
                 <{if $is_svip eq '1'}>
                     <div class="col-sm-2">
-                        <select class="form-control" name="search_scene"  >
+                        <select class="form-control" name="search_agent_level"  id="search_agent_level">
                             <option value="">代理商等级</option>
                             <{foreach $agent_level_list as $val}>
                                 <option value="<{$val['id']}>"><{$val['name']}></option>
