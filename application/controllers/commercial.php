@@ -471,6 +471,8 @@ class Commercial extends MY_Controller {
             $options['timeout'] = 100;
             $result = $this->http_curl->request($url, $params, 'POST', $options);
             if(json_decode($result['response'],1)['code']==200){
+                $data['admin_name'] = $params['name'];
+                $this->p_db->update('commercial',$data,array('id'=>$params['platform_id']));
                 $this->commercial_model->update(array('admin_name'=>$params['name']),array('id'=>$id));
                 echo $result['response'];
             }
