@@ -124,23 +124,33 @@ class Commercial_model extends MY_Model
      * @return array
      * $type = 1 商户  $type = 2 代理商
      */
-    public function get_agent_level_list($agent,$type=1)
+    public function get_agent_level_list($agent,$type=1,$high_level = '')
     {
         //上海鲜动
         if($agent['high_level'] == 0)
         {
             $sql = " select * from p_agent WHERE id != '{$agent['id']}' ";
+            if($high_level)
+            {
+               $sql .= " and high_level = '{$high_level}'";
+            }
             $rs = $this->db->query($sql)->result_array();
-
             if($type == 2)
             {
                 return $rs;
             }
             $all_agent = array_unique(array_column($rs,'id'));
-            $all_agent[] = $agent['id'];
+            if(!$high_level)
+            {
+                $all_agent[] = $agent['id'];
+            }
         }elseif($agent['high_level'] == 1)
         {//海星宝（递归吗？）
             $sql = " select * from p_agent WHERE high_agent_id = '{$agent['id']}' ";
+            if($high_level)
+            {
+                $sql .= " and high_level = '{$high_level}'";
+            }
             $rs = $this->db->query($sql)->result_array();
             $sql = " select * from p_agent WHERE id != '{$agent['id']}' and high_level not in (0,1) ";
             $member = $this->db->query($sql)->result_array();
@@ -160,16 +170,26 @@ class Commercial_model extends MY_Model
 
             if($type == 2)
             {
-                $array['id'] = $agent['id'];
-                $array['name'] = $agent['name'];
-                $t_info[] = $array;
+                if(!$high_level)
+                {
+                    $array['id'] = $agent['id'];
+                    $array['name'] = $agent['name'];
+                    $t_info[] = $array;
+                }
                 return $t_info;
             }
 
             $all_agent = array_unique(array_column($info,'id'));
-            $all_agent[] = $agent['id'];
+            if(!$high_level)
+            {
+                $all_agent[] = $agent['id'];
+            }
         }
 
+        if(empty($all_agent))
+        {
+            return array();
+        }
         $this->db->select('*');
         $this->db->from('commercial');
         $this->db->where_in('high_agent_id', $all_agent);
@@ -209,19 +229,33 @@ class Commercial_model extends MY_Model
      * 普通代理商查看自己下级代理商
      * $type = 1代理商 2商户
      */
-    public function get_agent_level_list_pt($agent_id,$type=1,$agent='')
+    public function get_agent_level_list_pt($agent_id,$type=1,$agent='',$high_level)
     {
         $sql = " select * from p_agent as a WHERE  a.high_agent_id = '{$agent_id}'";
+        if($high_level)
+        {
+            $sql .= " and high_level = '{$high_level}'";
+        }
         $rs = $this->db->query($sql)->result_array();
         if($type == 1)
         {
-            $own_array['id'] =  $agent_id;
-            $own_array['name'] =  $agent['name'];;
-            $rs[]=$own_array;
+            if(!empty($agent))
+            {
+                $own_array['id'] =  $agent_id;
+                $own_array['name'] =  $agent['name'];;
+                $rs[]=$own_array;
+            }
             return $rs;
         }
         $all_agent = array_unique(array_column($rs,'id'));
-        $all_agent[] = $agent_id;
+        if(!$high_level)
+        {
+            $all_agent[] = $agent_id;
+        }
+        if(empty($all_agent))
+        {
+            return array();
+        }
         $this->db->select('*');
         $this->db->from('commercial');
         $this->db->where_in('high_agent_id', $all_agent);

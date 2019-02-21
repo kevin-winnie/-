@@ -94,7 +94,6 @@ class Equipment extends MY_Controller {
         $limit = $this->input->get('limit') ? : 10;
         $offset = $this->input->get('offset') ? : 0;
         $search_code = $this->input->get('search_code') ? : '';
-        $search_platform_id = $this->input->get('search_platform_id');
         $search_start_time = $this->input->get('search_start_time');
         $search_end_time = $this->input->get('search_end_time');
         $search_equipment_type = $this->input->get('search_equipment_type');
@@ -151,19 +150,22 @@ class Equipment extends MY_Controller {
         if ($search_end_time){
             $where['end_time'] = strtotime($search_end_time);
         }
+        if($search_agent_level)
+        {
+            $high_level = $search_agent_level;
+        }
         $where['admin_id'] = $this->adminid;
-        $agent_level_list = $this->commercial_model->get_agent_level_list_pt($agent_id,1);
-        $platform_list    = $this->commercial_model->get_agent_level_list_pt($agent_id,2);
+        $agent_level_list = $this->commercial_model->get_agent_level_list_pt($agent_id,1,'',$high_level);
+        $platform_list    = $this->commercial_model->get_agent_level_list_pt($agent_id,2,'',$high_level);
         //校验代理商是否为超级
-        $sql = " select * from p_agent WHERE id= '{$agent_id}'";
-        $agent_ls = $this->db->query($sql)->row_array();
-        if(in_array($agent_ls['high_level'],[0,1]))
+        $Agent = $this->agent_model->get_own_agents($agent_id);
+        if(in_array($Agent['high_level'],[0,1]))
         {
             $this->_pagedata['is_super'] = 1;
-            $Agent = $this->agent_model->get_own_agents($agent_id);
-            $agent_level_list = $this->commercial_model->get_agent_level_list($Agent,2);
-            $platform_list = $this->commercial_model->get_agent_level_list($Agent,1);
+            $agent_level_list = $this->commercial_model->get_agent_level_list($Agent,2,$high_level);
+            $platform_list = $this->commercial_model->get_agent_level_list($Agent,1,$high_level);
         }
+
         //满足条件的所有platform和agent
         $agent_array = array_column($agent_level_list,'id');
         $platform_array = array_column($platform_list,'id');
