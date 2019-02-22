@@ -162,10 +162,9 @@ class Equipment extends MY_Controller {
         if(in_array($Agent['high_level'],[0,1]))
         {
             $this->_pagedata['is_super'] = 1;
-            $agent_level_list = $this->commercial_model->get_agent_level_list($Agent,2,$high_level);
+            $agent_level_list = $this->commercial_model->get_agent_level_list($Agent,3,$high_level);
             $platform_list = $this->commercial_model->get_agent_level_list($Agent,1,$high_level);
         }
-
         //满足条件的所有platform和agent
         $agent_array = array_column($agent_level_list,'id');
         $platform_array = array_column($platform_list,'id');
