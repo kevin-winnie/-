@@ -723,6 +723,8 @@ class Equipment extends MY_Controller {
                     $data['platform_id'] = $platform_id;
                     $data['software_time'] = $software_time;
                     $data['hardware_time'] = $hardware_time;
+                    //获取该商户在platform平台的platform_id
+                    $platforms = $this->commercial_model->get_own_commercial($platform_id);
                     if($equipment)
                     {
                         $insertBox = $this->db->update('equipment',$data,array('equipment_id'=>$equipment['equipment_id']));
@@ -745,7 +747,7 @@ class Equipment extends MY_Controller {
                 'source'    => 'program',
                 'code'=> $code,
                 'type'=> $type,
-                'platform_id'=>$platform_id,
+                'platform_id'=>$platforms['platform_rs_id']?$platforms['platform_rs_id']:$platform_id,
                 'equipment_id'=>$equipment_id
             );
 
