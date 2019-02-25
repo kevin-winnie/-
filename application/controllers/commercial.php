@@ -248,7 +248,9 @@ class Commercial extends MY_Controller {
                     $data['create_time'] = date('Y-m-d H:i:s');
                     $this->db->insert('p_config_device',$data);
                 }
-                $this->commercial_model->setCommInfo($id);
+                //获取在platform平台的id
+                $platform_data = $this->commercial_model->get_own_commercial($post['id']);
+                $this->commercial_model->setCommInfo($id,'',$platform_data['platform_rs_id']);
             }else{
                 $this->_pagedata["tips"] = "保存失败";
             }
@@ -393,7 +395,6 @@ class Commercial extends MY_Controller {
                 $data['wechat_rate'] = $post['wechat_rate'];
                 $data['alipay_rate'] = $post['alipay_rate'];
                 $this->db->insert('p_config_device',$data);
-                refresh_config_cache();
                 //去PLATFORM平台添加该商户  并且创建配置
                 unset($datas['separate_rate']);
                 unset($datas['high_agent_id']);
@@ -406,7 +407,8 @@ class Commercial extends MY_Controller {
                 $this->db->set('platform_rs_id',$platform_rs_id);
                 $this->db->where('id', $rs);  //agent里面的商户id
                 $this->db->update('commercial');
-                $this->commercial_model->setCommInfo($rs);
+                refresh_config_cache();
+                $this->commercial_model->setCommInfo($rs,'',$platform_rs_id);
                 $this->_pagedata["tips"] = "新增成功";
             }else{
                 $this->_pagedata["tips"] = "新增失败";

@@ -22,13 +22,13 @@ class Commercial_model extends MY_Model
      * redis data info
      */
     //设置商户的缓存数据
-    function setCommInfo($id,$data=array()){
+    function setCommInfo($id,$data=array(),$platform_rs_id){
         if(is_array($id)){
             foreach($id["id"] as $v){
                 $this->setCacheOne($v,$data);
             }
         }else{
-            $rs = $this->setCacheOne($id,$data);
+            $rs = $this->setCacheOne($id,$data,$platform_rs_id);
             return $rs;
         }
     }
@@ -45,7 +45,7 @@ class Commercial_model extends MY_Model
      *      "status",
      * );
      */
-    private function setCacheOne($id,$data){
+    private function setCacheOne($id,$data,$platform_rs_id){
         if(empty($data)){
             $data = $this->dump(array('id'=>$id),"short_name,need_deliver,need_product,ali_appid,ali_secret,notify_tpl_id,refund_tpl_id,pay_fail_tpl_id,pay_succ_tpl_id,pay_user_id,pay_cent,status,wechat_appid,wechat_secret,wechat_mchid,wechat_key,wechat_planid,wechat_pay_succ_tpl_id,wechat_pay_fail_tpl_id,wechat_refund_tpl_id,wechat_notify_tpl_id");
         }
@@ -53,10 +53,10 @@ class Commercial_model extends MY_Model
             if (!$data['status']){
                 $data['status'] = 1;
             }
-            $this->redis->hSet($this->com_redis_pre.$id,'update_time',date("Y-m-d H:i:s"));
-            $this->redis->hSet($this->com_redis_pre.$id,'need_deliver',$data['need_deliver']);
-            $this->redis->hSet($this->com_redis_pre.$id,'need_product',$data['need_product']);
-            $this->redis->hSet($this->com_redis_pre.$id,'short_name',$data['short_name']);
+            $this->redis->hSet($this->com_redis_pre.$platform_rs_id,'update_time',date("Y-m-d H:i:s"));
+            $this->redis->hSet($this->com_redis_pre.$platform_rs_id,'need_deliver',$data['need_deliver']);
+            $this->redis->hSet($this->com_redis_pre.$platform_rs_id,'need_product',$data['need_product']);
+            $this->redis->hSet($this->com_redis_pre.$platform_rs_id,'short_name',$data['short_name']);
             //$this->redis->hSet($this->com_redis_pre.$id,'ali_appid',$data['ali_appid']);
             // $this->redis->hSet($this->com_redis_pre.$id,'ali_secret',$data['ali_secret']);
             // $this->redis->hSet($this->com_redis_pre.$id,'pay_user_id',$data['pay_user_id']);
@@ -65,7 +65,7 @@ class Commercial_model extends MY_Model
             // $this->redis->hSet($this->com_redis_pre.$id,'refund_tpl_id',$data['refund_tpl_id']);
             // $this->redis->hSet($this->com_redis_pre.$id,'notify_tpl_id',$data['notify_tpl_id']);
             // $this->redis->hSet($this->com_redis_pre.$id,'pay_cent',$data['pay_cent']);
-            $this->redis->hSet($this->com_redis_pre.$id,'status',$data['status']);
+            $this->redis->hSet($this->com_redis_pre.$platform_rs_id,'status',$data['status']);
 
             // $this->redis->hSet($this->com_redis_pre.$id,'wechat_appid',$data['wechat_appid']);
             // $this->redis->hSet($this->com_redis_pre.$id,'wechat_secret',$data['wechat_secret']);
