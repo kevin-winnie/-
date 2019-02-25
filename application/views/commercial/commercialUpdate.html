@@ -212,67 +212,27 @@
                     </div>
                 </div>
             </div>
-            <div class="form-group">
-                <div for="need_product" class="form-group">
-                    <label class="col-sm-2 control-label">所属集团：</label>
-                    <div class="col-sm-2">
-                        <select class="form-control" name="group_code" id="group_code" datatype="*" nullmsg="请至少选择一个！">
-                            <{foreach key=key1 item=item1 from=$groups}>
-                                <option value="<{$item1.code}>" <{if $item1.code eq $config_info.group_code}>selected<{/if}>> <{$item1.name}> </option>
-                            <{/foreach}>
-                        </select>
-                    </div>
-                </div>
-            </div>
-            <{foreach key=key item=item from=$configs}>
+
+
                 <div class="form-group">
                     <div for="need_product" class="form-group">
-                        <label class="col-sm-2 control-label">选择<{$key}>配置：</label>
+                        <label class="col-sm-2 control-label">支付宝费率：</label>
                         <div class="col-sm-2">
-                            <select class="form-control" name="config['<{$key}>']"  style="">
-                                <{foreach key=key1 item=item1 from=$configs[$key]}>
-                                    <option value="<{$item1.id}> " <{if $item1.checked}>selected<{/if}>> <{$item1.name}> </option>
-                                <{/foreach}>
-                            </select>
-                        </div>
-                        <label class="col-sm-2 control-label"><{$key}>费率：</label>
-                        <div class="col-sm-3">
-                            <input type="text" value="<{$item.rate}>" class="form-control" id="<{$key}>_rate" name="<{$key}>_rate"  nullmsg="请输入<{$key}>费率"  placeholder="请输入<{$key}>费率">
+                            <input type="text" value="<{$config_info['alipay_rate']}>" class="form-control" id="alipay_rate" name="alipay_rate"  nullmsg="支付宝费率"  placeholder="支付宝费率(百分比)">
                         </div>
                     </div>
                 </div>
-            <{/foreach}>
-            分账系统:
             <div class="form-group">
                 <div for="need_product" class="form-group">
-                    <label class="col-sm-2 control-label">是否需要分账：</label>
+                    <label class="col-sm-2 control-label">微信费率：</label>
                     <div class="col-sm-2">
-                        <select class="form-control" name="is_separate" id="is_separate" datatype="*" nullmsg="请至少选择一个！">
-                            <option value="1" <{if $info.is_separate == "1" }>selected<{/if}>>是</option>
-                            <option value="0" <{if $info.is_separate == "0" }>selected<{/if}>>否</option>
-                        </select>
+                        <input type="text" value="<{$config_info['wechat_rate']}>" class="form-control" id="wechat_rate" name="wechat_rate"  nullmsg="微信费率"  placeholder="微信费率(百分比)">
                     </div>
                 </div>
             </div>
 
-            <div class="form-group">
-                <label  class="col-sm-2 control-label">需要分账的支付方式：
-                    <br><br><br><br>
-                    <input type="checkbox" value="" id="pay_check_all"> 全选
+            分账系统:
 
-                </label>
-                <div class="col-sm-10">
-                    <div class="refer-box" style="min-height:250px;overflow-y:auto;max-height:100px;border-radius:5px;border:1px solid #aaa;padding:10px;">
-                        <{foreach key=key item=item from=$open_refer}>
-                            <label style="display:block;margin-right:10px;font-weight: normal">
-                                <input type="checkbox" name="separate_refer[]" <{if $separate_refer_check[$key] }>checked<{/if}>  value="<{$key}>"> <{$item}>
-                                <input type="text" style="display:inline;width:100px;" class="form-control" name="separate_refer_percent[]" placeholder="" value="<{if $separate_refer_percent[$key] }><{$separate_refer_percent[$key]}><{else}>100<{/if}>" />%
-                                <span style="display:inline;color:red;">分账比例（0-100，最多允许两位小数）</span>
-                            </label>
-                        <{/foreach}>
-                    </div>
-                </div>
-            </div>
 
             <div class="form-group">
                 <label class="col-sm-2 control-label">收款方支付宝帐号：</label>
@@ -301,15 +261,9 @@
                 </div>
             </div>
             <div class="form-group">
-                <label class="col-sm-2 control-label">分账账号：</label>
-                <div class="col-sm-4">
-                    <input type="text" value="<{$config_info['separate_account']}>" class="form-control" id="error_msg" name="separate_account"  datatype="*" nullmsg="请输入分账账号！"  placeholder="请输入分账账号">
-                </div>
-            </div>
-            <div class="form-group">
                 <label class="col-sm-2 control-label">分账比例：</label>
                 <div class="col-sm-4">
-                    <input type="text" value="<{$config_info['separate_rate']}>" class="form-control" id="error_msg" name="separate_rate"  datatype="*" nullmsg="请输入分账比例！"  placeholder="请输入分账比例">
+                    <input type="text" value="<{$info.separate_rate}>" class="form-control" id="error_msg" name="separate_rate"  datatype="*" nullmsg="请输入分账比例"  placeholder="请输入分账比例（百分比）">
                 </div>
             </div>
 

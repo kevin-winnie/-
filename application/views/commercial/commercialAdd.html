@@ -190,47 +190,40 @@
                     </div>
                 </div>
             </div>
-            <div class="form-group">
-                <div for="need_product" class="form-group">
-                    <label class="col-sm-2 control-label">所属集团：</label>
-                    <div class="col-sm-2">
-                        <select class="form-control" name="group_code" id="group_code">
-                            <{foreach key=key1 item=item1 from=$groups}>
-                            <option value="<{$item1.code}>"> <{$item1.name}> </option>
-                            <{/foreach}>
-                        </select>
-                    </div>
-                </div>
-            </div>
-            <{foreach key=key item=item from=$configs}>
-            <div class="form-group">
-                <div for="need_product" class="form-group">
-                    <label class="col-sm-2 control-label">选择<{$key}>配置：</label>
-                    <div class="col-sm-2">
-                    <select class="form-control" name="config['<{$key}>']">
-                        <{foreach key=key1 item=item1 from=$configs[$key]}>
-                        <option value="<{$item1.id}> " <{if $key eq $config.platform_id}>selected<{/if}>> <{$item1.name}> </option>
-                        <{/foreach}>
-                    </select>
-                    </div>
 
-                    <label class="col-sm-2 control-label"><{$key}>费率：</label>
-                    <div class="col-sm-3">
-                        <input type="text" value="" class="form-control" id="<{$key}>_rate" name="<{$key}>_rate"  nullmsg="请输入<{$key}>费率"  placeholder="请输入<{$key}>费率">
+            <div class="form-group">
+                <div for="need_product" class="form-group">
+                    <label class="col-sm-2 control-label">支付宝费率：</label>
+                    <div class="col-sm-2">
+                        <input type="text" value="" class="form-control" id="alipay_rate" name="alipay_rate"  nullmsg="支付宝费率"  placeholder="支付宝费率(百分比)">
                     </div>
                 </div>
             </div>
-            <{/foreach}>
             <div class="form-group">
-                <label class="col-sm-2 control-label">分账账号：</label>
+                <div for="need_product" class="form-group">
+                    <label class="col-sm-2 control-label">微信费率：</label>
+                    <div class="col-sm-2">
+                        <input type="text" value="" class="form-control" id="wechat_rate" name="wechat_rate"  nullmsg="微信费率"  placeholder="微信费率(百分比)">
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-2 control-label">收款方支付宝帐号：</label>
                 <div class="col-sm-4">
-                    <input type="text" value="" class="form-control" id="error_msg" name="separate_account"  datatype="*" nullmsg="请输入分账账号！"  placeholder="请输入分账账号">
+                    <input type="text" value="" class="form-control" id="alipay_account" name="alipay_account"  placeholder="收款方支付宝帐号">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="col-sm-2 control-label">收款方真实姓名：</label>
+                <div class="col-sm-4">
+                    <input type="text" value="" class="form-control" id="alipay_realname" name="alipay_realname"  placeholder="收款方真实姓名">
                 </div>
             </div>
             <div class="form-group">
                 <label class="col-sm-2 control-label">分账比例：</label>
                 <div class="col-sm-4">
-                    <input type="text" value="" class="form-control" id="error_msg" name="separate_rate"  datatype="*" nullmsg="请输入分账比例！"  placeholder="请输入分账比例">
+                    <input type="text" value="" class="form-control" id="error_msg" name="separate_rate"  datatype="*" nullmsg="请输入分账比例！"  placeholder="请输入分账比例(百分比)">
                 </div>
             </div>
             <div class="form-group">

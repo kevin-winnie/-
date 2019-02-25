@@ -162,13 +162,6 @@ class Commercial extends MY_Controller {
 //        var_dump($_POST);die;
         if($this->input->post("submit")) {
             $post = $this->input->post();
-            $old_commercial = $this->commercial_model->dump(array('id'=>$post['id']));
-            $old_is_separate = $old_commercial['is_separate'];
-            $old_separate_refer = $old_commercial['separate_refer'];
-            $old_separate_refer_percent = $old_commercial['separate_refer_percent'];
-            $old_alipay_account = $old_commercial['alipay_account'];
-            $old_alipay_realname = $old_commercial['alipay_realname'];
-
             $refer_list = $this->db->from('refer')->get()->result_array();
             $refers = [];
             foreach($refer_list as $k=>$v){
@@ -203,14 +196,15 @@ class Commercial extends MY_Controller {
                 'msg_title'=>$post['msg_title'],
                 'img_banner'=>$post['img_banner'],
                 'qr_logo'=>$post['qr_logo'],
-                'is_separate'=>$post['is_separate'],
+                'is_separate'=>1,
                 'separate_refer'=>json_encode($post['separate_refer']),
                 'separate_refer_percent'=>json_encode($refers),
                 'alipay_account'=>$post['alipay_account'],
                 'alipay_realname'=>$post['alipay_realname'],
                 'wechat_name'=>$post['wechat_name'],
                 'alipay_name'=>$post['alipay_name'],
-                'status' => $post['status']
+                'status' => $post['status'],
+                'separate_rate'=>$post['separate_rate']
             );
             //icon新增
             $icon_info = array(
@@ -241,41 +235,19 @@ class Commercial extends MY_Controller {
                     'error_msg'=>$post['error_msg'],
                     'error_url'=>$post['error_url'],
                     'use_yue'=>$post['use_yue'],
-                    'group_code'=>$post['group_code'],
+                    'group_code'=>'citybox',
                 );
                 $data['platform_id'] = $post['id'];
                 $data['config_ids'] = json_encode($post['config']);
                 $data['last_update'] = date('Y-m-d H:i:s');
                 $data['wechat_rate'] = $post['wechat_rate'];
                 $data['alipay_rate'] = $post['alipay_rate'];
-                $data['separate_account'] = $post['separate_account'];
-                $data['separate_rate'] = $post['separate_rate'];
                 if($post['config_id']){
                     $this->db->update('p_config_device',$data,array('id'=>$post['config_id']));
                 }else{
                     $data['create_time'] = date('Y-m-d H:i:s');
                     $this->db->insert('p_config_device',$data);
                 }
-
-                //添加修改分账配置记录
-                if ($old_is_separate != $post['is_separate'] || $old_separate_refer != json_encode($post['separate_refer']) || $old_separate_refer_percent != json_encode($refers) || $old_alipay_account != $post['alipay_account'] || $old_alipay_realname != $post['alipay_realname']){
-                    $log_data = array(
-                        'old_is_separate'=>$old_is_separate,
-                        'old_separate_refer'=>$old_separate_refer,
-                        'old_separate_refer_percent'=>$old_separate_refer_percent,
-                        'old_alipay_account'=>$old_alipay_account,
-                        'old_alipay_realname'=>$old_alipay_realname,
-                        'is_separate'=>$post['is_separate'],
-                        'separate_refer'=>json_encode($post['separate_refer']),
-                        'separate_refer_percent'=>json_encode($refers),
-                        'alipay_account'=>$post['alipay_account'],
-                        'alipay_realname'=>$post['alipay_realname'],
-                        'adminname'=>$this->operation_name,
-                        'created_time'=>time(),
-                    );
-                    $this->db->insert('p_commercial_separate_log',$log_data);
-                }
-
                 $this->commercial_model->setCommInfo($id);
             }else{
                 $this->_pagedata["tips"] = "保存失败";
@@ -376,6 +348,8 @@ class Commercial extends MY_Controller {
                 'wechat_pay_fail_tpl_id'=>$post['wechat_pay_fail_tpl_id'],
                 'wechat_refund_tpl_id'=>$post['wechat_refund_tpl_id'],
                 'wechat_notify_tpl_id'=>$post['wechat_notify_tpl_id'],
+                'alipay_account'=>$post['alipay_account'],
+                'alipay_realname'=>$post['alipay_realname'],
                 'refer'=>json_encode($post['refer']),
                 'error_msg'=>$post['error_msg'],
                 'error_url'=>$post['error_url'],
@@ -384,9 +358,11 @@ class Commercial extends MY_Controller {
                 'msg_title'=>$post['msg_title'],
                 'img_banner'=>$post['img_banner'],
                 'qr_logo'=>$post['qr_logo'],
+                'is_separate'=>1,
                 'wechat_name'=>$post['wechat_name'],
                 'alipay_name'=>$post['alipay_name'],
-                'high_agent_id'=>$this->platform_id
+                'high_agent_id'=>$this->platform_id,
+                'separate_rate'=>$post['separate_rate']
             );
             $rs = $this->commercial_model->insert($datas);
             if($rs){
@@ -407,7 +383,8 @@ class Commercial extends MY_Controller {
                     'error_msg'=>$post['error_msg'],
                     'error_url'=>$post['error_url'],
                     'use_yue'=>$post['use_yue'],
-                    'group_code'=>$post['group_code'],
+                    //默认全部为魔盒集团
+                    'group_code'=>'citybox',
                 );
                 $data['platform_id'] = $rs;
                 $data['config_ids'] = json_encode($post['config']);
@@ -415,13 +392,10 @@ class Commercial extends MY_Controller {
                 $data['create_time'] = date('Y-m-d H:i:s');
                 $data['wechat_rate'] = $post['wechat_rate'];
                 $data['alipay_rate'] = $post['alipay_rate'];
-                $data['separate_account'] = $post['separate_account'];
-                $data['separate_rate'] = $post['separate_rate'];
                 $this->db->insert('p_config_device',$data);
                 refresh_config_cache();
                 //去PLATFORM平台添加该商户  并且创建配置
-                unset($data['separate_account']);
-                unset($data['separate_rate']);
+                unset($datas['separate_rate']);
                 unset($datas['high_agent_id']);
                 $platform_rs_id = $this->commercial_model->platform_insert($datas);
                 $icon_info['platform_id'] = $platform_rs_id;
