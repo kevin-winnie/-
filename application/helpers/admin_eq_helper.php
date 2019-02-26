@@ -6,13 +6,14 @@
  * Time: 13:49
  */
 
-function add_eq_for_admin($equipment_id,$code,$platform_id,$type){
+function add_eq_for_admin($equipment_id,$code,$platform_id,$type,$admin_id=0){
     $ci = &get_instance();
     $ci->citybox_master = $ci->load->database('citybox_master', TRUE);
 
     $data['name'] = $code;
     $data['code'] = $code;
     $data['type'] = $type;
+    $data['admin_id'] = $admin_id;
     $data['serial_num'] = $equipment_id;
     $data['equipment_id'] = $equipment_id;
     $data['status'] = 1;

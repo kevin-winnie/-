@@ -599,6 +599,14 @@ class Equipment extends MY_Controller {
                     $this->equipment_model->insertData($data);
                 }else
                 {//分配给商户
+                    //获取该商户在platform平台的platform_id
+                    $platforms = $this->commercial_model->get_own_commercial($platform_id);
+                    if(!$platforms['admin_name'])
+                    {
+                        echo '<head><meta http-equiv="Content-Type" content="text/html" charset="utf-8"><script>alert("该商户还未创建主账号");location.href = "/equipment/add";</script></head>';
+                        exit;
+                    }
+                    $admin_id = $this->commercial_model->get_commercial_admin_id($platforms['admin_name']);
                     $data['status'] = 1;
                     $data['code'] = $code;
                     $data['type'] = $type;
@@ -613,7 +621,7 @@ class Equipment extends MY_Controller {
                     if ($insertBox && $platform_id){
                         $this->load->helper('admin_eq');
                         $code = $equipment_id;
-                        $rs_admin = add_eq_for_admin($equipment_id,$code,$platform_id,$type);
+                        $rs_admin = add_eq_for_admin($equipment_id,$code,$platforms['platform_rs_id'],$type,$admin_id);
                         if($rs_admin){
                             $succ .= $equipment_id.',';
                         }else{
@@ -2057,6 +2065,14 @@ class Equipment extends MY_Controller {
             $insertBox = $this->db->update('equipment',$data,array('equipment_id'=>$equipment['equipment_id']));
         }else
         {//分配给商户
+            //获取该商户在platform平台的platform_id
+            $platforms = $this->commercial_model->get_own_commercial($platform_id);
+            if(!$platforms['admin_name'])
+            {
+                echo '<head><meta http-equiv="Content-Type" content="text/html" charset="utf-8"><script>alert("该商户还未创建主账号");location.href = "/equipment/add";</script></head>';
+                exit;
+            }
+            $admin_id = $this->commercial_model->get_commercial_admin_id($platforms['admin_name']);
             $data['last_agent_id'] = $last_agent;
             $data['platform_id'] = $platform_id;
             $data['software_time'] = $software_time;
@@ -2069,7 +2085,7 @@ class Equipment extends MY_Controller {
             //done 打cityboxadmin接口 插入设备
             $this->load->helper('admin_eq');
             $code = $equipment_id;
-            $rs_admin = add_eq_for_admin($equipment_id,$code,$platform_id,$type);
+            $rs_admin = add_eq_for_admin($equipment_id,$code,$platforms['platform_rs_id'],$type,$admin_id);
             if($rs_admin){
                 echo '<head><meta http-equiv="Content-Type" content="text/html" charset="utf-8"><script>alert("分配成功");location.href = "/equipment/index";</script></head>';
                 exit;

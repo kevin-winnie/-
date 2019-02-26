@@ -150,12 +150,49 @@ class CronRecon extends CI_Controller{
                 $low_commercial_lists = $this->get_zhiying($key);
                 $low_agent_lists = $this->get_low_agent($key);
                 //出账金额
-
+                $commercial_money = 0;
+                //直营商户的出账金额
+                foreach($low_commercial_lists as $k1=>$v1)
+                {   $v1['alipay_rate'] = '0.05%';
+                    $v1['separate_rate'] = '99%';
+                    $v1['alipay_rate'] = (float)$v1['alipay_rate']/100;
+                    $v1['wechat_rate'] = (float)$v1['wechat_rate']/100;
+                    $v1['separate_rate'] = (float)$v1['separate_rate']/100;
+                    $alipay = round($data[$v1['id']]['really_moeny']['alipay']*(1-$v1['alipay_rate'])*$v1['separate_rate'],2);
+                    $wechat = round($data[$v1['id']]['really_moeny']['wechat']*(1-$v1['wechat_rate'])*$v1['separate_rate'],2);
+                    $other = round($data[$v1['id']]['really_moeny']['other']*$v1['separate_rate'],2);
+                    $all = bcadd(bcadd($alipay,$wechat,2),$other,2);
+                    $commercial_money += $all;
+                    //该直营商户的入账金额
+                    $commercial_sale_data[$v1['id']]['entry_money'] = $all;
+                }
+                $agent_money = 0;
+                foreach($low_agent_lists as $k2=>$v2)
+                {
+                    $v2['alipay_rate'] = '0.05%';
+                    $v2['separate_rate'] = '99%';
+                    $v2['alipay_rate'] = (float)$v2['alipay_rate']/100;
+                    $v2['wechat_rate'] = (float)$v2['wechat_rate']/100;
+                    $v2['separate_rate'] = (float)$v2['separate_rate']/100;
+                    $alipay = round($agent_sale_data[$v2['id']]['alipay']*(1-$v2['alipay_rate'])*$v2['separate_rate'],2);
+                    $wechat = round($agent_sale_data[$v2['id']]['wechat']*(1-$v2['wechat_rate'])*$v2['separate_rate'],2);
+                    $other = round($agent_sale_data[$v2['id']]['other']*$v2['separate_rate'],2);
+                    $all = bcadd(bcadd($alipay,$wechat,2),$other,2);
+                    $agent_money += $all;
+                    //下级代理商的入账金额
+                    $agent_sale_data[$v2['id']]['entry_money'] = $all;
+                }
                 //入账金额
                 if($key == 1)
                 {
                     $agent_sale_data[$key]['entry_money'] = array_sum($val);
                 }
+                //出账金额
+                $agent_sale_data[$key]['out_money'] = bcadd($commercial_money,$agent_money,2);
+            }
+            //商户---组装数据(仅有入账金额)
+            foreach($commercial_sale_data as $key=>$val)
+            {
 
             }
         }
