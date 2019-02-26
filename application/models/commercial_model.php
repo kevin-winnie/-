@@ -11,6 +11,7 @@ class Commercial_model extends MY_Model
         $this->load->library('phpredis');
         $this->redis = $this->phpredis->getConn();
         $this->p_db = $this->load->database('platform_master', TRUE);
+        $this->c_db = $this->load->database('citybox_master', TRUE);
     }
 
     function table_name()
@@ -302,6 +303,13 @@ class Commercial_model extends MY_Model
         $sql = " select * from p_commercial WHERE id = '{$platform_id}'";
         $rs = $this->db->query($sql)->row_array();
         return $rs;
+    }
+
+    public function get_commercial_admin_id($admin_name)
+    {
+        $sql = " select id from s_admin WHERE name = '{$admin_name}'";
+        $rs = $this->c_db->query($sql)->row_array();
+        return $rs['id']?$rs['id']:0;
     }
 
 }

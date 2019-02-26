@@ -735,11 +735,17 @@ class Equipment extends MY_Controller {
                         $data['equipment_id'] = $equipment_id;
                         $data['status'] = 1;
                         $data['created_time'] = time();
+                        if(!$platforms['admin_name'])
+                        {
+                            echo '<head><meta http-equiv="Content-Type" content="text/html" charset="utf-8"><script>alert("该商户还未创建主账号");location.href = "/equipment/add";</script></head>';
+                            exit;
+                        }
+                        $admin_id = $this->commercial_model->get_commercial_admin_id($platforms['admin_name']);
                         $insertBox = $this->equipment_model->insertData($data);
                     }
                 }
         }
-        //对设备有分配给商户的操作才去同步Admin后台
+        //对设备有分配给商户的操作才去同步Admin后台----2019-02-26 新增默认分配管理员
         if ($insertBox && $platform_id){
             //done 打cityboxadmin接口 插入设备
             $params = array(
@@ -747,6 +753,7 @@ class Equipment extends MY_Controller {
                 'source'    => 'program',
                 'code'=> $code,
                 'type'=> $type,
+                'admin_id'=>$admin_id,
                 'platform_id'=>$platforms['platform_rs_id']?$platforms['platform_rs_id']:$platform_id,
                 'equipment_id'=>$equipment_id
             );
