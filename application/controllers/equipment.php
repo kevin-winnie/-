@@ -326,16 +326,8 @@ class Equipment extends MY_Controller {
     
     public function add(){
         //下级代理商及直推商户
-        $agent_level_list = $this->commercial_model->get_agent_level_list_pt($this->platform_id,1);
-        $platform_list    = $this->commercial_model->get_agent_level_list_pt($this->platform_id,2);
-        if($this->svip)
-        {
-            $this->_pagedata['is_svip'] = 1;
-            //代理商级别
-            $Agent = $this->agent_model->get_own_agents($this->platform_id);
-            $agent_level_list = $this->commercial_model->get_agent_level_list($Agent,2);
-            $platform_list = $this->commercial_model->get_agent_level_list($Agent,1);
-        }
+        $agent_level_list = $this->commercial_model->get_agent_list_by_agent($this->platform_id);
+        $platform_list    = $this->commercial_model->get_commercial_list_by_agent($this->platform_id);
         foreach($agent_level_list as $k=>$v)
         {
             $agent_list[$k]['name'] = '代理商---'.$v['name'];
@@ -479,16 +471,8 @@ class Equipment extends MY_Controller {
 
     public function add_batch(){
         //下级代理商及直推商户
-        $agent_level_list = $this->commercial_model->get_agent_level_list_pt($this->platform_id,1);
-        $platform_list    = $this->commercial_model->get_agent_level_list_pt($this->platform_id,2);
-        if($this->svip)
-        {
-            $this->_pagedata['is_svip'] = 1;
-            //代理商级别
-            $Agent = $this->agent_model->get_own_agents($this->platform_id);
-            $agent_level_list = $this->commercial_model->get_agent_level_list($Agent,2);
-            $platform_list = $this->commercial_model->get_agent_level_list($Agent,1);
-        }
+        $agent_level_list = $this->commercial_model->get_agent_list_by_agent($this->platform_id);
+        $platform_list    = $this->commercial_model->get_commercial_list_by_agent($this->platform_id);
         foreach($agent_level_list as $k=>$v)
         {
             $agent_list[$k]['name'] = '代理商---'.$v['name'];
@@ -1966,16 +1950,8 @@ class Equipment extends MY_Controller {
 
     public function fenpei()
     {
-        $agent_level_list = $this->commercial_model->get_agent_level_list_pt($this->platform_id,1);
-        $platform_list    = $this->commercial_model->get_agent_level_list_pt($this->platform_id,2);
-        if($this->svip)
-        {
-            $this->_pagedata['is_svip'] = 1;
-            //代理商级别
-            $Agent = $this->agent_model->get_own_agents($this->platform_id);
-            $agent_level_list = $this->commercial_model->get_agent_level_list($Agent,2);
-            $platform_list = $this->commercial_model->get_agent_level_list($Agent,1);
-        }
+        $agent_level_list = $this->commercial_model->get_agent_list_by_agent($this->platform_id);
+        $platform_list    = $this->commercial_model->get_commercial_list_by_agent($this->platform_id);
         foreach($agent_level_list as $key=>$val)
         {
             $agent_level_list[$key]['name'] = '代理商--'.$val['name'];

@@ -91,7 +91,8 @@ class Commercial extends MY_Controller {
                 $where['phone'] = trim($search['mobile']);
             }
             $where['high_agent_id'] = $this->platform_id;
-            $platform_list    = $this->commercial_model->get_agent_level_list_pt($this->platform_id,2);
+            //普通代理商只能看到直营商户
+            $platform_list    = $this->commercial_model->get_zhiying($this->platform_id);
             if($this->svip)
             {
                 $this->_pagedata['is_svip'] = 1;

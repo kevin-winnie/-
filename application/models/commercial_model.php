@@ -196,14 +196,12 @@ class Commercial_model extends MY_Model
                 }
                 return $t_info;
             }
-
             $all_agent = array_unique(array_column($t_info,'id'));
             if(!$high_level)
             {
                 $all_agent[] = $agent['id'];
             }
         }
-
         if(empty($all_agent))
         {
             return array();
@@ -290,6 +288,15 @@ class Commercial_model extends MY_Model
         $rs = $this->db->query($sql)->result_array();
         return $rs;
     }
+    /**
+     * 获取代理商下下级代理
+     */
+    public function get_agent_list_by_agent($agent_id)
+    {
+        $sql = " select * from p_agent WHERE high_agent_id = '{$agent_id}'";
+        $rs = $this->db->query($sql)->result_array();
+        return $rs;
+    }
 
     public function get_agent_by_commercial($high_agent_id)
     {
@@ -310,6 +317,13 @@ class Commercial_model extends MY_Model
         $sql = " select id from s_admin WHERE name = '{$admin_name}'";
         $rs = $this->c_db->query($sql)->row_array();
         return $rs['id']?$rs['id']:0;
+    }
+
+    public function get_zhiying($key)
+    {
+        $sql = " select * from p_commercial WHERE high_agent_id = '{$key}'";
+        $rs = $this->db->query($sql)->result_array();
+        return $rs;
     }
 
     public function get_own_commercial_config($key)
