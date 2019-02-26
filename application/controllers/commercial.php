@@ -440,6 +440,7 @@ class Commercial extends MY_Controller {
                 'mobile' =>$rs['phone'],
                 'platform_id'=>$rs['platform_rs_id'],
                 'level'=>3,
+                'box_num'=>1,
             );
             $url = RBAC_URL."apiAdmin/addSuperOne";
 
