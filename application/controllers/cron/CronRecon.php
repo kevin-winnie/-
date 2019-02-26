@@ -11,6 +11,8 @@ class CronRecon extends CI_Controller{
         parent::__construct();
         $this->ci = &get_instance();
         $this->load->model('order_model');
+        $this->load->model('agent_model');
+        $this->load->model('commercial_model');
         $this->load->model('equipment_model');
         $this->load->model('deliver_model');
         $this->c_db = $this->load->database('citybox_master',true);
@@ -25,7 +27,9 @@ class CronRecon extends CI_Controller{
         $time =  '2017-12-16'; //date('Y-m-d',time())
         $start = date('Y-m-d',strtotime('-1 days',strtotime($time)));
         $end = $time;
-        $sql = " select id,platform_rs_id from p_commercial";
+        $sql = " select a.id,a.platform_rs_id,a.alipay_account,a.alipay_realname,a.separate_rate,b.alipay_rate,b.wechat_rate from p_commercial as a
+                  LEFT JOIN p_config_device as b ON a.id = b.platform_id
+                  ";
         $rs = $this->db->query($sql)->result_array();
         $data = array();
         if(!empty($rs))
@@ -109,6 +113,9 @@ class CronRecon extends CI_Controller{
                 $data[$val['id']]['really_moeny']['alipay'] = bcsub($data[$val['id']]['order_sale']['alipay']['money'],$data[$val['id']]['order_refund']['alipay']['refund_money'],2);
                 $data[$val['id']]['really_moeny']['wechat'] = bcsub($data[$val['id']]['order_sale']['wechat']['money'],$data[$val['id']]['order_refund']['wechat']['refund_money'],2);
                 $data[$val['id']]['really_moeny']['other'] = bcsub($data[$val['id']]['order_sale']['other']['money'],$data[$val['id']]['order_refund']['other']['refund_money'],2);
+                $data[$val['id']]['really_moeny']['dis_money'] = bcadd(bcadd($data[$val['id']]['order_sale']['alipay']['discounted_money'],$data[$val['id']]['order_sale']['wechat']['discounted_money']),$data[$val['id']]['order_sale']['other']['discounted_money'],2);
+                $data[$val['id']]['really_moeny']['refund_money'] = bcadd(bcadd($data[$val['id']]['order_refund']['alipay']['refund_money'],$data[$val['id']]['order_refund']['wechat']['refund_money']),$data[$val['id']]['order_refund']['other']['refund_money'],2);
+                $data[$val['id']]['really_moeny']['money'] = bcadd(bcadd($data[$val['id']]['order_sale']['alipay']['money'],$data[$val['id']]['order_sale']['wechat']['money']),$data[$val['id']]['order_sale']['other']['money'],2);
             }
             //商户产生的收入全部到CITYBOX账户下，开始按分成比例、微信、支付宝费率进行分配
             $sql = " select * from p_agent";
@@ -127,11 +134,15 @@ class CronRecon extends CI_Controller{
                     {
                         foreach($data as $k=>$v)
                         {
+
                             if(in_array($k,$commercial_array))
                             {
                                 $agent_sale_data[$agent_id]['alipay'] += $v['really_moeny']['alipay'];
                                 $agent_sale_data[$agent_id]['wechat'] += $v['really_moeny']['wechat'];
                                 $agent_sale_data[$agent_id]['other'] += $v['really_moeny']['other'];
+                                $agent_sale_data[$agent_id]['money'] += ($v['order_sale']['alipay']['money']+$v['order_sale']['wechat']['money']+$v['order_sale']['other']['money']);
+                                $agent_sale_data[$agent_id]['refund_money'] += ($v['order_refund']['alipay']['refund_money']+$v['order_refund']['wechat']['refund_money']+$v['order_refund']['other']['refund_money']);
+                                $agent_sale_data[$agent_id]['dis_money'] += ($v['order_sale']['alipay']['discounted_money']+$v['order_sale']['wechat']['discounted_money']+$v['order_sale']['wechat']['discounted_money']);
                             }
                         }
                     }else
@@ -139,6 +150,9 @@ class CronRecon extends CI_Controller{
                         $agent_sale_data[$agent_id]['alipay'] = 0;
                         $agent_sale_data[$agent_id]['wechat'] = 0;
                         $agent_sale_data[$agent_id]['other'] = 0;
+                        $agent_sale_data[$agent_id]['money'] = 0;
+                        $agent_sale_data[$agent_id]['refund_money'] = 0;
+                        $agent_sale_data[$agent_id]['dis_money'] = 0;
                     }
 
                 }
@@ -183,9 +197,10 @@ class CronRecon extends CI_Controller{
                     $agent_sale_data[$v2['id']]['entry_money'] = $all;
                 }
                 //入账金额
+
                 if($key == 1)
                 {
-                    $agent_sale_data[$key]['entry_money'] = array_sum($val);
+                    $agent_sale_data[$key]['entry_money'] = bcadd(bcadd($val['alipay'],$val['wechat'],2),$val['other'],2);
                 }
                 //出账金额
                 $agent_sale_data[$key]['out_money'] = bcadd($commercial_money,$agent_money,2);
@@ -193,7 +208,50 @@ class CronRecon extends CI_Controller{
             //商户---组装数据(仅有入账金额)
             foreach($commercial_sale_data as $key=>$val)
             {
-
+                $r_commercial = $this->commercial_model->get_own_commercial_config($key);
+                $insert_data = array
+                (
+                    'type'=>2,
+                    'start_time'=>$start,
+                    'end_time'=>$end,
+                    'acount_id'=>$r_commercial['alipay_account'],
+                    'acount_name'=>$r_commercial['alipay_realname'],
+                    'money'=>$data[$key]['really_moeny']['money'],
+                    'refund_money'=>$data[$key]['really_moeny']['refund_money'],
+                    'dis_money'=>$data[$key]['really_moeny']['discounted_money'],
+                    'agent_commer_id'=>$key,
+                    'realy_money'=>$data[$key]['really_moeny']['alipay']+$data[$key]['really_moeny']['wechat']+$data[$key]['really_moeny']['other'],
+                    'separate_rate'=>$r_commercial['separate_rate'],
+                    'wechat_rate'=>$r_commercial['wechat_rate'],
+                    'alipay_rate'=>$r_commercial['alipay_rate'],
+                    'out_money'=>0,
+                    'in_money'=>$val['entry_money']
+                );
+                 $this->db->insert('reconciliation', $insert_data);
+            }
+            //代理商---组装数据
+            foreach($agent_sale_data as $key=>$val)
+            {
+                $r_agent = $this->agent_model->get_own_agents($key);
+                $insert_data_s = array
+                (
+                    'type'=>1,
+                    'start_time'=>$start,
+                    'end_time'=>$end,
+                    'acount_id'=>$r_agent['separate_account'],
+                    'acount_name'=>$r_agent['separate_name'],
+                    'money'=>$val['money'],
+                    'refund_money'=>$val['refund_money'],
+                    'dis_money'=>$val['discounted_money'],
+                    'agent_commer_id'=>$key,
+                    'realy_money'=>$val['alipay']+$val['wechat']+$val['other'],
+                    'separate_rate'=>$val['separate_rate'],
+                    'wechat_rate'=>$r_agent['wechat_rate'],
+                    'alipay_rate'=>$r_agent['alipay_rate'],
+                    'out_money'=>$val['out_money'],
+                    'in_money'=>$val['entry_money']
+                );
+                $this->db->insert('reconciliation', $insert_data_s);
             }
         }
     }
