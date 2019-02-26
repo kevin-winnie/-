@@ -335,4 +335,34 @@ class Commercial_model extends MY_Model
         return $res;
     }
 
+
+    public function get_commercila_list($where,$agent,$platform_array = array())
+    {
+        $sql = "SELECT *
+        FROM p_commercial AS a ";
+        $sql .= " WHERE 1 = 1 ";
+        if ($where['name']) {
+            $sql .= " and name like '%{$where['name']}%'";
+        }
+        if($where['status'])
+        {
+            $sql .= " and status = '{$where['status']}'";
+        }
+        if ($where['phone']) {
+            $sql .= " and phone = '{$where['phone']}'";
+        }
+        if($where['agent_id'])
+        {
+            $sql .= " and high_agent_id = '{$where['agent_id']}'";
+        }
+        if(!empty($platform_array))
+        {
+            $string = "'".implode("','",$platform_array)."'";
+            $sql .= " and  id in ($string)";
+        }
+        $res = $this->db->query($sql);
+        $array = $res->result_array();
+        return $array;
+    }
+
 }

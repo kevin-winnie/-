@@ -225,7 +225,7 @@ class Agent_model extends MY_Model
         FROM p_agent AS a ";
         $sql .= " WHERE 1 = 1 ";
         if ($where['name']) {
-            $sql .= " and name like '%'.'{$where['name']}.'&'";
+            $sql .= " and name like '%{$where['name']}%'";
         }
         if($where['is_frozen'] == 1)
         {

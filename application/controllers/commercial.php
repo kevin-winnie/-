@@ -83,33 +83,42 @@ class Commercial extends MY_Controller {
     }
     function commercialList(){
             $search = $this->input->post();
+
+            if ($search['check_status'] >0) {
+                $where['status'] = trim($search['check_status']);
+            }
+
             if (!empty($search['name'])) {
-                $where['name like '] = '%'.trim($search['name'].'%');
+                $where['name'] = trim($search['name']);
             }
 
             if (!empty($search['mobile'])) {
                 $where['phone'] = trim($search['mobile']);
             }
-            $where['high_agent_id'] = $this->platform_id;
+            if (!empty($search['agent_id'])) {
+                $where['agent_id'] = trim($search['agent_id']);
+            }
             //普通代理商只能看到直营商户
             $platform_list    = $this->commercial_model->get_zhiying($this->platform_id);
+            $Agent = $this->agent_model->get_own_agents($this->platform_id);
             if($this->svip)
             {
                 $this->_pagedata['is_svip'] = 1;
                 //代理商级别
-                $Agent = $this->agent_model->get_own_agents($this->platform_id);
                 $platform_list = $this->commercial_model->get_agent_level_list($Agent,1);
                 $agent_level_list = $this->commercial_model->get_agent_level_list($Agent,2);
             }
-            foreach($platform_list as $key=>$val)
+            $platform_array = array_column($platform_list,'id');
+            $platform_lists = $this->commercial_model->get_commercila_list($where,$Agent,$platform_array);
+            foreach($platform_lists as $key=>$val)
             {
                 $res = $this->commercial_model->get_agent_by_commercial($val['high_agent_id']);
-                $platform_list[$key]['agent_name'] = $res['name'];
+                $platform_lists[$key]['agent_name'] = $res['name'];
             }
 
             $this->title = '商户列表';
             $this->_pagedata['search'] = $search;
-            $this->_pagedata ["list"] = $platform_list;
+            $this->_pagedata ["list"] = $platform_lists;
             $this->_pagedata ["agent_list"] = $agent_level_list;
             //需要看到所有商户及下级代理的商户数
             $this->page('commercial/commercialList.html');

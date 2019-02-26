@@ -10,15 +10,15 @@
 	<form class="form-horizontal" role="search"  method="post" action="/commercial/commercialList">
 			<div class="form-group">
 				  <div class="col-sm-2">
-					 <select class="form-control" name="search_need_deliver" id="search_need_deliver">
+					 <select class="form-control" name="check_status" id="check_status">
 						<option value="-1">账号状态</option>
-						<option value="1" <{if $search['search_need_deliver'] eq 1}>selected<{/if}>>是</option>
-						<option value="2" <{if $search['search_need_deliver'] eq 2}>selected<{/if}>>否</option>
+						<option value="1" <{if $search['check_status'] eq 1}>selected<{/if}>>是</option>
+						<option value="2" <{if $search['check_status'] eq 2}>selected<{/if}>>否</option>
 					 </select>
 				  </div>
 				  <{if $is_svip eq '1'}>
 					  <div class="col-sm-2">
-						  <select class="form-control" name="search_need_deliver" id="search_need_deliver">
+						  <select class="form-control" name="agent_id" id="agent_id">
 							  <option value="-1">直属代理商</option>
 							  <{foreach  $agent_list as $val}>
 								  <option value="<{$val['id']}>" ><{$val['name']}></option>
