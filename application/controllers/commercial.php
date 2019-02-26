@@ -91,7 +91,9 @@ class Commercial extends MY_Controller {
             if (!empty($search['name'])) {
                 $where['name'] = trim($search['name']);
             }
-
+            if (!empty($search['admin_name'])) {
+                $where['contacts'] = trim($search['admin_name']);
+            }
             if (!empty($search['mobile'])) {
                 $where['phone'] = trim($search['mobile']);
             }

@@ -41,11 +41,12 @@ class Order extends MY_Controller
 
     public function index(){
         $Agent = $this->agent_model->get_own_agents($this->platform_id);
+        $agent_level_list = $this->commercial_model->get_agent_level_list_pt($this->platform_id,1);
+        $platform_list    = $this->commercial_model->get_agent_level_list_pt($this->platform_id,2);
         if($this->svip)
         {
-            $this->_pagedata['is_svip'] = 1;
-            //代理商级别
-            $agent_level_list = $this->agent_model->get_agent_level_list($Agent);
+            $agent_level_list = $this->commercial_model->get_agent_level_list($Agent,2);
+            $platform_list = $this->commercial_model->get_agent_level_list($Agent,1);
         }
         $this->_pagedata['start_time'] = $this->input->get('uid')?'':date('Y-m-d 00:00:00');
         $this->_pagedata['end_time']   = $this->input->get('uid')?'':date('Y-m-d 23:59:59');
@@ -53,8 +54,8 @@ class Order extends MY_Controller
         $this->_pagedata['store_list'] = $this->equipment_new_model->get_store_list();
         $this->_pagedata['uid'] = $this->input->get('uid');
         $this->_pagedata['info']= $this->user_model->get_user_info($this->_pagedata['uid']);
-        $this->_pagedata['platform_list']= $this->commercial_model->get_all_platforms();
         $this->_pagedata['agent_level_list'] = $agent_level_list;
+        $this->_pagedata['platform_list'] = $platform_list;
         $this->load->model('refer_model');
         $refer = $this->refer_model->all();
         $this->_pagedata['refer']  = $refer;

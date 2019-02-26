@@ -351,6 +351,9 @@ class Commercial_model extends MY_Model
         if ($where['phone']) {
             $sql .= " and phone = '{$where['phone']}'";
         }
+        if ($where['contacts']) {
+            $sql .= " and contacts = '{$where['contacts']}'";
+        }
         if($where['agent_id'])
         {
             $sql .= " and high_agent_id = '{$where['agent_id']}'";

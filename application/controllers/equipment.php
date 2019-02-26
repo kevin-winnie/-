@@ -138,6 +138,9 @@ class Equipment extends MY_Controller {
         if ($id && $type==1){
             $where['last_agent_id'] = $id;
         }
+        if ($id && $type==2){
+            $where['platform_id'] = $id;
+        }
         if ($search_status || $search_status == 0){
             $where['status'] = $search_status;
         }

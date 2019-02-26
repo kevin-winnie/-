@@ -18,10 +18,20 @@
         <div class="form-horizontal" id="search">
             <div class="form-group">
                 <div class="col-sm-2">
-                    <input type="text" class="form-control" name="search_agent_name" placeholder="代理商名称">
+                    <select class="form-control" name="search_agent">
+                        <option value="">选择代理商</option>
+                        <{foreach key=key item=item from=$agent_level_list}>
+                            <option value="<{$item.id}>"><{$item.name}></option>
+                        <{/foreach}>
+                    </select>
                 </div>
                 <div class="col-sm-2">
-                    <input type="text" class="form-control" size='11' name="search_commercial_name" id="search_commercial_name" placeholder="商户名称" value="<{$info['mobile']}>">
+                    <select class="form-control" name="search_platform">
+                        <option value="">选择商户</option>
+                        <{foreach key=key item=item from=$platform_list}>
+                            <option value="<{$item.id}>"><{$item.name}></option>
+                        <{/foreach}>
+                    </select>
                 </div>
                 <div class="col-sm-2">
                     <input type="text" class="form-control" name="search_equipment_id" id="search_equipment_id" placeholder="设备ID">
