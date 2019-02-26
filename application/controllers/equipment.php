@@ -1982,6 +1982,30 @@ class Equipment extends MY_Controller {
         $this->page('equipment/fenpei.html');
     }
 
+    private function check_equipment($equipment,$codeEquipment,$agent_id,$type,$assign='')
+    {
+        if(empty($equipment))
+        {
+            $this->_pagedata["tips"] = "该设备id未添加！";
+        }elseif(empty($codeEquipment))
+        {
+            $this->_pagedata["tips"] = "该设备code未添加！";
+        }elseif($equipment['last_agent_id'] != $agent_id)
+        {
+            $this->_pagedata["tips"] = "该设备您暂无分配权限！";
+        }elseif($equipment['type'] != $type && !$assign)
+        {
+            $this->_pagedata["tips"] = "设备类型选择不正确！";
+        }
+        if($assign = 'assign')
+        {
+            $this->fenpei();
+            exit;
+        }
+        $this->add();
+        exit;
+    }
+
     public function do_fenpei()
     {
         $equipment_id = $this->input->post('equipment_id');
