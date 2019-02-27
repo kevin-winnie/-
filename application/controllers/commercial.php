@@ -97,7 +97,7 @@ class Commercial extends MY_Controller {
             if (!empty($search['mobile'])) {
                 $where['phone'] = trim($search['mobile']);
             }
-            if (!empty($search['agent_id'])) {
+            if ($search['agent_id'] >0) {
                 $where['agent_id'] = trim($search['agent_id']);
             }
             //普通代理商只能看到直营商户
