@@ -99,11 +99,6 @@ class CronRecon extends CI_Controller{
                         $order_refund_refer = array();
                     }
                     $data[$val['id']]['order_refund'] = $order_refund_refer;
-                    $data[1]['order_refund'] = array(
-                        'alipay'=>array(
-                          'refund_money'=>10,
-                        ),
-                    );
                 }else
                 {
                     $data[$val['id']]['order_sale'] = array();
@@ -167,8 +162,7 @@ class CronRecon extends CI_Controller{
                 $commercial_money = 0;
                 //直营商户的出账金额
                 foreach($low_commercial_lists as $k1=>$v1)
-                {   $v1['alipay_rate'] = '0.05%';
-                    $v1['separate_rate'] = '99%';
+                {
                     $v1['alipay_rate'] = (float)$v1['alipay_rate']/100;
                     $v1['wechat_rate'] = (float)$v1['wechat_rate']/100;
                     $v1['separate_rate'] = (float)$v1['separate_rate']/100;
@@ -183,8 +177,6 @@ class CronRecon extends CI_Controller{
                 $agent_money = 0;
                 foreach($low_agent_lists as $k2=>$v2)
                 {
-                    $v2['alipay_rate'] = '0.05%';
-                    $v2['separate_rate'] = '99%';
                     $v2['alipay_rate'] = (float)$v2['alipay_rate']/100;
                     $v2['wechat_rate'] = (float)$v2['wechat_rate']/100;
                     $v2['separate_rate'] = (float)$v2['separate_rate']/100;
