@@ -322,7 +322,7 @@ class Order_model extends MY_Model
                 $info[] = $v;
             }
         }
-        $info = array_merge($rs,$info);
+        $info = array_merge((array)$rs,(array)$info);
         $res_id = array_unique(array_column($info,'id'));
         $rs = $this->get_box_list_by_agent_array($res_id,$field);
         return $rs;

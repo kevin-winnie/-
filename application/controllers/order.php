@@ -180,7 +180,7 @@ class Order extends MY_Controller
         {
             $box_list_next = $this->order_model->get_box_list_by_next_agent($this->platform_id,'equipment_id','',$agent_level);
         }
-        $box_list = array_merge($box_list_zhitui,$box_list_next);
+        $box_list = array_merge((array)$box_list_zhitui,(array)$box_list_next);
         $this->c_db->from('order');
         $this->c_db->where($where);
         $search_box = array();
