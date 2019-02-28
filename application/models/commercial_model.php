@@ -328,7 +328,7 @@ class Commercial_model extends MY_Model
 
     public function get_own_commercial_config($key)
     {
-        $sql = " select a.id,a.platform_rs_id,a.alipay_account,a.alipay_realname,a.separate_rate,b.alipay_rate,b.wechat_rate from p_commercial as a
+        $sql = " select a.id,a.platform_rs_id,a.alipay_account,a.alipay_realname,a.separate_rate,a.high_agent_id,b.alipay_rate,b.wechat_rate from p_commercial as a
                   LEFT JOIN p_config_device as b ON a.id = b.platform_id WHERE a.id =  '{$key}'
                   ";
         $res = $this->db->query($sql)->row_array();

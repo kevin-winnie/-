@@ -163,6 +163,7 @@ class CronRecon extends CI_Controller{
                 //出账金额
                 $commercial_money = 0;
                 //直营商户的出账金额
+
                 foreach($low_commercial_lists as $k1=>$v1)
                 {
                     $v1['alipay_rate'] = (float)$v1['alipay_rate']/100;
@@ -172,9 +173,14 @@ class CronRecon extends CI_Controller{
                     $wechat = round($data[$v1['id']]['really_moeny']['wechat']*(1-$v1['wechat_rate'])*$v1['separate_rate'],2);
                     $other = round($data[$v1['id']]['really_moeny']['other']*$v1['separate_rate'],2);
                     $all = bcadd(bcadd($alipay,$wechat,2),$other,2);
-                    $commercial_money += $all;
-                    //该直营商户的入账金额
-                    $commercial_sale_data[$v1['id']]['entry_money'] = $all;
+                    $all =1;
+                    if($all > 0)
+                    {
+                        //该代理商应出给该商户的金额
+                        $agent_sale_data[$key]['commercial'][$v1['id']]['out_money'] = $all;
+                        //该直营商户的入账金额
+                        $commercial_sale_data[$v1['id']]['entry_money'] = $all;
+                    }
                 }
                 $agent_money = 0;
                 foreach($low_agent_lists as $k2=>$v2)
@@ -185,10 +191,14 @@ class CronRecon extends CI_Controller{
                     $alipay = round($agent_sale_data[$v2['id']]['alipay']*(1-$v2['alipay_rate'])*$v2['separate_rate'],2);
                     $wechat = round($agent_sale_data[$v2['id']]['wechat']*(1-$v2['wechat_rate'])*$v2['separate_rate'],2);
                     $other = round($agent_sale_data[$v2['id']]['other']*$v2['separate_rate'],2);
-                    $all = bcadd(bcadd($alipay,$wechat,2),$other,2);
-                    $agent_money += $all;
-                    //下级代理商的入账金额
-                    $agent_sale_data[$v2['id']]['entry_money'] = $all;
+                    $all_1 = bcadd(bcadd($alipay,$wechat,2),$other,2);
+                    $all_1 = 2;
+                    if($all_1 > 0)
+                    {
+                        $agent_sale_data[$key]['agent'][$v2['id']]['out_money'] = $all_1;
+                        //下级代理商的入账金额
+                        $agent_sale_data[$v2['id']]['entry_money'] = $all_1;
+                    }
                 }
                 //入账金额
 
@@ -196,16 +206,15 @@ class CronRecon extends CI_Controller{
                 {
                     $agent_sale_data[$key]['entry_money'] = bcadd(bcadd($val['alipay'],$val['wechat'],2),$val['other'],2);
                 }
-                //出账金额
-                $agent_sale_data[$key]['out_money'] = bcadd($commercial_money,$agent_money,2);
             }
             //商户---组装数据(仅有入账金额)
+            $msg = '';
             foreach($commercial_sale_data as $key=>$val)
             {
                 $r_commercial = $this->commercial_model->get_own_commercial_config($key);
                 $insert_data = array
                 (
-                    'type'=>2,
+                    'type'=>0,
                     'start_time'=>$start,
                     'end_time'=>$end,
                     'acount_id'=>$r_commercial['alipay_account'],
@@ -213,40 +222,85 @@ class CronRecon extends CI_Controller{
                     'money'=>$data[$key]['really_moeny']['money'],
                     'refund_money'=>$data[$key]['really_moeny']['refund_money'],
                     'dis_money'=>$data[$key]['really_moeny']['discounted_money'],
+                    //收款商户
                     'agent_commer_id'=>$key,
                     'realy_money'=>$data[$key]['really_moeny']['alipay']+$data[$key]['really_moeny']['wechat']+$data[$key]['really_moeny']['other'],
                     'separate_rate'=>$r_commercial['separate_rate'],
                     'wechat_rate'=>$r_commercial['wechat_rate'],
                     'alipay_rate'=>$r_commercial['alipay_rate'],
                     'out_money'=>0,
-                    'in_money'=>$val['entry_money']
+                    'in_money'=>$val['entry_money'],
+                    //打款代理商
+                    'to_where_id'=>$r_commercial['high_agent_id'],
                 );
                  $this->db->insert('reconciliation', $insert_data);
+                $msg .= '商户'.$key.'插入成功;';
             }
             //代理商---组装数据
             foreach($agent_sale_data as $key=>$val)
             {
                 $r_agent = $this->agent_model->get_own_agents($key);
-                $insert_data_s = array
-                (
-                    'type'=>1,
-                    'start_time'=>$start,
-                    'end_time'=>$end,
-                    'acount_id'=>$r_agent['separate_account'],
-                    'acount_name'=>$r_agent['separate_name'],
-                    'money'=>$val['money'],
-                    'refund_money'=>$val['refund_money'],
-                    'dis_money'=>$val['discounted_money'],
-                    'agent_commer_id'=>$key,
-                    'realy_money'=>$val['alipay']+$val['wechat']+$val['other'],
-                    'separate_rate'=>$val['separate_rate'],
-                    'wechat_rate'=>$r_agent['wechat_rate'],
-                    'alipay_rate'=>$r_agent['alipay_rate'],
-                    'out_money'=>$val['out_money'],
-                    'in_money'=>$val['entry_money']
-                );
-                $this->db->insert('reconciliation', $insert_data_s);
+
+                if(!empty($val['commercial']))
+                {
+                    foreach($val['commercial'] as $k1=>$v1)
+                    {
+                        $insert_data_s = array
+                        (
+                            'type'=>0, //打款类型 商户
+                            'start_time'=>$start,
+                            'end_time'=>$end,
+                            'acount_id'=>$r_agent['separate_account'],
+                            'acount_name'=>$r_agent['separate_name'],
+                            'money'=>$val['money'],
+                            'refund_money'=>$val['refund_money'],
+                            'dis_money'=>$val['discounted_money'],
+                            //收款代理商
+                            'agent_commer_id'=>$key,
+                            'realy_money'=>$val['alipay']+$val['wechat']+$val['other'],
+                            'separate_rate'=>$val['separate_rate'],
+                            'wechat_rate'=>$r_agent['wechat_rate'],
+                            'alipay_rate'=>$r_agent['alipay_rate'],
+                            'out_money'=>$v1['out_money'],
+                            'in_money'=>$val['entry_money'],
+                            //打款代理商
+                            'to_where_id'=>$r_agent['high_agent_id'],
+                        );
+                        $this->db->insert('reconciliation', $insert_data_s);
+                    }
+                }
+
+                if(!empty($val['agent']))
+                {
+                    foreach($val['agent'] as $k2=>$v2)
+                    {
+                        $insert_data_s_1 = array
+                        (
+                            'type'=>1, //打款类型 代理商
+                            'start_time'=>$start,
+                            'end_time'=>$end,
+                            'acount_id'=>$r_agent['separate_account'],
+                            'acount_name'=>$r_agent['separate_name'],
+                            'money'=>$val['money'],
+                            'refund_money'=>$val['refund_money'],
+                            'dis_money'=>$val['discounted_money'],
+                            //收款代理商
+                            'agent_commer_id'=>$key,
+                            'realy_money'=>$val['alipay']+$val['wechat']+$val['other'],
+                            'separate_rate'=>$val['separate_rate'],
+                            'wechat_rate'=>$r_agent['wechat_rate'],
+                            'alipay_rate'=>$r_agent['alipay_rate'],
+                            'out_money'=>$v2['out_money'],
+                            'in_money'=>$val['entry_money'],
+                            //打款代理商
+                            'to_where_id'=>$r_agent['high_agent_id'],
+                        );
+                        $this->db->insert('reconciliation', $insert_data_s_1);
+                    }
+                }
+                $msg .= '代理商'.$key.'插入成功;';
             }
+            echo $msg;
         }
     }
 
