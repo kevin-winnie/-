@@ -76,7 +76,7 @@ class Equipment_stock_model extends CI_Model
         $this->c_db->where($where);
         if(!empty($array))
         {
-            $this->c_db->where_in('platform_id', $array);
+            $this->c_db->where_in('e.platform_id', $array);
         }
         $this->c_db->group_by('es.product_id');
         $rs = $this->c_db->get()->result_array();

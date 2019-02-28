@@ -17,7 +17,7 @@
     <div class="panel-heading">
         <span class="panel-title" style="width: 50%; color: #777;font-size: 18px;"> 实时概况 </span>
         <select class="form-control" id="search_platform_id" name="search_platform_id" style="width: 200px;float: right;height: 30px;">
-            <option value="-1" <{if $platform_id eq ''}> selected="selected"<{/if}>>选择商户</option>
+            <option value="0" <{if $platform_id eq ''}> selected="selected"<{/if}>>选择商户</option>
             <{foreach key=key item=item from=$platform_list}>
             <option value="<{$item['platform_rs_id']}>" <{if $platform_id eq $item['platform_rs_id']}>selected="selected"<{/if}>><{$item['name']}></option>
             <{/foreach}>

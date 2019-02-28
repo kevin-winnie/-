@@ -28,7 +28,7 @@ class Overall extends MY_Controller
         $this->load->model('equipment_stock_model');
         $this->load->library('phpredis');
         $this->redis = $this->phpredis->getConn();
-        $this->platform_id = $this->input->get('platform_id')?$this->input->get('platform_id'):-1;
+        $this->platform_id = $this->input->get('platform_id')?$this->input->get('platform_id'):0;
         $this->agent_id = $this->input->get('agent_id')?$this->input->get('agent_id'):1;
     }
 
@@ -61,7 +61,7 @@ class Overall extends MY_Controller
     function ajax_data(){
         $pd     = $this->input->post('pd');//按日搜索数据
         $s_type = $this->input->post('s_type');//0:按天， 1:按周, 2:按月
-        $this->platform_id = $this->input->post('platform_id')?$this->input->post('platform_id'):-1;
+        $this->platform_id = $this->input->post('platform_id');
         $commercial_array = $this->check_is_agent();
         if(!$pd && !$s_type){
             $this->showJson(array('status'=>'error', 'msg'=>'参数不全'));
@@ -240,7 +240,7 @@ class Overall extends MY_Controller
         $end_date   = $this->input->get('end_date')?$this->input->get('end_date'):date('Y-m-d', strtotime('-1 days'));
         $key = self::OVERALL_EQ_DATA_KEY.$start_date.':'.$end_date.'_platform_id:'.$this->platform_id;
         $commercial_array = $this->check_is_agent();
-        if(!empty($commercial_array))
+        if(!empty($commercial_array) && $this->platform_id == 0)
         {
             $key = self::OVERALL_EQ_DATA_KEY.$start_date.':'.$end_date.'_agent_id:'.$this->agent_id;
         }
@@ -288,7 +288,7 @@ class Overall extends MY_Controller
         $end_date   = $this->input->get('end_date')?$this->input->get('end_date'):date('Y-m-d', strtotime('-1 days'));
         $key = self::OVERALL_P_DATA_KEY.$start_date.':'.$end_date.'_platform_id:'.$this->platform_id;
         $commercial_array = $this->check_is_agent();
-        if(!empty($commercial_array))
+        if(!empty($commercial_array) && $this->platform_id == 0)
         {
             $key = self::OVERALL_P_DATA_KEY.$start_date.'_agent_id:'.$end_date.':'.$this->agent_id;
         }

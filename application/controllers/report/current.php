@@ -33,7 +33,7 @@ class Current extends MY_Controller
         $this->load->library('phpredis');
         $this->c_db = $this->load->database('citybox_master', TRUE);
         $this->redis = $this->phpredis->getConn();
-        $this->platform_id = $this->input->get('platform_id')?$this->input->get('platform_id'):-1;
+        $this->platform_id = $this->input->get('platform_id')?$this->input->get('platform_id'):0;
         $this->agent_id = $this->input->get('agent_id')?$this->input->get('agent_id'):1;
     }
 
@@ -76,6 +76,7 @@ class Current extends MY_Controller
             }
             $commercial_array = array_column($commercial_list,'platform_rs_id');
         }
+
         $this->_pagedata['order'] = $this->get_today_data($commercial_array);
         $this->_pagedata['yesterday_order'] = $this->get_yesterday_data('',$commercial_array);
         $this->_pagedata['last_order'] = $this->get_yesterday_data('-7',$commercial_array);
@@ -133,7 +134,7 @@ class Current extends MY_Controller
     //获取今天的实时数据
     public function get_today_data($array){
         $key = self::TODAY_DATA_KEY.'_platform_id:'.$this->platform_id;
-        if(!empty($array))
+        if(!empty($array) && $this->platform_id==0)
         {
             $key = self::TODAY_DATA_KEY.'_agent_id:'.$this->agent_id;
         }
@@ -173,7 +174,7 @@ class Current extends MY_Controller
     //获取昨天的订单数据
     public function get_yesterday_data($days = '-1',$array){
         $key = self::YESTERDAY_DATA_KEY.$days.'_platform_id:'.$this->platform_id;
-        if(!empty($array))
+        if(!empty($array) && $this->platform_id == 0)
         {
             $key = self::YESTERDAY_DATA_KEY.$days.'_agent_id:'.$this->agent_id;
         }
@@ -212,7 +213,7 @@ class Current extends MY_Controller
     //获取今天按小时的数据
     public function get_today_hour_data($array){
         $key = self::HOUR_YES_DATA_KEY.':'.date('Y-m-d').'_platform_id:'.$this->platform_id;
-        if(!empty($array))
+        if(!empty($array) && $this->platform_id == 0)
         {
             $key = self::HOUR_YES_DATA_KEY.':'.date('Y-m-d').'_agent_id:'.$this->agent_id;
         }
@@ -242,7 +243,7 @@ class Current extends MY_Controller
     public function get_yes_hour_data($array){
         $m_date = date('Y-m-d', strtotime('-1 days'));
         $key = self::HOUR_YES_DATA_KEY.'_platform_id:'.$m_date.':'.$this->platform_id;
-        if(!empty($array))
+        if(!empty($array) && $this->platform_id == 0)
         {
             $key = self::HOUR_YES_DATA_KEY.'_agent_id:'.$m_date.':'.$this->agent_id;
         }
@@ -275,7 +276,7 @@ class Current extends MY_Controller
         }
         $f_date = date('Y-m-d',strtotime($m_date.' +4 days'));
         $key = self::HOUR_WEEK_DATA_KEY.':'.$m_date."_platform_id:".$this->platform_id;
-        if(!empty($array))
+        if(!empty($array) && $this->platform_id == 0)
         {
             $key = self::HOUR_WEEK_DATA_KEY.':'.$m_date."_agent_id:".$this->agent_id;
         }
@@ -307,7 +308,7 @@ class Current extends MY_Controller
         $offset     = $this->input->get('offset')?$this->input->get('offset'):0;
         $key = self::TODAY_EQ_DATA_KEY."_platform_id:".$this->platform_id;
         $commercial_array = $this->check_is_agent();
-        if(!empty($commercial_array))
+        if(!empty($commercial_array) && $this->platform_id == 0)
         {
             $key = self::TODAY_EQ_DATA_KEY."_agent_id:".$this->agent_id;
         }
@@ -467,7 +468,7 @@ class Current extends MY_Controller
         $offset     = $this->input->get('offset')?$this->input->get('offset'):0;
         $cache_key  = self::TODAY_PRODUCT_DATA_KEY.'_platform_id:'.$this->platform_id;
         $commercial_array = $this->check_is_agent();
-        if(!empty($commercial_array))
+        if(!empty($commercial_array) && $this->platform_id==0)
         {
             $cache_key  = self::TODAY_PRODUCT_DATA_KEY.'_agent_id:'.$this->agent_id;
         }
@@ -485,9 +486,9 @@ class Current extends MY_Controller
             $this->c_db->join("order o", 'op.order_name = o.order_name');
             $this->c_db->join("product p", 'p.id = op.product_id');
             $this->c_db->where($where);
-            if(!empty($commercial_array))
+            if(!empty($commercial_array) && $this->platform_id==0)
             {
-                $this->c_db->where_in('platform_id', $commercial_array);
+                $this->c_db->where_in('o.platform_id', $commercial_array);
             }
             $this->c_db->group_by('op.product_id');
             $list = $this->c_db->get()->result_array();
@@ -534,6 +535,10 @@ class Current extends MY_Controller
     //开门次数区分来源
     public function show_refer(){
         $platform_id = $this->platform_id;
+        if($this->platform_id == -1)
+        {
+            $platform_id = 0;
+        }
         $this->load->model('log_open_model');
         $commercial_array = $this->check_is_agent();
         $today = $this->log_open_model->get_open_times_refer(null, null,$platform_id,$commercial_array);
