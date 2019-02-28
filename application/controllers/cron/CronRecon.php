@@ -52,6 +52,7 @@ class CronRecon extends CI_Controller{
                     //此处需读取该商户配置的费率
                     if(!empty($order_sale_data))
                     {
+                        $order_sale_refer = array();
                         //按来源分组 支付宝 微信
                         foreach($order_sale_data as $k=>$v)
                         {
@@ -83,6 +84,7 @@ class CronRecon extends CI_Controller{
                     $order_refund_data = $this->c_db->query($sql)->result_array();
                     if(!empty($order_refund_data))
                     {
+                        $order_refund_refer = array();
                         foreach($order_refund_data as $k=>$v)
                         {
                             if(!in_array($v['refer'],['alipay','wechat']))
@@ -108,9 +110,9 @@ class CronRecon extends CI_Controller{
                 $data[$val['id']]['really_moeny']['alipay'] = bcsub($data[$val['id']]['order_sale']['alipay']['money'],$data[$val['id']]['order_refund']['alipay']['refund_money'],2);
                 $data[$val['id']]['really_moeny']['wechat'] = bcsub($data[$val['id']]['order_sale']['wechat']['money'],$data[$val['id']]['order_refund']['wechat']['refund_money'],2);
                 $data[$val['id']]['really_moeny']['other'] = bcsub($data[$val['id']]['order_sale']['other']['money'],$data[$val['id']]['order_refund']['other']['refund_money'],2);
-                $data[$val['id']]['really_moeny']['dis_money'] = bcadd(bcadd($data[$val['id']]['order_sale']['alipay']['discounted_money'],$data[$val['id']]['order_sale']['wechat']['discounted_money']),$data[$val['id']]['order_sale']['other']['discounted_money'],2);
-                $data[$val['id']]['really_moeny']['refund_money'] = bcadd(bcadd($data[$val['id']]['order_refund']['alipay']['refund_money'],$data[$val['id']]['order_refund']['wechat']['refund_money']),$data[$val['id']]['order_refund']['other']['refund_money'],2);
-                $data[$val['id']]['really_moeny']['money'] = bcadd(bcadd($data[$val['id']]['order_sale']['alipay']['money'],$data[$val['id']]['order_sale']['wechat']['money']),$data[$val['id']]['order_sale']['other']['money'],2);
+                $data[$val['id']]['really_moeny']['dis_money'] = bcadd(bcadd($data[$val['id']]['order_sale']['alipay']['discounted_money'],$data[$val['id']]['order_sale']['wechat']['discounted_money'],2),$data[$val['id']]['order_sale']['other']['discounted_money'],2);
+                $data[$val['id']]['really_moeny']['refund_money'] = bcadd(bcadd($data[$val['id']]['order_refund']['alipay']['refund_money'],$data[$val['id']]['order_refund']['wechat']['refund_money'],2),$data[$val['id']]['order_refund']['other']['refund_money'],2);
+                $data[$val['id']]['really_moeny']['money'] = bcadd(bcadd($data[$val['id']]['order_sale']['alipay']['money'],$data[$val['id']]['order_sale']['wechat']['money'],2),$data[$val['id']]['order_sale']['other']['money'],2);
             }
             //商户产生的收入全部到CITYBOX账户下，开始按分成比例、微信、支付宝费率进行分配
             $sql = " select * from p_agent";
