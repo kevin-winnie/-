@@ -545,7 +545,8 @@ class Equipment extends MY_Controller {
                     $data['status'] = 1;
                     $data['platform_id'] = isset($platform_id)?$platform_id:'0';
                     $data['created_time'] = time();
-                    $data['last_agent_id'] = $agent_id;
+                    $data['last_agent_id'] = $last_agent?$last_agent:$agent_id;
+                    $data['first_agent_id'] = $last_agent?$last_agent:$agent_id;
                     $data['software_time'] = $software_time;
                     $data['hardware_time'] = $hardware_time;
                     $data['agent_config'] = json_encode(array($agent_id));
@@ -577,7 +578,7 @@ class Equipment extends MY_Controller {
                     $data['agent_config'] = json_encode($agent_config);
                     $data['code'] = $code;
                     $data['type'] = $type;
-                    $data['last_agent_id'] = $last_agent;
+                    $data['last_agent_id'] = $last_agent?$last_agent:$agent_id;
                     $data['equipment_id'] = $equipment_id;
                     $data['software_time'] = $software_time;
                     $data['hardware_time'] = $hardware_time;
@@ -597,7 +598,7 @@ class Equipment extends MY_Controller {
                     $data['status'] = 1;
                     $data['code'] = $code;
                     $data['type'] = $type;
-                    $data['last_agent_id'] = $last_agent;
+                    $data['last_agent_id'] = $last_agent?$last_agent:$agent_id;
                     $data['platform_id'] = $platform_id;
                     $data['equipment_id'] = $equipment_id;
                     $data['software_time'] = $software_time;
@@ -677,6 +678,7 @@ class Equipment extends MY_Controller {
             $data['status'] = 1;
             $data['platform_id'] = isset($platform_id)?$platform_id:'0';
             $data['created_time'] = time();
+            $data['first_agent_id'] = $agent_id;
             $data['last_agent_id'] = $agent_id;
             $data['software_time'] = $software_time;
             $data['hardware_time'] = $hardware_time;
@@ -691,14 +693,14 @@ class Equipment extends MY_Controller {
                 }
                 if(!$platform_id)
                 {   //分配给代理商
-                    $data['last_agent_id'] = $last_agent;
+                    $data['last_agent_id'] = $last_agent?$last_agent:$agent_id;
                     $data['software_time'] = $software_time;
                     $data['hardware_time'] = $hardware_time;
                     $data['platform_id'] = 0;
                     if($equipment)
                     {
                         $agent_config = json_decode($equipment['agent_config'],true);
-                        $agent_config[] = $last_agent;
+                        $agent_config[] = $last_agent?$last_agent:$agent_id;
                         $data['agent_config'] = json_encode($agent_config);
                         $insertBox = $this->db->update('equipment',$data,array('equipment_id'=>$equipment['equipment_id']));
                     }else
@@ -714,7 +716,7 @@ class Equipment extends MY_Controller {
                     }
                 }else
                 {//分配给商户
-                    $data['last_agent_id'] = $last_agent;
+                    $data['last_agent_id'] = $last_agent?$last_agent:$agent_id;
                     $data['platform_id'] = $platform_id;
                     $data['software_time'] = $software_time;
                     $data['hardware_time'] = $hardware_time;
@@ -2035,9 +2037,9 @@ class Equipment extends MY_Controller {
         if(!$platform_id)
         {   //分配给代理商
             $agent_config = json_decode($equipment['agent_config'],true);
-            $agent_config[] = $last_agent;
+            $agent_config[] = $last_agent?$last_agent:$agent_id;
             $data['agent_config'] = json_encode($agent_config);
-            $data['last_agent_id'] = $last_agent;
+            $data['last_agent_id'] = $last_agent?$last_agent:$agent_id;
             $data['software_time'] = $software_time;
             $data['hardware_time'] = $hardware_time;
             $data['platform_id'] = 0;
@@ -2052,7 +2054,7 @@ class Equipment extends MY_Controller {
                 exit;
             }
             $admin_id = $this->commercial_model->get_commercial_admin_id($platforms['admin_name']);
-            $data['last_agent_id'] = $last_agent;
+            $data['last_agent_id'] = $last_agent?$last_agent:$agent_id;
             $data['platform_id'] = $platform_id;
             $data['software_time'] = $software_time;
             $data['hardware_time'] = $hardware_time;
