@@ -24,7 +24,7 @@ class CronRecon extends CI_Controller{
     public function  index()
     {
 
-        $time =  '2017-12-16'; //date('Y-m-d',time())
+        $time =  '2019-02-27'; //date('Y-m-d',time())
         $start = date('Y-m-d',strtotime('-1 days',strtotime($time)));
         $end = $time;
         $sql = " select a.id,a.platform_rs_id,a.alipay_account,a.alipay_realname,a.separate_rate,b.alipay_rate,b.wechat_rate from p_commercial as a
@@ -34,10 +34,11 @@ class CronRecon extends CI_Controller{
         $data = array();
         if(!empty($rs))
         {
-            $order_sale_refer = array();
-            $order_refund_refer = array();
+
             foreach($rs as $key=>$val)
             {
+                $order_sale_refer = array();
+                $order_refund_refer = array();
                 $other_sale = array();
                 $other_sale_ = array();
                 //数据源  商户的订单数据  已支付、退款中、退款完成、退款驳回
@@ -51,7 +52,6 @@ class CronRecon extends CI_Controller{
 	                      AND a.order_status IN (1, 3, 4, 5) GROUP BY a.refer";
 
                     $order_sale_data = $this->c_db->query($sql)->result_array();
-                    //此处需读取该商户配置的费率
                     if(!empty($order_sale_data))
                     {
                         //按来源分组 支付宝 微信
