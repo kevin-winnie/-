@@ -34,6 +34,8 @@ class CronRecon extends CI_Controller{
         $data = array();
         if(!empty($rs))
         {
+            $order_sale_refer = array();
+            $order_refund_refer = array();
             foreach($rs as $key=>$val)
             {
                 $other_sale = array();
@@ -52,7 +54,6 @@ class CronRecon extends CI_Controller{
                     //此处需读取该商户配置的费率
                     if(!empty($order_sale_data))
                     {
-                        $order_sale_refer = array();
                         //按来源分组 支付宝 微信
                         foreach($order_sale_data as $k=>$v)
                         {
@@ -84,7 +85,6 @@ class CronRecon extends CI_Controller{
                     $order_refund_data = $this->c_db->query($sql)->result_array();
                     if(!empty($order_refund_data))
                     {
-                        $order_refund_refer = array();
                         foreach($order_refund_data as $k=>$v)
                         {
                             if(!in_array($v['refer'],['alipay','wechat']))
