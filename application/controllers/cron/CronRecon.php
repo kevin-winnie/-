@@ -256,7 +256,7 @@ class CronRecon extends CI_Controller{
                             'acount_name'=>$k1_commercial['separate_name'],
                             'money'=>$val['good_money'],
                             'refund_money'=>$val['refund_money'],
-                            'dis_money'=>$val['discounted_money'],
+                            'dis_money'=>$val['dis_money'],
                             //收款代理商
                             'shou_agent_id'=>0,
                             'shou_platform_id'=>$k1,
@@ -288,7 +288,7 @@ class CronRecon extends CI_Controller{
                             'acount_name'=>$k2_agent['separate_name'],
                             'money'=>$val['good_money'],
                             'refund_money'=>$val['refund_money'],
-                            'dis_money'=>$val['discounted_money'],
+                            'dis_money'=>$val['dis_money'],
                             //收款代理商
                             'shou_agent_id'=>$k2,
                             'shou_platform_id'=>0,
@@ -313,7 +313,7 @@ class CronRecon extends CI_Controller{
                             'acount_name'=>$k2_agent['separate_name'],
                             'money'=>$val['good_money'],
                             'refund_money'=>$val['refund_money'],
-                            'dis_money'=>$val['discounted_money'],
+                            'dis_money'=>$val['dis_money'],
                             //收款代理商
                             'shou_agent_id'=>$k2,
                             'shou_platform_id'=>0,
@@ -339,7 +339,7 @@ class CronRecon extends CI_Controller{
                     'acount_name'=>$r_agent['separate_name'],
                     'money'=>$val['good_money'],
                     'refund_money'=>$val['refund_money'],
-                    'dis_money'=>$val['discounted_money'],
+                    'dis_money'=>$val['dis_money'],
                     //收款代理商
                     'shou_agent_id'=>$key,
                     'shou_platform_id'=>0,
