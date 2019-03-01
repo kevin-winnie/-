@@ -96,9 +96,9 @@
                     <td><{$val['separate_rate']}></td>
                     <td>alipay:<{$val['alipay_rate']}><br/>wechat:<{$val['wechat_rate']}></td>
                     <{if $show_type eq '0'}>
-                        <td><{$val['in_money']}></td>
-                    <{else}>
                         <td><{$val['out_money']}></td>
+                    <{else}>
+                        <td><{$val['in_money']}></td>
                     <{/if}>
                     <td><button type="button" class="btn btn-info" id="explore-btn">导出</button></td>
                 </tr>
