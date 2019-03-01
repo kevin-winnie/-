@@ -124,12 +124,64 @@ class Reconciliation_model extends MY_Model
     }
 
     public function get_list($array,$type)
-    {
+    {;
+
         $this->db->select('*');
         $this->db->from('reconciliation');
-        $this->db->where('type', $type);
-        $this->db->where_in('agent_commer_id', $array);
+        if($type == 1)
+        {
+            $this->db->where_in('shou_platform_id', $array);
+        }else
+        {
+            $this->db->where_in('shou_agent_id', $array);
+        }
         $rs = $this->db->get()->result_array();
+        return $rs;
+    }
+
+    /**
+     * @param $where 搜索条件
+     */
+    public function get_search_reconLists($where,$platform_array,$agent_array)
+    {
+        $sql = " select * from p_reconciliation WHERE 1=1";
+        if($where['start_time'])
+        {
+            $sql .= " and start_time >= '{$where['start_time']}'";
+        }
+        if($where['end_time'])
+        {
+            $sql .= " and end_time <= '{$where['end_time']}'";
+        }
+        if(isset($where['type']))
+        {
+            $sql .= " and type = '{$where['type']}'";
+        }
+        //收账代理商
+        if($where['agent_id'] && $where['type'] == 1 )
+        {
+            $sql .= " and shou_agent_id = '{$where['agent_id']}'";
+        }
+        //收账商户
+        if($where['platform_id'] && $where['type'] == 1 )
+        {
+            $sql = str_replace("and shou_agent_id = '{$where['agent_id']}'"," ",$sql);
+            $sql .= " and shou_platform_id = '{$where['platform_id']}'";
+        }
+        if($where['platform_id'] && $where['type'] == 0)
+        {
+            return array();
+        }
+        //出账代理商
+        if($where['agent_id'] && $where['type'] == 0)
+        {
+            $sql .= " and to_where_id = '{$where['agent_id']}'";
+        }
+        if($where['agent_id'] && $where['type'] == 0 && $where['platform_id'])
+        {
+            return array();
+        }
+        $rs = $this->db->query($sql)->result_array();
         return $rs;
     }
 

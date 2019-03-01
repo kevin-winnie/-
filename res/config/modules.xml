@@ -37,7 +37,7 @@
         <name type ="8" value ="81" url="/report/current">实时看板</name>
         <name type ="8" value ="82" url="/report/overall">整体看板</name>
 
-        <name type ="9" value ="91" url="/reconciliation/index">对账管理</name>
+        <name type ="9" value ="91" url="/reconciliation/table">对账管理</name>
 
     </OptionList>
 </Menu>

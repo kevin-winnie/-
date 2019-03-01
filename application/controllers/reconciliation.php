@@ -5,21 +5,7 @@ if (!defined('BASEPATH'))
 class Reconciliation extends MY_Controller
 {
 
-    public $box_type = array(
-        'rfid-1' => '蚂蚁盒子RFID',
-        'rfid-2' => '魔盒生产RFID',
-        'scan-1' => '扫码',
-        'vision-1'=>'视觉'
-    );
-    public $refer = array(
-        'alipay' => '支付宝',
-        'wechat' => '微信',
-        'fruitday' => '天天果园',
-        'gat'    => '关爱通',
-        'sodexo' => '索迪斯',
-        'sdy'    => '沙丁鱼',
-        'jd'    => '京东',
-    );
+
     function __construct() {
         parent::__construct();
         $this->load->model("agent_model");
@@ -37,14 +23,55 @@ class Reconciliation extends MY_Controller
             $agent_level_list = $this->commercial_model->get_agent_level_list($Agent,2);
             $platform_list = $this->commercial_model->get_agent_level_list($Agent,1);
         }
+        $string_platform = $string_agent = array();
+        if(!empty($platform_list))
+        {
+            foreach($platform_list as $key=>$val)
+            {
+                if(!$val['platform_rs_id'])
+                {
+                    unset($platform_list[$key]);
+                }
+            }
+            $platform_array = array_column($platform_list,'id');
+        }
+        if(!empty($agent_level_list))
+        {
+            $agent_array = array_column($agent_level_list,'id');
+        }
+        //商户
+        $reconciliation_list = $this->reconciliation_model->get_list($platform_array,1);
+        //代理商
+        $agent_list = $this->reconciliation_model->get_list($agent_array,0);
+        $data_list = array_merge((array)$reconciliation_list,(array)$agent_list);
+        foreach($data_list as $key=>$val)
+        {
+            if($val['type'] == 1)
+            {
+                $owns = $this->agent_model->get_own_agents($val['shou_agent_id']);
+                $owns['name'] = '代理商--'.$owns['name'];
+            }else
+            {
+                $owns = $this->commercial_model->get_own_commercial($val['shou_platform_id']);
+                $owns['name'] = '商户--'.$owns['name'];
+            }
+            $data_list[$key]['agent_commer_name'] = $owns['name'];
+            $data_list[$key]['alipay_rate'] = $val['alipay_rate']?$val['alipay_rate']:0;
+            $data_list[$key]['wechat_rate'] = $val['wechat_rate']?$val['wechat_rate']:0;
+            $data_list[$key]['separate_rate'] = $val['separate_rate']?$val['separate_rate']:'100%';
+        }
+
+        $total = count($data_list);
 
         $this->_pagedata['start_time'] = $this->input->get('uid')?'':date('Y-m-d 00:00:00');
         $this->_pagedata['end_time']   = $this->input->get('uid')?'':date('Y-m-d 23:59:59');
         $this->_pagedata['platform_list']= $platform_list;
+        $this->_pagedata['list']= $data_list;
+        $this->_pagedata['total']= $total;
+        $this->_pagedata['show_out_money']= 1;
         $this->_pagedata['agent_level_list'] = $agent_level_list;
         $this->page('reconciliation/index.html');
     }
-
 
 
     public function array_is_empty($array){
@@ -59,10 +86,26 @@ class Reconciliation extends MY_Controller
     //对账单列表
     public function table(){
         //读取当前代理商下的所有对账列表
-        $limit = $this->input->get('limit') ? : 10;
-        $offset = $this->input->get('offset') ? : 0;
-        $search_type = $this->input->get('search_type');
+        $search['type'] = $this->input->post('search_type') ?$this->input->post('search_type') : 0;
+        $search['start_time'] = $this->input->post('search_start_time')?$this->input->post('search_start_time'):date('Y-m-d 0:00:00');
+        $search['end_time'] = $this->input->post('search_end_time')?$this->input->post('search_end_time'):date('Y-m-d 23:59:59');
+        $search['agent_id'] = $this->input->post('search_agent')?$this->input->post('search_agent'):-1;
+        $search['platform_id'] = $this->input->post('search_platform')?$this->input->post('search_platform'):-1;
 
+        $where['type'] = $search['type'];
+        $where['start_time'] = $search['start_time'];
+        $where['end_time'] = $search['end_time'];
+        if($search['agent_id'] >0)
+        {
+            $where['agent_id'] = $search['agent_id'];
+        }else
+        {
+            $where['agent_id'] = $this->platform_id;
+        }
+        if($search['platform_id'] >0)
+        {
+            $where['platform_id'] = $search['platform_id'];
+        }
         $agent_level_list = $this->commercial_model->get_agent_level_list_pt($this->platform_id,1);
         $platform_list    = $this->commercial_model->get_agent_level_list_pt($this->platform_id,2);
         if($this->svip)
@@ -88,33 +131,33 @@ class Reconciliation extends MY_Controller
         {
             $agent_array = array_column($agent_level_list,'id');
         }
-        //商户
-        $reconciliation_list = $this->reconciliation_model->get_list($platform_array,0);
-        //代理商
-        $agent_list = $this->reconciliation_model->get_list($agent_array,1);
-        $data_list = array_merge((array)$reconciliation_list,(array)$agent_list);
+        $data_list = $this->reconciliation_model->get_search_reconLists($where,$platform_array,$agent_array);
         foreach($data_list as $key=>$val)
         {
-            if($val['type'] == 1)
+            if($val['shou_agent_id'])
             {
-                $owns = $this->agent_model->get_own_agents($val['agent_commer_id']);
+                $owns = $this->agent_model->get_own_agents($val['shou_agent_id']);
                 $owns['name'] = '代理商--'.$owns['name'];
             }else
             {
-                $owns = $this->commercial_model->get_own_commercial($val['agent_commer_id']);
+                $owns = $this->commercial_model->get_own_commercial($val['shou_platform_id']);
                 $owns['name'] = '商户--'.$owns['name'];
             }
-            $data_list[$key]['agent_commer_name'] = $owns['name'];
-            $data_list[$key]['start_end'] = $val['start_time'].'---'.$val['end_time'];
+            $dakuan = $this->agent_model->get_own_agents($val['to_where_id']);
+            $data_list[$key]['shoukuan'] = $owns['name'];
+            $data_list[$key]['dakuan'] = $dakuan['name'];
+            $data_list[$key]['alipay_rate'] = $val['alipay_rate']?$val['alipay_rate']:0;
+            $data_list[$key]['wechat_rate'] = $val['wechat_rate']?$val['wechat_rate']:0;
+            $data_list[$key]['separate_rate'] = $val['separate_rate']?$val['separate_rate']:'100%';
         }
-
-        $total = count($data_list);
-
-        $result = array(
-            'total' => $total,
-            'rows' => $data_list,
-        );
-        echo json_encode($result);
+        $this->_pagedata['start_time'] = $search['start_time']?$search['start_time']:date('Y-m-d 0:00:00');
+        $this->_pagedata['end_time']   = $search['end_time']?$search['end_time']:date('Y-m-d 23:59:59');
+        $this->_pagedata['platform_list']= $platform_list;
+        $this->_pagedata['list']= $data_list;
+        $this->_pagedata['show_type']= $search['type'];
+        $this->_pagedata['search']= $search;
+        $this->_pagedata['agent_level_list'] = $agent_level_list;
+        $this->page('reconciliation/index.html');
     }
 
 
