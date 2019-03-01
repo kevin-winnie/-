@@ -171,7 +171,6 @@ class CronRecon extends CI_Controller{
                     $wechat = round($data[$v1['id']]['really_moeny']['wechat']*(1-$v1['wechat_rate'])*$v1['separate_rate'],2);
                     $other = round($data[$v1['id']]['really_moeny']['other']*$v1['separate_rate'],2);
                     $all = bcadd(bcadd($alipay,$wechat,2),$other,2);
-                    $all = 1;
                     if($all > 0)
                     {
                         //该代理商应出给该商户的金额
@@ -190,7 +189,6 @@ class CronRecon extends CI_Controller{
                     $wechat = round($agent_sale_data[$v2['id']]['wechat']*(1-$v2['wechat_rate'])*$v2['separate_rate'],2);
                     $other = round($agent_sale_data[$v2['id']]['other']*$v2['separate_rate'],2);
                     $all_1 = bcadd(bcadd($alipay,$wechat,2),$other,2);
-                    $all_1 = 1;
                     if($all_1 > 0)
                     {
                         $agent_sale_data[$key]['agent'][$v2['id']]['out_money'] = $all_1;
