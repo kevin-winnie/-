@@ -161,109 +161,80 @@ class Reconciliation extends MY_Controller
     }
 
 
-    public function one_detail($box_no, $sale_date){
-        if($sale_date){
-            $where['o.order_time >='] = $sale_date.' 00:00:00';
-            $where['o.order_time <'] = $sale_date.' 23:59:59';
-        }
-        if($box_no){
-            $where['o.box_no'] = $box_no;
-        }
-        $where['op.pay_status'] = 1;
-        $this->c_db->from('order o');
-        $this->c_db->join('order_pay op', 'o.order_name=op.order_name');
-        $this->c_db->where($where);
-        $data['list'] = $this->c_db->get()->result_array();
-        $data['box_no'] = $box_no;
-        $data['sale_date'] = $sale_date;
-
-        foreach ($data as $key => $value) {
-            $this->Smarty->assign($key,$value);
-        }
-        $html = $this->Smarty->fetch('order/sale_model.html');
-        $this->showJson(array('status'=>'success', 'html' => $html));
-    }
-
-
-    public function pay_api($order_name){
-        $params['order_name'] = htmlspecialchars($order_name);
-        $rs = $this->get_api_content( $params, '/api/order/pay_by_manual?order_name='.$order_name, 0);
-        $rs = json_decode($rs, true);
-        $this->showJson($rs);
-    }
 
     //订单导出
-//    public function explore($list){
-//        $page       = $this->input->get('page');
-//        $store_list = $this->equipment_new_model->get_store_list_byCode();
-//        $equipment_list = $this->equipment_new_model->get_all_box_admin();//所有开启的盒子
-//        include(APPPATH . 'libraries/Excel/PHPExcel.php');
-//        $objPHPExcel = new PHPExcel();
-//        $objPHPExcel->setActiveSheetIndex(0)
-//            ->setCellValue('A1', '用户')
-//            ->setCellValue('B1', '手机')
-//            ->setCellValue('C1', '补货仓')
-//            ->setCellValue('D1', '设备名称')
-//            ->setCellValue('E1', '订单编号')
-//            ->setCellValue('F1', '订单商品')
-//            ->setCellValue('G1', '单价')
-//            ->setCellValue('H1', '商品数量')
-//            ->setCellValue('I1', '支付方式')
-//            ->setCellValue('J1', '订单状态')
-//            ->setCellValue('K1', '下单时间')
-//            ->setCellValue('L1', '设备类型');
-//        $objPHPExcel->getActiveSheet()->setTitle('订单列表');
-//        $key = 2;
-//        $this->load->model('refer_model');
-//        $refer = $this->refer_model->all();
-//        foreach ($list as $k => $v) {
-//            $tmp = $this->user_model->get_user_info($v['uid']);
-//            $product_list = $this->order_model->get_order_product($v['order_name']);
-//
-//            $pay = isset($refer[$v['refer']])?$refer[$v['refer']]:$v['refer'];
-//
-//            $pay_type = "";
-//            if($v['order_status'] == self::ORDER_STATUS_DEFAULT){
-//                $pay_type =   "未支付";
-//            }elseif($v['order_status'] == self::ORDER_STATUS_CONFIRM){
-//                $pay_type =   "下单成功支付处理中";
-//            } elseif($v['order_status'] == self::ORDEY_STATUS_SUCC){
-//                $pay_type =   "已支付";
-//            }elseif($v['order_status'] == self::ORDER_STATUS_REFUND_APPLY){
-//                $pay_type =   "退款申请";
-//            }elseif($v['order_status'] == self::ORDER_STATUS_REFUND){
-//                $pay_type =   "退款完成";
-//            }elseif($v['order_status'] == self::ORDER_STATUS_REJECT){
-//                $pay_type =   "驳回申请";
-//            }
-//            $box_type_list = $this->box_type;
-//            $box_type = $box_type_list[$equipment_list[$v['box_no']]['type']];
-//            foreach($product_list as $kp=>$vp){
-//                $objPHPExcel->getActiveSheet()
-//                    ->setCellValue('A'.$key, $tmp['user_name'])
-//                    ->setCellValue('B'.$key, $tmp['mobile'])
-//                    ->setCellValue('C'.$key, $store_list[$equipment_list[$v['box_no']]['replenish_location']])
-//                    ->setCellValue('D'.$key, $equipment_list[$v['box_no']]['name'])
-//                    ->setCellValue('E'.$key, $v['order_name'])
-//                    ->setCellValue('F'.$key, $vp['product_name'])
-//                    ->setCellValue('G'.$key, $vp['price'])
-//                    ->setCellValue('H'.$key, $vp['qty'])
-//                    ->setCellValue('I'.$key, $pay)
-//                    ->setCellValue('J'.$key, $pay_type)
-//                    ->setCellValue('K'.$key, $v['order_time'])
-//                    ->setCellValue('L'.$key, $box_type);
-//
-//                $key++;
-//            }
-//        }
-//
-//        @set_time_limit(0);
-//        // Redirect output to a client’s web browser (Excel2007)
-//        $objPHPExcel->initHeader("订单导出列表{$page}");
-//        $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
-//        $objWriter->save('php://output');
-//        exit;
-//    }
+    public function eq_table(){
+        echo '<pre>';print_r($_GET);exit;
+        $page       = $this->input->get('page');
+        $store_list = $this->equipment_new_model->get_store_list_byCode();
+        $equipment_list = $this->equipment_new_model->get_all_box_admin();//所有开启的盒子
+        include(APPPATH . 'libraries/Excel/PHPExcel.php');
+        $objPHPExcel = new PHPExcel();
+        $objPHPExcel->setActiveSheetIndex(0)
+            ->setCellValue('A1', '用户')
+            ->setCellValue('B1', '手机')
+            ->setCellValue('C1', '补货仓')
+            ->setCellValue('D1', '设备名称')
+            ->setCellValue('E1', '订单编号')
+            ->setCellValue('F1', '订单商品')
+            ->setCellValue('G1', '单价')
+            ->setCellValue('H1', '商品数量')
+            ->setCellValue('I1', '支付方式')
+            ->setCellValue('J1', '订单状态')
+            ->setCellValue('K1', '下单时间')
+            ->setCellValue('L1', '设备类型');
+        $objPHPExcel->getActiveSheet()->setTitle('订单列表');
+        $key = 2;
+        $this->load->model('refer_model');
+        $refer = $this->refer_model->all();
+        foreach ($list as $k => $v) {
+            $tmp = $this->user_model->get_user_info($v['uid']);
+            $product_list = $this->order_model->get_order_product($v['order_name']);
+
+            $pay = isset($refer[$v['refer']])?$refer[$v['refer']]:$v['refer'];
+
+            $pay_type = "";
+            if($v['order_status'] == self::ORDER_STATUS_DEFAULT){
+                $pay_type =   "未支付";
+            }elseif($v['order_status'] == self::ORDER_STATUS_CONFIRM){
+                $pay_type =   "下单成功支付处理中";
+            } elseif($v['order_status'] == self::ORDEY_STATUS_SUCC){
+                $pay_type =   "已支付";
+            }elseif($v['order_status'] == self::ORDER_STATUS_REFUND_APPLY){
+                $pay_type =   "退款申请";
+            }elseif($v['order_status'] == self::ORDER_STATUS_REFUND){
+                $pay_type =   "退款完成";
+            }elseif($v['order_status'] == self::ORDER_STATUS_REJECT){
+                $pay_type =   "驳回申请";
+            }
+            $box_type_list = $this->box_type;
+            $box_type = $box_type_list[$equipment_list[$v['box_no']]['type']];
+            foreach($product_list as $kp=>$vp){
+                $objPHPExcel->getActiveSheet()
+                    ->setCellValue('A'.$key, $tmp['user_name'])
+                    ->setCellValue('B'.$key, $tmp['mobile'])
+                    ->setCellValue('C'.$key, $store_list[$equipment_list[$v['box_no']]['replenish_location']])
+                    ->setCellValue('D'.$key, $equipment_list[$v['box_no']]['name'])
+                    ->setCellValue('E'.$key, $v['order_name'])
+                    ->setCellValue('F'.$key, $vp['product_name'])
+                    ->setCellValue('G'.$key, $vp['price'])
+                    ->setCellValue('H'.$key, $vp['qty'])
+                    ->setCellValue('I'.$key, $pay)
+                    ->setCellValue('J'.$key, $pay_type)
+                    ->setCellValue('K'.$key, $v['order_time'])
+                    ->setCellValue('L'.$key, $box_type);
+
+                $key++;
+            }
+        }
+
+        @set_time_limit(0);
+        // Redirect output to a client’s web browser (Excel2007)
+        $objPHPExcel->initHeader("订单导出列表{$page}");
+        $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
+        $objWriter->save('php://output');
+        exit;
+    }
 
 
     public function download_html($num){

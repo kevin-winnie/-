@@ -32,7 +32,7 @@
                     </div>
                 </div>
                 <div class="col-sm-2">
-                    <select class="form-control" name="search_agent">
+                    <select class="form-control" name="search_agent" id="search_agent">
                         <option value="-1">选择代理商</option>
                         <{foreach key=key item=item from=$agent_level_list}>
                             <option value="<{$item.id}>" <{if $search['agent_id'] eq $item.id}> selected <{/if}>><{$item.name}></option>
@@ -40,7 +40,7 @@
                     </select>
                 </div>
                 <div class="col-sm-2">
-                    <select class="form-control" name="search_platform">
+                    <select class="form-control" name="search_platform" id="search_platform">
                         <option value="-1">选择商户</option>
                         <{foreach key=key item=item from=$platform_list}>
                             <option value="<{$item.id}>"  <{if $search['platform_id'] eq $item.id}> selected <{/if}>><{$item.name}></option>
@@ -100,7 +100,7 @@
                     <{else}>
                         <td><{$val['in_money']}></td>
                     <{/if}>
-                    <td><button type="button" class="btn btn-info" id="explore-btn">导出</button></td>
+                    <td><button type="button" class="btn btn-info" id="explore_eq">导出</button></td>
                 </tr>
             <{/foreach}>
             </tbody>
@@ -117,7 +117,14 @@
             $("#curr_id").val(curr_id);
         }
     }
-
+    //导出订单数据
+    $('#explore_eq').click(function(){
+        var type = $("#checkout_type").val();
+        var platform_id = $("#search_platform").val();
+        var agent_id = $("#search_agent").val();
+        var url = '/reconciliation/eq_table?platform_id='+platform_id+'&type='+type+'&agent_id='+agent_id+'&start_date='+$('input[name="search_start_time"]').val()+'&end_date='+$('input[name="search_end_time"]').val();
+        location.href=url;
+    });
 
     $(function(){
         $('.datetime_input').each(function(){
