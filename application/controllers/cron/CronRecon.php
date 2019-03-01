@@ -254,7 +254,7 @@ class CronRecon extends CI_Controller{
                             'end_time'=>$end,
                             'acount_id'=>$k1_commercial['separate_account'],
                             'acount_name'=>$k1_commercial['separate_name'],
-                            'money'=>$val['money'],
+                            'money'=>$val['good_money'],
                             'refund_money'=>$val['refund_money'],
                             'dis_money'=>$val['discounted_money'],
                             //收款代理商
@@ -286,7 +286,7 @@ class CronRecon extends CI_Controller{
                             'end_time'=>$end,
                             'acount_id'=>$k2_agent['separate_account'],
                             'acount_name'=>$k2_agent['separate_name'],
-                            'money'=>$val['money'],
+                            'money'=>$val['good_money'],
                             'refund_money'=>$val['refund_money'],
                             'dis_money'=>$val['discounted_money'],
                             //收款代理商
@@ -311,7 +311,7 @@ class CronRecon extends CI_Controller{
                             'end_time'=>$end,
                             'acount_id'=>$k2_agent['separate_account'],
                             'acount_name'=>$k2_agent['separate_name'],
-                            'money'=>$val['money'],
+                            'money'=>$val['good_money'],
                             'refund_money'=>$val['refund_money'],
                             'dis_money'=>$val['discounted_money'],
                             //收款代理商
@@ -337,7 +337,7 @@ class CronRecon extends CI_Controller{
                     'end_time'=>$end,
                     'acount_id'=>$r_agent['separate_account'],
                     'acount_name'=>$r_agent['separate_name'],
-                    'money'=>$val['money'],
+                    'money'=>$val['good_money'],
                     'refund_money'=>$val['refund_money'],
                     'dis_money'=>$val['discounted_money'],
                     //收款代理商
