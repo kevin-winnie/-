@@ -243,7 +243,7 @@ class CronRecon extends CI_Controller{
                     {
                         $insert_data_s = array
                         (
-                            'type'=>0, //打款类型 商户
+                            'type'=>1, //打款类型 商户
                             'start_time'=>$start,
                             'end_time'=>$end,
                             'acount_id'=>$r_agent['separate_account'],

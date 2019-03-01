@@ -22,11 +22,7 @@ class Reconciliation extends MY_Controller
     );
     function __construct() {
         parent::__construct();
-        $this->load->model("order_model");
         $this->load->model("agent_model");
-        $this->load->model('user_model');
-        $this->load->model('card_model');
-        $this->load->model("equipment_new_model");
         $this->load->model('commercial_model');
         $this->load->model('reconciliation_model');
         $this->c_db = $this->load->database('citybox_master', TRUE);
@@ -44,73 +40,12 @@ class Reconciliation extends MY_Controller
 
         $this->_pagedata['start_time'] = $this->input->get('uid')?'':date('Y-m-d 00:00:00');
         $this->_pagedata['end_time']   = $this->input->get('uid')?'':date('Y-m-d 23:59:59');
-        $this->_pagedata['admin'] = $this->user_model->get_all_admin();
-        $this->_pagedata['store_list'] = $this->equipment_new_model->get_store_list();
-        $this->_pagedata['uid'] = $this->input->get('uid');
-        $this->_pagedata['info']= $this->user_model->get_user_info($this->_pagedata['uid']);
         $this->_pagedata['platform_list']= $platform_list;
         $this->_pagedata['agent_level_list'] = $agent_level_list;
         $this->page('reconciliation/index.html');
     }
 
-    public function order_detail($order_name){
-        $this->c_db->from('order');
-        $this->c_db->where(array('order_name'=>$order_name));
-        $data['detail'] = $this->c_db->get()->row_array();
 
-        $data['order_product_list'] = $this->order_model->get_order_product_new($order_name);
-        $p_price = bcsub($data['detail']['good_money'], bcadd($data['detail']['discounted_money'], $data['detail']['card_money'], 2), 2);
-        $data['order_product_list'] = $this->get_proportion($data['order_product_list'], $p_price, $data['detail']['modou'], $data['detail']['yue'], $data['detail']['money']);
-        $data['order_pay'] = $this->order_model->get_order_pay($order_name);
-        $order_discount_log = $this->order_model->get_order_discount_log($order_name);
-        $tmp = '';
-        foreach($order_discount_log['content'] as $k=>$v){
-            $tmp .= '<p>'.$v['text'].':<span style="float:right">-¥'.bcadd($v['discount_money'], 0, 2).'</span></p>';
-        }
-        if($data['detail']['use_card']){
-            $card_name = $this->card_model->get_card_info($data['detail']['use_card'], 'card_name');
-            $tmp .= '<p>(<span style="color: red">优惠券</span>)'.$card_name.':<span style="float:right">-¥'.$data['detail']['card_money'].'</span></p>';
-        }
-        $tmp .= '<p>'.魔豆抵扣.':<span style="float:right">-¥'.$data['detail']['modou'].'</span></p>';
-        $total_tmp = bcadd($data['detail']['modou'],bcadd($data['detail']['discounted_money'], $data['detail']['card_money'], 2),2);
-        $tmp .= '<p>总优惠:<span style="float:right">-¥'.$total_tmp.'</span></p>';
-        $data['detail']['discounted_money'] = $tmp;
-        foreach ($data as $key => $value) {
-            $this->Smarty->assign($key,$value);
-        }
-        $html = $this->Smarty->fetch('order/model.html');
-        $this->showJson(array('status'=>'success', 'html' => $html));
-    }
-
-    public function order_label($order_name){
-        $this->c_db->from('stock_log');
-        $this->c_db->where(array('obj_no'=>$order_name,'type'=>'user'));
-        $data['detail'] = $this->c_db->get()->row_array();
-
-        $diff = json_decode($data['detail']['diff'],true);
-        $data['detail']['add'] = join(',',$diff['add']);
-        $data['detail']['del'] = join(',',$diff['del']);
-        $data['detail']['same'] = join(',',$diff['same']);
-
-        $this->Smarty->assign('detail',$data['detail']);
-        $html = $this->Smarty->fetch('order/label.html');
-        $this->showJson(array('status'=>'success', 'html' => $html));
-    }
-    public function get_product(){
-        $kw         = $_GET['matchInfo'];
-        $matchCount = $_GET['matchCount']?$_GET['matchCount']:10;
-        $where['platform_id'] = $this->platform_id;
-        $this->c_db->from('product');
-        $this->c_db->like('product_name', $kw);
-        $this->c_db->limit($matchCount);
-        $this->c_db->where($where);
-        $list = $this->c_db->get()->result_array();
-        $tmp = array();
-        foreach($list as $k=>$v){
-            $tmp[] = $v['id'].'|'.$v['product_name'];
-        }
-        $this->showJson($tmp);
-    }
 
     public function array_is_empty($array){
         foreach($array as $k=>$v){
@@ -153,9 +88,8 @@ class Reconciliation extends MY_Controller
         {
             $agent_array = array_column($agent_level_list,'id');
         }
-
         //商户
-        $reconciliation_list = $this->reconciliation_model->get_list($platform_array,2);
+        $reconciliation_list = $this->reconciliation_model->get_list($platform_array,0);
         //代理商
         $agent_list = $this->reconciliation_model->get_list($agent_array,1);
         $data_list = array_merge((array)$reconciliation_list,(array)$agent_list);
@@ -216,77 +150,77 @@ class Reconciliation extends MY_Controller
     }
 
     //订单导出
-    public function explore($list){
-        $page       = $this->input->get('page');
-        $store_list = $this->equipment_new_model->get_store_list_byCode();
-        $equipment_list = $this->equipment_new_model->get_all_box_admin();//所有开启的盒子
-        include(APPPATH . 'libraries/Excel/PHPExcel.php');
-        $objPHPExcel = new PHPExcel();
-        $objPHPExcel->setActiveSheetIndex(0)
-            ->setCellValue('A1', '用户')
-            ->setCellValue('B1', '手机')
-            ->setCellValue('C1', '补货仓')
-            ->setCellValue('D1', '设备名称')
-            ->setCellValue('E1', '订单编号')
-            ->setCellValue('F1', '订单商品')
-            ->setCellValue('G1', '单价')
-            ->setCellValue('H1', '商品数量')
-            ->setCellValue('I1', '支付方式')
-            ->setCellValue('J1', '订单状态')
-            ->setCellValue('K1', '下单时间')
-            ->setCellValue('L1', '设备类型');
-        $objPHPExcel->getActiveSheet()->setTitle('订单列表');
-        $key = 2;
-        $this->load->model('refer_model');
-        $refer = $this->refer_model->all();
-        foreach ($list as $k => $v) {
-            $tmp = $this->user_model->get_user_info($v['uid']);
-            $product_list = $this->order_model->get_order_product($v['order_name']);
-
-            $pay = isset($refer[$v['refer']])?$refer[$v['refer']]:$v['refer'];
-
-            $pay_type = "";
-            if($v['order_status'] == self::ORDER_STATUS_DEFAULT){
-                $pay_type =   "未支付";
-            }elseif($v['order_status'] == self::ORDER_STATUS_CONFIRM){
-                $pay_type =   "下单成功支付处理中";
-            } elseif($v['order_status'] == self::ORDEY_STATUS_SUCC){
-                $pay_type =   "已支付";
-            }elseif($v['order_status'] == self::ORDER_STATUS_REFUND_APPLY){
-                $pay_type =   "退款申请";
-            }elseif($v['order_status'] == self::ORDER_STATUS_REFUND){
-                $pay_type =   "退款完成";
-            }elseif($v['order_status'] == self::ORDER_STATUS_REJECT){
-                $pay_type =   "驳回申请";
-            }
-            $box_type_list = $this->box_type;
-            $box_type = $box_type_list[$equipment_list[$v['box_no']]['type']];
-            foreach($product_list as $kp=>$vp){
-                $objPHPExcel->getActiveSheet()
-                    ->setCellValue('A'.$key, $tmp['user_name'])
-                    ->setCellValue('B'.$key, $tmp['mobile'])
-                    ->setCellValue('C'.$key, $store_list[$equipment_list[$v['box_no']]['replenish_location']])
-                    ->setCellValue('D'.$key, $equipment_list[$v['box_no']]['name'])
-                    ->setCellValue('E'.$key, $v['order_name'])
-                    ->setCellValue('F'.$key, $vp['product_name'])
-                    ->setCellValue('G'.$key, $vp['price'])
-                    ->setCellValue('H'.$key, $vp['qty'])
-                    ->setCellValue('I'.$key, $pay)
-                    ->setCellValue('J'.$key, $pay_type)
-                    ->setCellValue('K'.$key, $v['order_time'])
-                    ->setCellValue('L'.$key, $box_type);
-
-                $key++;
-            }
-        }
-
-        @set_time_limit(0);
-        // Redirect output to a client’s web browser (Excel2007)
-        $objPHPExcel->initHeader("订单导出列表{$page}");
-        $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
-        $objWriter->save('php://output');
-        exit;
-    }
+//    public function explore($list){
+//        $page       = $this->input->get('page');
+//        $store_list = $this->equipment_new_model->get_store_list_byCode();
+//        $equipment_list = $this->equipment_new_model->get_all_box_admin();//所有开启的盒子
+//        include(APPPATH . 'libraries/Excel/PHPExcel.php');
+//        $objPHPExcel = new PHPExcel();
+//        $objPHPExcel->setActiveSheetIndex(0)
+//            ->setCellValue('A1', '用户')
+//            ->setCellValue('B1', '手机')
+//            ->setCellValue('C1', '补货仓')
+//            ->setCellValue('D1', '设备名称')
+//            ->setCellValue('E1', '订单编号')
+//            ->setCellValue('F1', '订单商品')
+//            ->setCellValue('G1', '单价')
+//            ->setCellValue('H1', '商品数量')
+//            ->setCellValue('I1', '支付方式')
+//            ->setCellValue('J1', '订单状态')
+//            ->setCellValue('K1', '下单时间')
+//            ->setCellValue('L1', '设备类型');
+//        $objPHPExcel->getActiveSheet()->setTitle('订单列表');
+//        $key = 2;
+//        $this->load->model('refer_model');
+//        $refer = $this->refer_model->all();
+//        foreach ($list as $k => $v) {
+//            $tmp = $this->user_model->get_user_info($v['uid']);
+//            $product_list = $this->order_model->get_order_product($v['order_name']);
+//
+//            $pay = isset($refer[$v['refer']])?$refer[$v['refer']]:$v['refer'];
+//
+//            $pay_type = "";
+//            if($v['order_status'] == self::ORDER_STATUS_DEFAULT){
+//                $pay_type =   "未支付";
+//            }elseif($v['order_status'] == self::ORDER_STATUS_CONFIRM){
+//                $pay_type =   "下单成功支付处理中";
+//            } elseif($v['order_status'] == self::ORDEY_STATUS_SUCC){
+//                $pay_type =   "已支付";
+//            }elseif($v['order_status'] == self::ORDER_STATUS_REFUND_APPLY){
+//                $pay_type =   "退款申请";
+//            }elseif($v['order_status'] == self::ORDER_STATUS_REFUND){
+//                $pay_type =   "退款完成";
+//            }elseif($v['order_status'] == self::ORDER_STATUS_REJECT){
+//                $pay_type =   "驳回申请";
+//            }
+//            $box_type_list = $this->box_type;
+//            $box_type = $box_type_list[$equipment_list[$v['box_no']]['type']];
+//            foreach($product_list as $kp=>$vp){
+//                $objPHPExcel->getActiveSheet()
+//                    ->setCellValue('A'.$key, $tmp['user_name'])
+//                    ->setCellValue('B'.$key, $tmp['mobile'])
+//                    ->setCellValue('C'.$key, $store_list[$equipment_list[$v['box_no']]['replenish_location']])
+//                    ->setCellValue('D'.$key, $equipment_list[$v['box_no']]['name'])
+//                    ->setCellValue('E'.$key, $v['order_name'])
+//                    ->setCellValue('F'.$key, $vp['product_name'])
+//                    ->setCellValue('G'.$key, $vp['price'])
+//                    ->setCellValue('H'.$key, $vp['qty'])
+//                    ->setCellValue('I'.$key, $pay)
+//                    ->setCellValue('J'.$key, $pay_type)
+//                    ->setCellValue('K'.$key, $v['order_time'])
+//                    ->setCellValue('L'.$key, $box_type);
+//
+//                $key++;
+//            }
+//        }
+//
+//        @set_time_limit(0);
+//        // Redirect output to a client’s web browser (Excel2007)
+//        $objPHPExcel->initHeader("订单导出列表{$page}");
+//        $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
+//        $objWriter->save('php://output');
+//        exit;
+//    }
 
 
     public function download_html($num){
