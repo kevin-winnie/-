@@ -113,6 +113,7 @@ class CronRecon extends CI_Controller{
                 $data[$val['id']]['really_moeny']['dis_money'] = bcadd(bcadd($data[$val['id']]['order_sale']['alipay']['discounted_money'],$data[$val['id']]['order_sale']['wechat']['discounted_money'],2),$data[$val['id']]['order_sale']['other']['discounted_money'],2);
                 $data[$val['id']]['really_moeny']['refund_money'] = bcadd(bcadd($data[$val['id']]['order_refund']['alipay']['refund_money'],$data[$val['id']]['order_refund']['wechat']['refund_money'],2),$data[$val['id']]['order_refund']['other']['refund_money'],2);
                 $data[$val['id']]['really_moeny']['money'] = bcadd(bcadd($data[$val['id']]['order_sale']['alipay']['money'],$data[$val['id']]['order_sale']['wechat']['money'],2),$data[$val['id']]['order_sale']['other']['money'],2);
+                $data[$val['id']]['really_moeny']['good_money'] = bcadd(bcadd($data[$val['id']]['order_sale']['alipay']['good_money'],$data[$val['id']]['order_sale']['wechat']['good_money'],2),$data[$val['id']]['order_sale']['other']['good_money'],2);
             }
             //商户产生的收入全部到CITYBOX账户下，开始按分成比例、微信、支付宝费率进行分配
             $sql = " select * from p_agent";
@@ -138,6 +139,7 @@ class CronRecon extends CI_Controller{
                                 $agent_sale_data[$agent_id]['wechat'] += $v['really_moeny']['wechat'];
                                 $agent_sale_data[$agent_id]['other'] += $v['really_moeny']['other'];
                                 $agent_sale_data[$agent_id]['money'] += ($v['order_sale']['alipay']['money']+$v['order_sale']['wechat']['money']+$v['order_sale']['other']['money']);
+                                $agent_sale_data[$agent_id]['money'] += ($v['order_sale']['alipay']['good_money']+$v['order_sale']['wechat']['good_money']+$v['order_sale']['other']['good_money']);
                                 $agent_sale_data[$agent_id]['refund_money'] += ($v['order_refund']['alipay']['refund_money']+$v['order_refund']['wechat']['refund_money']+$v['order_refund']['other']['refund_money']);
                                 $agent_sale_data[$agent_id]['dis_money'] += ($v['order_sale']['alipay']['dis_money']+$v['order_sale']['wechat']['dis_money']+$v['order_sale']['wechat']['dis_money']);
                             }
@@ -150,6 +152,7 @@ class CronRecon extends CI_Controller{
                         $agent_sale_data[$agent_id]['money'] = 0;
                         $agent_sale_data[$agent_id]['refund_money'] = 0;
                         $agent_sale_data[$agent_id]['dis_money'] = 0;
+                        $agent_sale_data[$agent_id]['good_money'] = 0;
                     }
 
                 }
