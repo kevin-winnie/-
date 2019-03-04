@@ -358,11 +358,16 @@ class Commercial_model extends MY_Model
         {
             $sql .= " and high_agent_id = '{$where['agent_id']}'";
         }
+        if(empty($platform_array))
+        {
+            return array();
+        }
         if(!empty($platform_array))
         {
             $string = "'".implode("','",$platform_array)."'";
             $sql .= " and  id in ($string)";
         }
+
         $res = $this->db->query($sql);
         $array = $res->result_array();
         return $array;

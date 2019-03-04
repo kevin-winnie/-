@@ -117,7 +117,7 @@ class Commercial extends MY_Controller {
                 $res = $this->commercial_model->get_agent_by_commercial($val['high_agent_id']);
                 $platform_lists[$key]['agent_name'] = $res['name'];
             }
-
+        
             $this->title = '商户列表';
             $this->_pagedata['search'] = $search;
             $this->_pagedata ["list"] = $platform_lists;
