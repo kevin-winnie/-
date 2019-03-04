@@ -319,7 +319,7 @@ class CronRecon extends CI_Controller{
                     'shou_agent_id'=>$key,
                     'shou_platform_id'=>0,
                     'realy_money'=>$val['alipay']+$val['wechat']+$val['other'],
-                    'separate_rate'=>$val['separate_rate'],
+                    'separate_rate'=>$r_agent['separate_rate'],
                     'wechat_rate'=>$r_agent['wechat_rate'],
                     'alipay_rate'=>$r_agent['alipay_rate'],
                     'out_money'=>0,
