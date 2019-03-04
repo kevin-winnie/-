@@ -135,8 +135,8 @@ class Order extends MY_Controller
         $limit      = $this->input->get('limit')?$this->input->get('limit'):10;
         $offset     = $this->input->get('offset')?$this->input->get('offset'):0;
         $order_name = $this->input->get('search_order_name');
-        $agent_name = $this->input->get('search_agent_name');
-        $commercial_name = $this->input->get('search_commercial_name');
+        $agent_id_sear = $this->input->get('search_agent_id')?$this->input->get('search_agent_id'):-1;
+        $platform_id = $this->input->get('search_platform_id')?$this->input->get('search_platform_id'):-1;
         $agent_level = $this->input->get('search_agent_level');
         $equipment_id = $this->input->get('search_equipment_id');
         $order_status = $this->input->get('search_order_status');
@@ -170,15 +170,44 @@ class Order extends MY_Controller
         }
         //权限判定
         $Agent = $this->agent_model->get_own_agents($this->platform_id);
+        //
+        $agent_id = $this->platform_id;
+        $platform_array = array();
+        if($agent_id_sear >0 && $platform_id == -1)
+        {
+
+            $agent_id = $agent_id_sear;
+            if($agent_level)
+            {
+                $high_level = $agent_level;
+            }
+            //校验代理商是否为超级
+            $Agent = $this->agent_model->get_own_agents($agent_id);
+            $platform_list    = $this->commercial_model->get_agent_level_list_pt($agent_id,2,$Agent,$high_level);
+            $agent_level_list = $this->commercial_model->get_agent_level_list_pt($agent_id,1,$Agent,$high_level);
+            if(in_array($Agent['high_level'],[0,1]))
+            {
+                $this->_pagedata['is_super'] = 1;
+                $agent_level_list = $this->commercial_model->get_agent_level_list($Agent,3,$high_level);
+                $platform_list = $this->commercial_model->get_agent_level_list($Agent,1,$high_level);
+            }
+            //满足条件的所有platform和agent
+            $platform_array = array_column($platform_list,'id');
+            $agent_array = array_column($agent_level_list,'id');
+        }
+        if($platform_id >0 && $agent_id_sear == -1)
+        {
+            $platform_array = array('id'=>$platform_id);
+        }
         //自己发展的商户
-        $box_list_zhitui = $this->order_model->get_box_list_by_agent($this->platform_id,'equipment_id');
+        $box_list_zhitui = $this->order_model->get_box_list_by_agent($agent_id,'equipment_id',$agent_array);
         if($this->svip)
         {
             //超级 代理商 订单设备要该代理商下所有下级代理发展的商户和自己发展的商户
-            $box_list_next = $this->order_model->get_box_list_by_next_agent($this->platform_id,'equipment_id',1,$agent_level);
+            $box_list_next = $this->order_model->get_box_list_by_next_agent($agent_id,'equipment_id',1,$agent_level);
         }else
         {
-            $box_list_next = $this->order_model->get_box_list_by_next_agent($this->platform_id,'equipment_id','',$agent_level);
+            $box_list_next = $this->order_model->get_box_list_by_next_agent($agent_id,'equipment_id','',$agent_level);
         }
         $box_list = array_merge((array)$box_list_zhitui,(array)$box_list_next);
         $this->c_db->from('order');
@@ -189,7 +218,7 @@ class Order extends MY_Controller
             $search_box = array($equipment_id);
         }
 //        $search_box = array_unique(array_merge($search_box,$box_list));
-        if(!empty($box_list) && empty($search_box))
+        if(!empty($box_list))
         {
             $this->c_db->where_in('box_no', $box_list);
         }

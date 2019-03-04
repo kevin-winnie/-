@@ -18,16 +18,16 @@
         <div class="form-horizontal" id="search">
             <div class="form-group">
                 <div class="col-sm-2">
-                    <select class="form-control" name="search_agent">
-                        <option value="">选择代理商</option>
+                    <select class="form-control" name="search_agent_id">
+                        <option value="-1">选择代理商</option>
                         <{foreach key=key item=item from=$agent_level_list}>
                             <option value="<{$item.id}>"><{$item.name}></option>
                         <{/foreach}>
                     </select>
                 </div>
                 <div class="col-sm-2">
-                    <select class="form-control" name="search_platform">
-                        <option value="">选择商户</option>
+                    <select class="form-control" name="search_platform_id">
+                        <option value="-1">选择商户</option>
                         <{foreach key=key item=item from=$platform_list}>
                             <option value="<{$item.id}>"><{$item.name}></option>
                         <{/foreach}>
@@ -128,11 +128,11 @@
                     <{if $is_svip eq '1'}>
                         <th data-field="uid" data-align="left">用户</th>
                     <{/if}>
-                    <th data-field="name" data-align="left">设备ID</th>
+                    <th data-field="box_no" data-align="left">设备ID</th>
                     <th data-field="product" data-align="left">订单商品</th>
                     <th data-field="money" data-align="left">在线支付</th>
                     <th data-field="yue" data-align="left">余额支付</th>
-                    <th data-field="dis" data-align="left">优惠金额</th>
+                    <th data-field="discounted_money" data-align="left">优惠金额</th>
                     <th data-field="refer" data-align="left">订单来源</th>
                     <th data-field="order_status" data-align="left">订单状态</th>
                     <th data-field="order_time" data-align="left">下单时间</th>

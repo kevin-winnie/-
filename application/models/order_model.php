@@ -274,10 +274,17 @@ class Order_model extends MY_Model
      * @param $agent_id
      * @return array
      */
-    public function get_box_list_by_agent($agent_id,$field = null)
+    public function get_box_list_by_agent($agent_id,$field = null,$array = array())
     {
         //只推商户
-        $sql = " select * from p_equipment as a WHERE a.platform_id > 0 AND a.last_agent_id = '{$agent_id}'";
+        if(!empty($array))
+        {
+            $string = "'".implode("','",$array)."'";
+            $sql = " select * from p_equipment as a WHERE a.platform_id > 0 AND a.last_agent_id in ({$string})";
+        }else
+        {
+            $sql = " select * from p_equipment as a WHERE a.platform_id > 0 AND a.last_agent_id = '{$agent_id}'";
+        }
         $rs = $this->db->query($sql)->result_array();
         if($field){
             $tmp = array();
@@ -293,7 +300,7 @@ class Order_model extends MY_Model
      * @param $agent_id
      * @return array
      */
-    public function get_box_list_by_next_agent($agent_id,$field = null,$type=0,$high_level)
+    public function get_box_list_by_next_agent($agent_id,$field = null,$type=0,$high_level,$array = array())
     {
         //该代理商下级代理
         $sql = " select * from p_agent as a WHERE a.high_agent_id = '{$agent_id}'";
@@ -305,7 +312,7 @@ class Order_model extends MY_Model
         if($type == 0)
         {
             $res_id = array_column($rs,'id');
-            $rs = $this->get_box_list_by_agent_array($res_id,$field);
+            $rs = $this->get_box_list_by_agent_array($res_id,$field,$array);
             return $rs;
         }
         $sql = " select * from p_agent WHERE id != '{$agent_id}' and high_level not in (0,1) ";
