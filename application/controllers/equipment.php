@@ -343,7 +343,7 @@ class Equipment extends MY_Controller {
             $commercial_list[$k]['tag'] = 'commercial';
             $commercial_list[$k]['id'] = $v['id'];
         }
-        $list = array_merge($agent_list,$commercial_list);
+        $list = array_merge((array)$agent_list,(array)$commercial_list);
         if($this->svip)
         {
             $this->_pagedata['is_hidden'] = 1;
