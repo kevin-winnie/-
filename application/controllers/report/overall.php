@@ -27,6 +27,7 @@ class Overall extends MY_Controller
         $this->load->model('commercial_model');
         $this->load->model('equipment_stock_model');
         $this->load->library('phpredis');
+        $this->Agent = $this->agent_model->get_own_agents($this->platform_id);
         $this->redis = $this->phpredis->getConn();
         $this->platform_id = $this->input->get('platform_id')?$this->input->get('platform_id'):0;
         $this->agent_id = $this->input->get('agent_id')?$this->input->get('agent_id'):1;
@@ -40,9 +41,8 @@ class Overall extends MY_Controller
         {
             $this->_pagedata['is_svip'] = 1;
             //代理商级别
-            $Agent = $this->agent_model->get_own_agents($this->platform_id);
-            $agent_level_list = $this->commercial_model->get_agent_level_list($Agent,2);
-            $platform_list = $this->commercial_model->get_agent_level_list($Agent,1);
+            $agent_level_list = $this->commercial_model->get_agent_level_list($this->Agent,2);
+            $platform_list = $this->commercial_model->get_agent_level_list($this->Agent,1);
         }
         $this->_pagedata['agent_level_list'] = $agent_level_list;
         if($this->platform_id>0)

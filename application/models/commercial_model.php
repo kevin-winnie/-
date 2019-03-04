@@ -162,6 +162,7 @@ class Commercial_model extends MY_Model
             }
         }elseif($agent['high_level'] == 1)
         {//海星宝（递归吗？）
+
             $sql = " select * from p_agent WHERE high_agent_id = '{$agent['id']}' ";
             if($high_level)
             {
@@ -185,6 +186,7 @@ class Commercial_model extends MY_Model
             $t_info = array_merge((array)$rs,(array)$info);
             if($type == 2)
             {
+
                 return $t_info;
             }elseif($type == 3)
             {
