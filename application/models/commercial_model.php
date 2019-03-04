@@ -162,12 +162,7 @@ class Commercial_model extends MY_Model
             }
         }elseif($agent['high_level'] == 1)
         {//海星宝（递归吗？）
-
             $sql = " select * from p_agent WHERE high_agent_id = '{$agent['id']}' ";
-            if($high_level)
-            {
-                $sql .= " and high_level = '{$high_level}'";
-            }
             $rs = $this->db->query($sql)->result_array();
             $sql = " select * from p_agent WHERE id != '{$agent['id']}' and high_level not in (0,1) ";
             $member = $this->db->query($sql)->result_array();
@@ -186,7 +181,20 @@ class Commercial_model extends MY_Model
             $t_info = array_merge((array)$rs,(array)$info);
             if($type == 2)
             {
-
+                /**
+                 * 代理商级别搜索 返回满足条件的信息
+                 */
+                if($high_level)
+                {
+                    foreach($t_info as $k=>$v)
+                    {
+                        if($v['high_level'] == $high_level)
+                        {
+                            $high_level_data[] = $v;
+                        }
+                    }
+                    return $high_level_data;
+                }
                 return $t_info;
             }elseif($type == 3)
             {
