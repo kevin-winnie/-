@@ -240,7 +240,7 @@ class CronRecon extends CI_Controller{
             foreach($agent_sale_data as $key=>$val)
             {
                 $r_agent = $this->agent_model->get_own_agents($key);
-                echo '<pre>';print_r($key.'1:'.$r_agent);
+                echo '<pre>';print_r($r_agent);exit;
                 //出账给商户
                 if(!empty($val['commercial']))
                 {
@@ -248,7 +248,6 @@ class CronRecon extends CI_Controller{
                     foreach($val['commercial'] as $k1=>$v1)
                     {
                         $k1_commercial = $this->commercial_model->get_own_commercial_config($k1);
-                        echo '<pre>';print_r($k1.'2:'.$k1_commercial);
                         $insert_data_s = array
                         (
                             'type'=>0, //出入账类型 0 出账 1入账
@@ -271,7 +270,7 @@ class CronRecon extends CI_Controller{
                             //打款代理商
                             'to_where_id'=>$key,
                         );
-//                        $this->db->insert('reconciliation', $insert_data_s);
+                        $this->db->insert('reconciliation', $insert_data_s);
                     }
                 }
                 //出账给代理商
@@ -281,7 +280,6 @@ class CronRecon extends CI_Controller{
                     foreach($val['agent'] as $k2=>$v2)
                     {
                         $k2_agent = $this->agent_model->get_own_agents($k2);
-                        echo '<pre>';print_r($k2.'3:'.$k2_agent);
                         $insert_data_s_1 = array
                         (
                             'type'=>0, //出入账类型 0 出账 1入账
@@ -304,7 +302,6 @@ class CronRecon extends CI_Controller{
                             //打款代理商
                             'to_where_id'=>$key,
                         );
-                        echo '<pre>';print_r($k2.'4:'.$insert_data_s_1);
                         $this->db->insert('reconciliation', $insert_data_s_1);
 
                         //创建下级代理的入账记录
