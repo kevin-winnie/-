@@ -158,10 +158,10 @@ class Equipment extends MY_Controller {
             $high_level = $search_agent_level;
         }
         $where['admin_id'] = $this->adminid;
-        $agent_level_list = $this->commercial_model->get_agent_level_list_pt($agent_id,1,'',$high_level);
-        $platform_list    = $this->commercial_model->get_agent_level_list_pt($agent_id,2,'',$high_level);
         //校验代理商是否为超级
         $Agent = $this->agent_model->get_own_agents($agent_id);
+        $agent_level_list = $this->commercial_model->get_agent_level_list_pt($agent_id,1,$Agent,$high_level);
+        $platform_list    = $this->commercial_model->get_agent_level_list_pt($agent_id,2,'',$high_level);
         if(in_array($Agent['high_level'],[0,1]))
         {
             $this->_pagedata['is_super'] = 1;
