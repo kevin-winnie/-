@@ -311,6 +311,7 @@ class Order_model extends MY_Model
         $rs = $this->db->query($sql)->result_array();
         if($type == 0)
         {
+            $rs[]['id'] = $agent_id;
             $res_id = array_column($rs,'id');
             $rs = $this->get_box_list_by_agent_array($res_id,$field,$array);
             return $rs;
