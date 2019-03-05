@@ -331,6 +331,7 @@ class Order_model extends MY_Model
             }
         }
         $info = array_merge((array)$rs,(array)$info);
+        $info[]['id'] = $agent_id;
         $res_id = array_unique(array_column($info,'id'));
         $rs = $this->get_box_list_by_agent_array($res_id,$field);
         return $rs;
@@ -339,6 +340,10 @@ class Order_model extends MY_Model
     public function get_box_list_by_agent_array($array,$field)
     {
         //设备
+        if(empty($array))
+        {
+            return array();
+        }
         $where = array('platform_id >'=>0);
         $this->db->from('equipment');
         $this->db->where($where);
