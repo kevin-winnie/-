@@ -142,6 +142,8 @@ class Order extends MY_Controller
         $order_status = $this->input->get('search_order_status');
         $start_time = $this->input->get('search_start_time');
         $end_time   = $this->input->get('search_end_time');
+        $pay_start_time = $this->input->get('search_pay_start_time');
+        $pay_end_time   = $this->input->get('search_pay_end_time');
         $uid        = $this->input->get('uid');
         if(isset($_GET['day']) && $_GET['day']!=''){
             $start_time = date('Y-m-d 00:00:00', strtotime($_GET['day']));
@@ -156,6 +158,12 @@ class Order extends MY_Controller
         }
         if($start_time){
             $where['order_time >='] = $start_time;
+        }
+        if($pay_start_time){
+            $where['pay_succ_time >='] = $pay_start_time;
+        }
+        if($pay_end_time){
+            $where['pay_succ_time <='] = $pay_end_time;
         }
         if($end_time){
             $where['order_time <='] = $end_time;
@@ -337,7 +345,8 @@ class Order extends MY_Controller
             ->setCellValue('I1', '支付方式')
             ->setCellValue('J1', '订单状态')
             ->setCellValue('K1', '下单时间')
-            ->setCellValue('L1', '设备类型');
+            ->setCellValue('L1', '支付成功时间')
+            ->setCellValue('M1', '设备类型');
         $objPHPExcel->getActiveSheet()->setTitle('订单列表');
         $key = 2;
         $this->load->model('refer_model');
@@ -377,7 +386,8 @@ class Order extends MY_Controller
                     ->setCellValue('I'.$key, $pay)
                     ->setCellValue('J'.$key, $pay_type)
                     ->setCellValue('K'.$key, $v['order_time'])
-                    ->setCellValue('L'.$key, $box_type);
+                    ->setCellValue('L'.$key, $v['pay_succ_time'])
+                    ->setCellValue('M'.$key, $box_type);
 
                 $key++;
             }
