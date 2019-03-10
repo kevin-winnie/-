@@ -49,7 +49,10 @@
                         </select>
                     </div>
                     <{/if}>
-
+                <div class="col-sm-2" id = 'choose_platform' style="display: none;">
+                    <select class="form-control" name="search_platform" id="agent_name">
+                    </select>
+                </div>
                 <br/>
                 <div class="col-sm-2" >
                     <button type="submit" class="btn btn-default">查找</button>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
@@ -240,6 +243,50 @@
                 $('.page-last').css('color', '#337ab7');
             }
         });
+
+        //切换代理商、商户
+        $("#checkout_type").change(function(){
+            var type_id = $('#checkout_type option:selected') .val();
+            $.ajax({
+                type: "post",
+                url: "/reconciliation/change_recon",
+                data: {
+                   type_id:type_id
+                },
+                success: function (data, status) {
+                    var data_arr = JSON.parse( data );
+                    var data_s = data_arr.data.platform_list;
+                    var data_type = data_arr.type;
+                    if(data_type == 1)
+                    {
+                        $("#choose_platform").css('display','block');
+                        if(data_s.length >0)
+                        {
+                                $("#agent_name").append("<option value='-1'>请选择商户</option>");
+                                for(var i= 0;i< data_s.length;i++)
+                                {
+                                    var item = data_s[i];
+                                    $("#agent_name").append("<option value="+item.id+">"+item.name+"</option>");
+                                }
+                        }else
+                        {
+                            $("#agent_name").append("<option value=''>--暂无可选项--</option>");
+                        }
+                    }else if(data_type == 0)
+                    {
+                        $("#choose_platform").css('display','none');
+                    }
+
+                },
+                error: function () {
+
+                },
+                complete: function () {
+
+                }
+
+            });
+        })
 
     });
 </script>

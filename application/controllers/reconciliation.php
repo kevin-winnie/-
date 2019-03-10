@@ -253,4 +253,25 @@ class Reconciliation extends MY_Controller
         $this->showJson(array('status'=>'success', 'html' => $html));
     }
 
+    /**
+     * 切换出入账
+     */
+    public function change_recon()
+    {
+        $type_id = $this->input->post('type_id');
+        $agent_level_list = $this->commercial_model->get_agent_level_list_pt($this->platform_id,1);
+        $platform_list    = $this->commercial_model->get_agent_level_list_pt($this->platform_id,2);
+        if($this->svip)
+        {
+            //超级代理商级别
+            $Agent = $this->agent_model->get_own_agents($this->platform_id);
+            $agent_level_list = $this->commercial_model->get_agent_level_list($Agent,2);
+            $platform_list = $this->commercial_model->get_agent_level_list($Agent,1);
+        }
+        //出账
+        $data['agent_level_list'] = $agent_level_list;
+        $data['platform_list'] = $platform_list;
+        $this->showJson(['status'=>'success','data'=>$data,'type'=>$type_id]);
+    }
+
 }

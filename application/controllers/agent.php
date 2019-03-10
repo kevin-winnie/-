@@ -93,7 +93,7 @@ class Agent extends MY_Controller {
 
     function agentList(){
         $search = $this->input->post();
-        if($search['agent_level'])
+        if($search['agent_level'] && $search['agent_level']>0)
         {
             $high_level = $search['agent_level'];
         }
