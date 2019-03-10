@@ -29,14 +29,15 @@ class Overall extends MY_Controller
         $this->load->library('phpredis');
         $this->Agent = $this->agent_model->get_own_agents($this->platform_id);
         $this->redis = $this->phpredis->getConn();
+        $this->commercial = $this->platform_id;
         $this->platform_id = $this->input->get('platform_id')?$this->input->get('platform_id'):0;
         $this->agent_id = $this->input->get('agent_id')?$this->input->get('agent_id'):1;
     }
 
     public function index(){
         $agent_id = $this->agent_id;
-        $agent_level_list = $this->commercial_model->get_agent_level_list_pt($this->platform_id,1);
-        $platform_list    = $this->commercial_model->get_agent_level_list_pt($this->platform_id,2);
+        $agent_level_list = $this->commercial_model->get_agent_level_list_pt($this->commercial,1);
+        $platform_list    = $this->commercial_model->get_agent_level_list_pt($this->commercial,2);
         if($this->svip)
         {
             $this->_pagedata['is_svip'] = 1;

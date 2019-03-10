@@ -34,6 +34,7 @@ class Current extends MY_Controller
         $this->c_db = $this->load->database('citybox_master', TRUE);
         $this->redis = $this->phpredis->getConn();
         $this->Agent = $this->agent_model->get_own_agents($this->platform_id);
+        $this->commercial = $this->platform_id;
         $this->platform_id = $this->input->get('platform_id')?$this->input->get('platform_id'):0;
         $this->agent_id = $this->input->get('agent_id')?$this->input->get('agent_id'):1;
     }
@@ -43,8 +44,8 @@ class Current extends MY_Controller
         ini_set('memory_limit', '500M');
         @set_time_limit(60);
         $agent_id = $this->agent_id;
-        $agent_level_list = $this->commercial_model->get_agent_level_list_pt($this->platform_id,1);
-        $platform_list    = $this->commercial_model->get_agent_level_list_pt($this->platform_id,2);
+        $agent_level_list = $this->commercial_model->get_agent_level_list_pt($this->commercial,1);
+        $platform_list    = $this->commercial_model->get_agent_level_list_pt($this->commercial,2);
         if($this->svip)
         {
             $this->_pagedata['is_svip'] = 1;

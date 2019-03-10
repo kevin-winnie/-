@@ -257,6 +257,10 @@ class Commercial_model extends MY_Model
      */
     public function get_agent_level_list_pt($agent_id,$type=1,$agent='',$high_level)
     {
+        if($agent_id == 0)
+        {
+            return array();
+        }
         $sql = " select * from p_agent as a WHERE  a.high_agent_id = '{$agent_id}'";
         if($high_level)
         {
