@@ -45,7 +45,7 @@ class Current extends MY_Controller
         @set_time_limit(60);
         $agent_id = $this->agent_id;
         $agent_level_list = $this->commercial_model->get_agent_level_list_pt($this->commercial,1);
-        $platform_list    = $this->commercial_model->get_agent_level_list_pt($this->commercial,2);
+        $platform_list    = $this->commercial_model->get_commercial_list_by_agent($this->commercial);
         if($this->svip)
         {
             $this->_pagedata['is_svip'] = 1;
