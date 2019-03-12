@@ -237,9 +237,9 @@ class Agent_model extends MY_Model
         if ($where['mobile']) {
             $sql .= " and phone = '{$where['mobile']}'";
         }
-        if($where['agent_name'])
+        if($where['id'])
         {
-            $sql .= " and id = '{$where['agent_name']}'";
+            $sql .= " and id = '{$where['id']}'";
         }
 
         if($where['svip'] == -1)

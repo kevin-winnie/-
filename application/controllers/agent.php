@@ -120,9 +120,9 @@ class Agent extends MY_Controller {
         if (!empty($search['mobile'])) {
             $where['phone'] = trim($search['mobile']);
         }
-        if(!empty($search['agent_name']))
+        if($search['agent_id'] >0)
         {
-            $where['id'] = trim($search['agent_name']);
+            $where['id'] = trim($search['agent_id']);
         }
         if(!($this->svip))
         {

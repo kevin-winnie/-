@@ -21,10 +21,10 @@
 					</div>
 				<{/if}>
 				<div class="col-sm-2">
-					<select class="form-control" name="agent_name" id="search_agent_name">
+					<select class="form-control" name="agent_id" id="search_agent_name">
 						<option value="-1">请选择代理商</option>
 						<{foreach key=key item=item from=$agent_level_list}>
-							<option value="<{$item['id']}>" <{if $agent_id eq $item['id']}>selected="selected"<{/if}>><{$item['name']}></option>
+							<option value="<{$item['id']}>" <{if $search['agent_id'] eq $item['id']}>selected="selected"<{/if}>><{$item['name']}></option>
 						<{/foreach}>
 					</select>
 				</div>
